@@ -1,0 +1,96 @@
+*{
+     font-family: 'Plus Jakarta Sans', Helvetica, Arial, sans-serif !important;
+}
+/* Month görünümünde +n more tıklamasını tamamen kapatır */
+.fc-daygrid-more-link { pointer-events: none; cursor: default; text-decoration: none; }
+
+/* Küçük renk kutucuğu (badge) */
+.evt-badge {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  border-radius: 3px;
+  margin-right: 6px;
+  vertical-align: -1px;
+}
+
+/* Başlık metni */
+.evt-title {
+  font-size: 0.825rem;
+  line-height: 1.1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* "+n more" tıklamasını kapat (sadece yazı) */
+.fc-daygrid-more-link {
+  pointer-events: none;
+  cursor: default;
+  text-decoration: none;
+}
+.legend-wrap {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  flex-wrap: wrap;
+  font-size: 0.85rem;
+}
+
+.legend-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(148, 163, 184, 0.15);
+  border: 1px solid rgba(148, 163, 184, 0.25);
+  padding: 4px 8px;
+  border-radius: 8px;
+}
+
+.legend-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 3px;
+  display: inline-block;
+}
+
+.legend-text {
+  white-space: nowrap;
+}
+/* Gün görünümü */
+.fc .fc-timegrid-event,
+.fc .fc-timegrid-event .fc-event-main,
+.fc .fc-timegrid-event .fc-event-time,
+.fc .fc-timegrid-event .fc-event-title {
+  color: #000 !important;
+  font-size: 14px !important;
+  font-weight: 600 !important;
+  text-shadow: none !important;
+  opacity: 1 !important;
+}
+
+/* Çakışan olayları yan yana sıralar ve taşarsa kaydırma ekler */
+.fc-timegrid-event-harness {
+  display: flex !important;
+  flex-direction: row !important;
+  gap: 4px; /* Olaylar arasına boşluk */
+}
+
+/* Her bir olaya sabit bir genişlik verin */
+.fc-timegrid-event {
+  position: relative !important;
+
+  height: 35px !important;
+  font-size: 12px !important;
+  padding: 4px 6px !important;
+  border: 1px solid #ddd !important;
+  border-radius: 4px !important;
+  background: #fff !important;
+
+  flex-shrink: 0; /* Olayların daralmasını engeller */
+}
+
+/* Kaydırma çubuğu eklemek için */
+.fc-timeGridDay-view .fc-scroller {
+  overflow-x: auto !important;
+}

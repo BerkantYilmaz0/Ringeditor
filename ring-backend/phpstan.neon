@@ -1,0 +1,17 @@
+parameters:
+    level: 
+
+    paths:
+        - app
+        - src
+
+    tmpDir: var/phpstan
+
+    checkMissingIterableValueType: false
+    checkGenericClassInNonGenericObjectType: false
+
+
+
+    bootstrapFiles:
+        # Slim Framework bootstrap dosyan varsa buraya ekle
+        # Örn: bootstrap/app.php

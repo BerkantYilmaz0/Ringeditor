@@ -1,0 +1,272 @@
+'use client';
+
+import { useEffect, useState } from 'react';
+import {
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  TextField,
+  MenuItem,
+  Button,
+  Typography,
+  Alert,
+  Box,
+} from '@mui/material';
+import { api } from '@/lib/api';
+
+type Props = {
+  open: boolean;
+  onClose: () => void;
+  date: Date;
+  devices: Device[];
+  ringTypes: RingType[];
+  onCreated: () => Promise<void>;
+};
+
+type Device = {
+  id: number;
+  displayName: string;
+  customName?:string;
+};
+
+type RingType = {
+  id: number;
+  name: string;
+  color: string;
+  default_first_stop: string;
+  default_last_stop: string;
+};
+
+export default function AddJobDialog({
+  open,
+  date,
+  onClose,
+  devices,
+  ringTypes,
+  onCreated,
+}: Props) {
+  const [deviceId, setDeviceId] = useState<string>('');
+  const [typeId, setTypeId] = useState<string>('');
+  const [firstStop, setFirstStop] = useState('');
+  const [lastStop, setLastStop] = useState('');
+  const [time, setTime] = useState('');
+  const [errorMsg, setErrorMsg] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (open) {
+      setTime('');
+      setTypeId('');
+      setDeviceId('');
+      setFirstStop('');
+      setLastStop('');
+      setErrorMsg(null);
+    }
+  }, [open]);
+
+  const resetForm = () => {
+    setDeviceId('');
+    setTypeId('');
+    setFirstStop('');
+    setLastStop('');
+    setTime('');
+    setErrorMsg(null);
+  };
+
+  useEffect(() => {
+    if (!typeId) {
+      setFirstStop('');
+      setLastStop('');
+      return;
+    }
+    const rt = ringTypes.find((r) => r.id === Number(typeId));
+    if (rt) {
+      setFirstStop(rt.default_first_stop);
+      setLastStop(rt.default_last_stop);
+    }
+  }, [typeId, ringTypes]);
+
+  const handleSave = async () => {
+    if (!time) {
+      setErrorMsg('Lütfen saat seçin.');
+      return;
+    }
+    if (!typeId) {
+      setErrorMsg('Lütfen ring tipi seçin.');
+      return;
+    }
+    if (!deviceId) {
+      setErrorMsg('Lütfen plaka seçin.');
+      return;
+    }
+    if (!firstStop || !lastStop) {
+      setErrorMsg('İlk ve son durak boş olamaz.');
+      return;
+    }
+
+    const [hh, mm] = time.split(':').map(Number);
+    const jobDate = new Date(date);
+    jobDate.setHours(hh, mm, 0, 0);
+
+    const now = new Date();
+    const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    const jobDayStart = new Date(jobDate.getFullYear(), jobDate.getMonth(), jobDate.getDate());
+
+    if (jobDayStart < todayStart) {
+      setErrorMsg('Geçmiş günlere sefer eklenemez veya güncellenemez.');
+      return;
+    }
+
+    if (jobDayStart.getTime() === todayStart.getTime() && jobDate < now) {
+      setErrorMsg('Geçmiş saate sefer ekleyemezsiniz.');
+      return;
+    }
+
+    const duetime = Math.floor(jobDate.getTime() / 1000);
+
+    try {
+      const check = await api.post('/jobs/check-conflict', {
+        duetime,
+        deviceid: Number(deviceId),
+      });
+
+      if (check.data?.conflict) {
+        setErrorMsg(`Bu plaka için ${time} saatinde zaten bir sefer var!`);
+        return;
+      }
+
+      await api.post('/jobs', {
+        duetime,
+        type: Number(typeId),
+        deviceid: Number(deviceId),
+        first_stop: firstStop,
+        last_stop: lastStop,
+        status: 1,
+      });
+
+      await onCreated();
+      resetForm();
+      onClose();
+    } catch (e: any) {
+      const msg =
+        e.response?.data?.message ||
+        e.response?.data?.error?.description ||
+        e.response?.data?.data?.message ||
+        'Sefer eklenirken hata oluştu!';
+      setErrorMsg(msg);
+    }
+  };
+
+  const selectedRing = ringTypes.find((r) => r.id === Number(typeId));
+
+  return (
+    <Dialog id="dialog-add-job" open={open} onClose={onClose} fullWidth maxWidth="sm">
+      <DialogTitle>Yeni Sefer Ekle</DialogTitle>
+      <DialogContent dividers>
+        <Typography variant="subtitle1" sx={{ mb: 2 }}>
+          Seçilen tarih:{' '}
+          {date.toLocaleDateString('tr-TR', {
+            day: 'numeric',
+            month: 'long',
+            year: 'numeric',
+          })}
+        </Typography>
+
+        {errorMsg && (
+          <Alert id="alert-add-job-error" severity="error" sx={{ mb: 2 }}>
+            {errorMsg}
+          </Alert>
+        )}
+
+        <TextField
+          key={open ? "time-field-open" : "time-field-closed"}
+          id="time-input"
+          label="Saat"
+          type="time"
+          value={time}
+          onChange={(e) => setTime(e.target.value)}
+          fullWidth
+          margin="normal"
+          InputLabelProps={{ shrink: true }}
+        />
+
+        <TextField
+          id="ringtype-select"
+          select
+          label="Ring Tipi"
+          value={typeId}
+          onChange={(e) => setTypeId(e.target.value)}
+          fullWidth
+          margin="normal"
+        >
+          {(ringTypes ?? []).map((rt) => (
+            <MenuItem key={rt.id} value={String(rt.id)}>
+              {rt.name}
+            </MenuItem>
+          ))}
+        </TextField>
+
+        {selectedRing && (
+          <Box sx={{ display: 'flex', alignItems: 'center', mt: 1 }}>
+            <Box
+              sx={{
+                width: 16,
+                height: 16,
+                borderRadius: '4px',
+                backgroundColor: selectedRing.color,
+                mr: 1,
+              }}
+            />
+            <Typography variant="body2">{selectedRing.name}</Typography>
+          </Box>
+        )}  
+
+        <TextField
+          id="input-first-stop"
+          label="İlk Durak"
+          value={firstStop}
+          fullWidth
+          margin="normal"
+          disabled
+        />
+
+        <TextField
+          id="input-last-stop"
+          label="Son Durak"
+          value={lastStop}
+          fullWidth
+          margin="normal"
+          disabled
+        />
+
+        <TextField
+          id="device-select"
+          select
+          label="Plaka"
+          value={deviceId}
+          onChange={(e) => setDeviceId(e.target.value)}
+          fullWidth
+          margin="normal"
+          SelectProps={{
+            MenuProps: { PaperProps: { style: { maxHeight: 250 } } },
+          }}
+        >
+          {(devices ?? []).map((d) => (
+            <MenuItem key={d.id} value={String(d.id)}>
+              {d.customName||d.displayName}
+            </MenuItem>
+          ))}
+        </TextField>
+      </DialogContent>
+
+      <DialogActions>
+        <Button id="cancel-job-btn" onClick={() => { resetForm(); onClose(); }}>
+          İptal
+        </Button>
+        <Button id="save-job-btn" onClick={handleSave} variant="contained">
+          Kaydet
+        </Button>
+      </DialogActions>
+    </Dialog>
+  );
+}
