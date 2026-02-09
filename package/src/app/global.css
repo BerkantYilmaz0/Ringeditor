@@ -1,8 +1,13 @@
-*{
-     font-family: 'Plus Jakarta Sans', Helvetica, Arial, sans-serif !important;
+* {
+  font-family: 'Plus Jakarta Sans', Helvetica, Arial, sans-serif !important;
 }
+
 /* Month görünümünde +n more tıklamasını tamamen kapatır */
-.fc-daygrid-more-link { pointer-events: none; cursor: default; text-decoration: none; }
+.fc-daygrid-more-link {
+  pointer-events: none;
+  cursor: default;
+  text-decoration: none;
+}
 
 /* Küçük renk kutucuğu (badge) */
 .evt-badge {
@@ -29,6 +34,7 @@
   cursor: default;
   text-decoration: none;
 }
+
 .legend-wrap {
   display: flex;
   gap: 12px;
@@ -57,6 +63,7 @@
 .legend-text {
   white-space: nowrap;
 }
+
 /* Gün görünümü */
 .fc .fc-timegrid-event,
 .fc .fc-timegrid-event .fc-event-main,
@@ -73,7 +80,8 @@
 .fc-timegrid-event-harness {
   display: flex !important;
   flex-direction: row !important;
-  gap: 4px; /* Olaylar arasına boşluk */
+  gap: 4px;
+  /* Olaylar arasına boşluk */
 }
 
 /* Her bir olaya sabit bir genişlik verin */
@@ -87,7 +95,8 @@
   border-radius: 4px !important;
   background: #fff !important;
 
-  flex-shrink: 0; /* Olayların daralmasını engeller */
+  flex-shrink: 0;
+  /* Olayların daralmasını engeller */
 }
 
 /* Kaydırma çubuğu eklemek için */

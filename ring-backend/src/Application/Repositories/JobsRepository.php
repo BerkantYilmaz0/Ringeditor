@@ -123,10 +123,31 @@ final class JobsRepository
             return ['insertedCount' => 0, 'duplicates' => [], 'total' => 0];
         }
 
+        // 0) Şablon içi duplicate'leri temizle (aynı deviceid+duetime)
+        $uniqueRows = [];
+        $seen = [];
+        $internalDuplicates = [];
+
+        foreach ($rows as $r) {
+            $key = $r['deviceid'] . '_' . $r['duetime'];
+            if (!isset($seen[$key])) {
+                $uniqueRows[] = $r;
+                $seen[$key] = true;
+            } else {
+                $internalDuplicates[] = "Device: {$r['deviceid']}, Time: " . date('Y-m-d H:i', $r['duetime']);
+            }
+        }
+
+        // Eğer şablon içinde duplicate varsa, bilgilendirici mesaj ile devam et
+        $warningMessage = '';
+        if (!empty($internalDuplicates)) {
+            $warningMessage = "Not: Şablonda " . count($internalDuplicates) . " adet tekrarlayan kayıt atlandı.";
+        }
+
         $this->pdo->beginTransaction();
         try {
             // 1) Tüm çakışmaları tek sorguda kontrol et (N sorgu yerine 1 sorgu)
-            $conflicts = $this->checkBulkConflicts($rows);
+            $conflicts = $this->checkBulkConflicts($uniqueRows);
 
             if (!empty($conflicts)) {
                 $this->pdo->rollBack();
@@ -144,7 +165,7 @@ final class JobsRepository
             $placeholders = [];
             $params = [];
 
-            foreach ($rows as $idx => $r) {
+            foreach ($uniqueRows as $idx => $r) {
                 $placeholders[] = "(:deviceid_{$idx}, :duetime_{$idx}, :type_{$idx}, :first_stop_{$idx}, :last_stop_{$idx}, :status_{$idx})";
 
                 $params[":deviceid_{$idx}"] = (int) $r['deviceid'];
@@ -165,9 +186,10 @@ final class JobsRepository
             $this->pdo->commit();
 
             return [
-                'insertedCount' => count($rows),
-                'duplicates' => [],
-                'total' => count($rows)
+                'insertedCount' => count($uniqueRows),
+                'duplicates' => $internalDuplicates,
+                'total' => count($rows),
+                'warning' => $warningMessage
             ];
 
         } catch (\PDOException $e) {
@@ -253,7 +275,7 @@ final class JobsRepository
                 rt.default_first_stop,
                 rt.default_last_stop
             FROM jobs j
-            LEFT JOIN Device d ON d.deviceID = j.deviceid
+            LEFT JOIN device d ON d.deviceID = j.deviceid
             LEFT JOIN ring_types rt ON rt.id = j.type
             WHERE j.duetime BETWEEN :from AND :to
         ";

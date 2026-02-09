@@ -118,6 +118,12 @@ export default function PreviewTemplateDialog({ open, onClose, params, onApplied
                 İşlem tamamlandı 🎉
               </Alert>
 
+              {applyResult.warning && (
+                <Alert severity="info">
+                  {applyResult.warning}
+                </Alert>
+              )}
+
               {dupBehavior === 'skip' ? (
                 <>
                   {applyResult.inserted > 0 && (

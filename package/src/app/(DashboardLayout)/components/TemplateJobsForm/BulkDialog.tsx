@@ -74,6 +74,7 @@ export default function BulkDialog({
   const [endTime, setEndTime] = useState<string>('');
   const [intervalMin, setIntervalMin] = useState<number>(DEFAULT_INTERVAL);
   const [lockStart] = useState(true);
+  const [startAdjusted, setStartAdjusted] = useState(false); // Başlangıç saati kaydırıldı mı?
   const [formErr, setFormErr] = useState('');
   const [loading, setLoading] = useState(false);
   const [previewTimes, setPreviewTimes] = useState<string[]>([]);
@@ -82,13 +83,36 @@ export default function BulkDialog({
   // Reset form when dialog opens
   useEffect(() => {
     if (!open) return;
-    setStartTime(baseJob ? toHM(baseJob.duetime) : '');
+
+    // Başlangıç saatini ayarla
+    let initialStart = baseJob ? toHM(baseJob.duetime) : '';
+    let adjusted = false;
+
+    // Eğer başlangıç saati zaten varsa, bir sonraki intervale kaydır
+    if (baseJob && allJobs.length > 0) {
+      const existingTimes = new Set(
+        allJobs
+          .filter((j) => j.type === baseJob.type && j.deviceid === baseJob.deviceid)
+          .map((j) => toHM(j.duetime))
+      );
+
+      // Başlangıç saati varsa, interval kadar ileri kaydır
+      if (existingTimes.has(initialStart)) {
+        const dt = setHM(new Date(), initialStart);
+        dt.setMinutes(dt.getMinutes() + DEFAULT_INTERVAL);
+        initialStart = `${String(dt.getHours()).padStart(2, '0')}:${String(dt.getMinutes()).padStart(2, '0')}`;
+        adjusted = true;
+      }
+    }
+
+    setStartTime(initialStart);
+    setStartAdjusted(adjusted);
     setEndTime('');
     setIntervalMin(DEFAULT_INTERVAL);
     setPreviewTimes([]);
     setPreviewCount(0);
     setFormErr('');
-  }, [baseJob, open]);
+  }, [baseJob, open, allJobs]);
 
   const rtMap = useMemo<Record<number, RingType>>(
     () => Object.fromEntries(ringTypes.map((r) => [r.id, r] as const)) as Record<number, RingType>,
@@ -270,7 +294,13 @@ export default function BulkDialog({
             onChange={(e) => setStartTime(e.target.value)}
             inputProps={{ step: 60 }}
             disabled={lockStart}
-            helperText={lockStart ? 'Seçilen seferden alındı' : ''}
+            helperText={
+              startAdjusted
+                ? '⚠️ Seçili sefer zaten var, başlangıç otomatik kaydırıldı'
+                : lockStart
+                  ? 'Seçilen seferden alındı'
+                  : ''
+            }
             {...tfProps}
           />
 

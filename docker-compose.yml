@@ -58,6 +58,22 @@ services:
     networks:
       - ring-network
 
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    container_name: ring-phpmyadmin
+    environment:
+      PMA_HOST: db
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: aa
+      MYSQL_USER: user
+      MYSQL_PASSWORD:
+    ports:
+      - "8081:80"
+    depends_on:
+      - db
+    networks:
+      - ring-network
+
 networks:
   ring-network:
     driver: bridge
