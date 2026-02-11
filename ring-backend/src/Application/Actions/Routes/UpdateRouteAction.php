@@ -51,10 +51,62 @@ class UpdateRouteAction extends Action
             return $this->respondWithData(['message' => 'No changes provided'], 200);
         }
 
-        $sql = "UPDATE routes SET " . implode(', ', $fields) . " WHERE id = :id";
-        $stmt = $this->pdo->prepare($sql);
-        $stmt->execute($params);
+        try {
+            $this->pdo->beginTransaction();
 
-        return $this->respondWithData(['message' => 'Route updated successfully']);
+            $sql = "UPDATE routes SET " . implode(', ', $fields) . " WHERE id = :id";
+            $stmt = $this->pdo->prepare($sql);
+            $stmt->execute($params);
+
+            // Handle Stops Update
+            if (isset($data['stops']) && is_array($data['stops'])) {
+                $stops = $data['stops'];
+
+                // 1. Clear existing link stops for this route
+                $deleteStmt = $this->pdo->prepare("DELETE FROM route_stops WHERE route_id = :route_id");
+                $deleteStmt->execute([':route_id' => $id]);
+
+                // 2. Insert new stops/links
+                $seq = 1;
+                $insertStopSql = "INSERT INTO stops (name, lat, lng, description) VALUES (:name, :lat, :lng, :description)";
+                $linkStopSql = "INSERT INTO route_stops (route_id, stop_id, sequence) VALUES (:route_id, :stop_id, :sequence)";
+
+                $stmtInsertStop = $this->pdo->prepare($insertStopSql);
+                $stmtLinkStop = $this->pdo->prepare($linkStopSql);
+
+                foreach ($stops as $stop) {
+                    $stopId = null;
+                    if (isset($stop['id']) && !empty($stop['id'])) {
+                        $stopId = $stop['id'];
+                    } else {
+                        // Create new stop if no ID provided
+                        $stmtInsertStop->execute([
+                            ':name' => $stop['name'] ?? 'New Stop',
+                            ':lat' => $stop['lat'] ?? 0,
+                            ':lng' => $stop['lng'] ?? 0,
+                            ':description' => $stop['description'] ?? ''
+                        ]);
+                        $stopId = $this->pdo->lastInsertId();
+                    }
+
+                    if ($stopId) {
+                        $stmtLinkStop->execute([
+                            ':route_id' => $id,
+                            ':stop_id' => $stopId,
+                            ':sequence' => $seq++
+                        ]);
+                    }
+                }
+            }
+
+            $this->pdo->commit();
+            return $this->respondWithData(['message' => 'Route updated successfully']);
+
+        } catch (\Exception $e) {
+            if ($this->pdo->inTransaction()) {
+                $this->pdo->rollBack();
+            }
+            return $this->respondWithData(['error' => 'Failed to update route: ' . $e->getMessage()], 500);
+        }
     }
 }
