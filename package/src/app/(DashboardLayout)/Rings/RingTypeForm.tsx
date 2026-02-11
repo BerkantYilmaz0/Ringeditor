@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import {
   Dialog,
   DialogTitle,
@@ -9,9 +9,24 @@ import {
   TextField,
   Button,
   Box,
-  Alert
+  Alert,
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem
 } from '@mui/material';
 import { api } from '@/lib/api';
+
+type LinkStop = {
+  id: number;
+  name: string;
+}
+
+type Route = {
+  id: number;
+  name: string;
+  stops?: LinkStop[]; // Optional: if backend returns stops
+}
 
 type RingType = {
   id: number;
@@ -20,6 +35,7 @@ type RingType = {
   color: string;
   default_first_stop: string;
   default_last_stop: string;
+  active_route_id?: number | null;
 };
 
 interface Props {
@@ -35,10 +51,22 @@ const RingTypeForm = ({ editMode, initialData, onComplete, onClose }: Props) => 
     type_id: initialData?.type_id || 0,
     color: initialData?.color || '#000000',
     default_first_stop: initialData?.default_first_stop || '',
-    default_last_stop: initialData?.default_last_stop || ''
+    default_last_stop: initialData?.default_last_stop || '',
+    active_route_id: initialData?.active_route_id || '' // '' for none/select
   });
 
   const [error, setError] = useState('');
+  const [routes, setRoutes] = useState<Route[]>([]);
+
+  useEffect(() => {
+    // Fetch available routes
+    api.get<{ data: Route[] }>('/routes') // Assuming response structure { data: [...] } or just [...]
+      .then(res => {
+        const data = Array.isArray(res.data) ? res.data : (res.data?.data || []);
+        setRoutes(data);
+      })
+      .catch(err => console.error("Routes fetch failed", err));
+  }, []);
 
   const handleSave = async () => {
     if (!form.name.trim()) {
@@ -55,20 +83,18 @@ const RingTypeForm = ({ editMode, initialData, onComplete, onClose }: Props) => 
       return;
     }
 
-    if (!form.default_first_stop.trim()) {
-      setError("İlk durak boş bırakılamaz");
-      return;
-    }
-    if (!form.default_last_stop.trim()) {
-      setError("Son Durak boş bırakılamaz");
-      return;
-    }
+
 
     try {
+      const payload = {
+        ...form,
+        active_route_id: form.active_route_id === '' ? null : Number(form.active_route_id)
+      };
+
       if (editMode && initialData) {
-        await api.put(`/ring-types/${initialData.id}`, form);
+        await api.put(`/ring-types/${initialData.id}`, payload);
       } else {
-        await api.post(`/ring-types`, form);
+        await api.post(`/ring-types`, payload);
       }
       setError('');
       onComplete();
@@ -106,6 +132,27 @@ const RingTypeForm = ({ editMode, initialData, onComplete, onClose }: Props) => 
             fullWidth
             helperText="Sistem tarafından otomatik atanır"
           />
+
+          <FormControl fullWidth>
+            <InputLabel id="select-route-label">Varsayılan Güzergah</InputLabel>
+            <Select
+              labelId="select-route-label"
+              id="select-ringtype-route"
+              value={form.active_route_id}
+              label="Varsayılan Güzergah"
+              onChange={(e) => setForm({ ...form, active_route_id: e.target.value })}
+            >
+              <MenuItem value="">
+                <em>Hiçbiri</em>
+              </MenuItem>
+              {routes.map((route) => (
+                <MenuItem key={route.id} value={route.id}>
+                  {route.name}
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
+
           <TextField
             id="input-ringtype-color"
             label="Renk (Hex)"

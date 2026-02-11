@@ -2,6 +2,9 @@
 
 import { useCallback, useEffect, useMemo, useState, Fragment } from 'react';
 import {
+  Accordion,
+  AccordionDetails,
+  AccordionSummary,
   Alert,
   Backdrop,
   Box,
@@ -21,6 +24,7 @@ import {
   Typography,
 } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 
 import ConfirmDialog from './ConfirmDialog';
 import JobRow from './JobRow';
@@ -189,15 +193,35 @@ export default function JobsForm({ editMode = false, onClose, onUpdated, date }:
     setEditValues({ duetime: '', type: null, deviceid: null, first_stop: '', last_stop: '' });
   }, []);
 
-  const filteredRows = useMemo(() => {
+  // Ring tiplerine göre gruplanmış seferler
+  const groupedByRing = useMemo(() => {
     const q = jobSearchTerm.trim().toLowerCase();
     const base = jobs.map((j, i) => ({ job: { ...j, duetime: msToTimeString(j.duetime) }, index: i }));
-    if (!q) return base;
-    return base.filter(({ job }) => {
-      const rtName = rtMap[job.type]?.name?.toLowerCase() ?? '';
-      const plate = (deviceMap[job.deviceid] ?? '').toLowerCase();
-      return String(job.duetime).includes(q) || rtName.includes(q) || plate.includes(q);
+
+    // Filtreleme
+    const filtered = q
+      ? base.filter(({ job }) => {
+        const rtName = rtMap[job.type]?.name?.toLowerCase() ?? '';
+        const plate = (deviceMap[job.deviceid] ?? '').toLowerCase();
+        return String(job.duetime).includes(q) || rtName.includes(q) || plate.includes(q);
+      })
+      : base;
+
+    // Ring tipine göre gruplama
+    const groups: Record<number, { ringType: RingType; jobs: typeof filtered }> = {};
+
+    filtered.forEach((item) => {
+      const typeId = item.job.type;
+      if (!groups[typeId]) {
+        groups[typeId] = {
+          ringType: rtMap[typeId] || { id: typeId, name: 'Bilinmeyen Ring', color: '#64748b' },
+          jobs: [],
+        };
+      }
+      groups[typeId].jobs.push(item);
     });
+
+    return Object.values(groups).sort((a, b) => a.ringType.name.localeCompare(b.ringType.name));
   }, [jobSearchTerm, jobs, rtMap, deviceMap]);
 
   return (
@@ -243,74 +267,114 @@ export default function JobsForm({ editMode = false, onClose, onUpdated, date }:
           </Button>
         </Box>
 
-        {/* Table */}
-        <TableContainer id="table-jobs-form" sx={{ maxHeight: 550 }}>
-          <Table size="small" stickyHeader>
-            <TableHead>
-              <TableRow>
-                <TableCell padding="checkbox" align="center">
-                  <Checkbox
-                    id="chk-select-all"
-                    color="success"
-                    checked={jobs.length > 0 && jobs.every((j) => j.selected)}
-                    indeterminate={jobs.some((j) => j.selected) && !jobs.every((j) => j.selected)}
-                    onChange={(e) => setJobs(jobs.map((j) => ({ ...j, selected: e.target.checked })))}
-                  />
-                  Tümünü Seç
-                </TableCell>
-                <TableCell>Saat</TableCell>
-                <TableCell>Ring</TableCell>
-                <TableCell>İlk Durak</TableCell>
-                <TableCell>Son Durak</TableCell>
-                <TableCell>Plaka</TableCell>
-                <TableCell align="right">Aksiyonlar</TableCell>
-              </TableRow>
-            </TableHead>
 
-            <TableBody>
-              {filteredRows.length === 0 ? (
-                <TableRow>
-                  <TableCell colSpan={7}>Henüz kayıt yok.</TableCell>
-                </TableRow>
-              ) : (
-                filteredRows.map(({ job, index }) => (
-                  <Fragment key={job.id ?? `row-${index}`}>
-                    <JobRow
-                      job={job as any}
-                      index={index}
-                      rtMap={rtMap}
-                      deviceMap={deviceMap}
-                      onToggleSelect={(idx) =>
-                        setJobs((prev) =>
-                          prev.map((row, i) => (i === idx ? { ...row, selected: !row.selected } : row)),
-                        )
-                      }
-                      onEdit={(idx) => {
-                        const j = jobs[idx];
-                        setEditIndex(idx);
-                        setEditValues({
-                          duetime: msToTimeString(j.duetime),
-                          type: j.type,
-                          deviceid: j.deviceid,
-                          first_stop: j.first_stop,
-                          last_stop: j.last_stop,
-                        });
+        {/* Accordion Grupları */}
+        <Box sx={{ maxHeight: 550, overflowY: 'auto', mb: 2 }}>
+          {groupedByRing.length === 0 ? (
+            <Alert severity="info">Henüz kayıt yok.</Alert>
+          ) : (
+            groupedByRing.map((group) => (
+              <Accordion key={group.ringType.id} defaultExpanded>
+                <AccordionSummary
+                  expandIcon={<ExpandMoreIcon />}
+                  sx={{
+                    backgroundColor: '#f8fafc',
+                    borderLeft: `4px solid ${group.ringType.color}`,
+                    '&:hover': { backgroundColor: '#f1f5f9' },
+                  }}
+                >
+                  <Box display="flex" alignItems="center" gap={1.5} width="100%">
+                    <Box
+                      sx={{
+                        width: 12,
+                        height: 12,
+                        borderRadius: '3px',
+                        backgroundColor: group.ringType.color,
                       }}
-                      onDeleteAsk={() => setDeleteIndex(index)}
-                      editing={editIndex === index}
-                      ringTypes={ringTypes}
-                      devices={devices}
-                      editValues={editValues}
-                      onChangeEdit={patchEdit}
-                      onSaveEdit={handleSaveEdit}
-                      onCancelEdit={handleCancelEdit}
                     />
-                  </Fragment>
-                ))
-              )}
-            </TableBody>
-          </Table>
-        </TableContainer>
+                    <Typography variant="body1" fontWeight={600}>
+                      {group.ringType.name}
+                    </Typography>
+                    <Typography variant="body2" color="text.secondary" ml="auto" mr={2}>
+                      {group.jobs.length} Sefer
+                    </Typography>
+                  </Box>
+                </AccordionSummary>
+
+                <AccordionDetails sx={{ p: 0 }}>
+                  <TableContainer>
+                    <Table size="small">
+                      <TableHead>
+                        <TableRow>
+                          <TableCell padding="checkbox" align="center">
+                            <Checkbox
+                              color="success"
+                              checked={group.jobs.every(({ index }) => jobs[index]?.selected)}
+                              indeterminate={
+                                group.jobs.some(({ index }) => jobs[index]?.selected) &&
+                                !group.jobs.every(({ index }) => jobs[index]?.selected)
+                              }
+                              onChange={(e) => {
+                                const indices = group.jobs.map(({ index }) => index);
+                                setJobs((prev) =>
+                                  prev.map((j, i) =>
+                                    indices.includes(i) ? { ...j, selected: e.target.checked } : j
+                                  )
+                                );
+                              }}
+                            />
+                          </TableCell>
+                          <TableCell>Saat</TableCell>
+                          <TableCell>İlk Durak</TableCell>
+                          <TableCell>Son Durak</TableCell>
+                          <TableCell>Plaka</TableCell>
+                          <TableCell align="right">Aksiyonlar</TableCell>
+                        </TableRow>
+                      </TableHead>
+
+                      <TableBody>
+                        {group.jobs.map(({ job, index }) => (
+                          <Fragment key={job.id ?? `row-${index}`}>
+                            <JobRow
+                              job={job as any}
+                              index={index}
+                              rtMap={rtMap}
+                              deviceMap={deviceMap}
+                              onToggleSelect={(idx) =>
+                                setJobs((prev) =>
+                                  prev.map((row, i) => (i === idx ? { ...row, selected: !row.selected } : row))
+                                )
+                              }
+                              onEdit={(idx) => {
+                                const j = jobs[idx];
+                                setEditIndex(idx);
+                                setEditValues({
+                                  duetime: msToTimeString(j.duetime),
+                                  type: j.type,
+                                  deviceid: j.deviceid,
+                                  first_stop: j.first_stop,
+                                  last_stop: j.last_stop,
+                                });
+                              }}
+                              onDeleteAsk={() => setDeleteIndex(index)}
+                              editing={editIndex === index}
+                              ringTypes={ringTypes}
+                              devices={devices}
+                              editValues={editValues}
+                              onChangeEdit={patchEdit}
+                              onSaveEdit={handleSaveEdit}
+                              onCancelEdit={handleCancelEdit}
+                            />
+                          </Fragment>
+                        ))}
+                      </TableBody>
+                    </Table>
+                  </TableContainer>
+                </AccordionDetails>
+              </Accordion>
+            ))
+          )}
+        </Box>
 
         {/* Tekil Silme */}
         <ConfirmDialog

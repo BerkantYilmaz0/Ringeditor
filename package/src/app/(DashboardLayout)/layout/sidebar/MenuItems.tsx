@@ -9,6 +9,7 @@ import {
   IconCalendarEvent,
   IconListCheck,
   IconBus,
+  IconMap,
   IconColorFilter,
 } from "@tabler/icons-react";
 
@@ -18,13 +19,6 @@ const Menuitems = [
   {
     navlabel: true,
     subheader: "HOME",
-  },
-  {
-    id: uniqueId(),
-    title: "Duraklar",
-    icon: IconAperture,
-    href: "/stops",
-    description: "Durakları yönetin",
   },
   {
     id: uniqueId(),
@@ -47,6 +41,13 @@ const Menuitems = [
     icon: IconBus,
     href: "/Rings",
     description: "Sefer şablonlarını yönetin",
+  },
+  {
+    id: uniqueId(),
+    title: "Güzergahlar",
+    icon: IconMap,
+    href: "/Routes",
+    description: "Güzergah haritalarını yönetin",
   },
   {
     id: uniqueId(),
