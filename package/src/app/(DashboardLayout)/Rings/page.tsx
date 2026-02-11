@@ -117,8 +117,6 @@ const RingTypesPage = () => {
               <TableCell sx={{ width: '20%' }}>Ad</TableCell>
               <TableCell sx={{ width: '10%' }}>Type ID</TableCell>
               <TableCell sx={{ width: '10%' }}>Renk</TableCell>
-              <TableCell sx={{ width: '20%' }}>İlk Durak</TableCell>
-              <TableCell sx={{ width: '20%' }}>Son Durak</TableCell>
               <TableCell sx={{ width: '10%' }}>İşlemler</TableCell>
             </TableRow>
           </TableHead>
@@ -133,8 +131,6 @@ const RingTypesPage = () => {
                     <Box sx={{ width: 18, height: 18, backgroundColor: rt.color, border: '1px solid #ccc', mr: 1 }} />
                   </Box>
                 </TableCell>
-                <TableCell>{rt.default_first_stop}</TableCell>
-                <TableCell>{rt.default_last_stop}</TableCell>
                 <TableCell>
                   <IconButton
                     id={`btn-edit-ringtype-${rt.id}`}

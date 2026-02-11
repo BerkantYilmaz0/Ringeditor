@@ -1,5 +1,5 @@
 import React, { useRef, useEffect, useState } from 'react';
-import Map, { NavigationControl, Marker, MapRef, Source, Layer, useControl } from 'react-map-gl/maplibre';
+import Map, { NavigationControl, Marker, MapRef, Source, Layer, useControl, Popup, MapLayerMouseEvent } from 'react-map-gl/maplibre';
 import MapboxDraw from '@mapbox/mapbox-gl-draw';
 import 'maplibre-gl/dist/maplibre-gl.css';
 import '@mapbox/mapbox-gl-draw/dist/mapbox-gl-draw.css';
@@ -134,6 +134,7 @@ import { Stop, Route } from '@/types';
 interface MapLibreBoardProps {
     stops?: Stop[];
     routes?: Route[];
+    allRoutes?: Route[]; // All routes for lookup
     mode?: 'stops' | 'routes' | 'drawing';
     selectedItem?: Stop | Route | null; // Prop to trigger FlyTo
     onMapClick?: (e: any) => void;
@@ -150,11 +151,16 @@ interface MapLibreBoardProps {
     autoRoutePoints?: { start: [number, number] | null; end: [number, number] | null }; // New Prop
     previewGeometry?: any; // For visualizing auto-routed path before saving
     onAutoRoutePointChange?: (type: 'start' | 'end', lng: number, lat: number) => void; // For draggable markers
+    isEditingStops?: boolean; // New prop for edit mode
+    selectedStops?: Stop[]; // Currently selected stops in edit mode
+    onStopSelect?: (stop: Stop) => void; // Callback when a stop is clicked in edit mode
+    onStopCreate?: (lat: number, lng: number) => void; // Callback for right-click stop creation
 }
 
 const MapLibreBoard: React.FC<MapLibreBoardProps> = ({
     stops = [],
     routes = [],
+    allRoutes = [], // New prop
     mode = 'stops',
     selectedItem,
     onMapClick,
@@ -170,9 +176,14 @@ const MapLibreBoard: React.FC<MapLibreBoardProps> = ({
     autoRoutePoints,
     previewGeometry,
     onAutoRoutePointChange,
-    initialDrawData // New Prop
+    initialDrawData, // New Prop
+    isEditingStops = false,
+    selectedStops = [],
+    onStopSelect,
+    onStopCreate // New prop
 }) => {
     const mapRef = useRef<MapRef>(null);
+    const [popupInfo, setPopupInfo] = useState<{ stop: Stop, routes: Route[] } | null>(null);
 
     // FlyTo Logic
     useEffect(() => {
@@ -208,6 +219,28 @@ const MapLibreBoard: React.FC<MapLibreBoardProps> = ({
         }
     }, [selectedItem]);
 
+    const handleStopClick = (e: any, stop: Stop) => {
+        e.originalEvent.stopPropagation();
+
+        // Edit Mode Logic
+        if (isEditingStops && onStopSelect) {
+            onStopSelect(stop);
+            return;
+        }
+
+        // Find all routes that pass through this stop
+        const passingRoutes = (allRoutes || routes).filter(r =>
+            r.stops?.some(s => s.id === stop.id)
+        );
+
+        setPopupInfo({
+            stop,
+            routes: passingRoutes
+        });
+
+        if (onStopClick) onStopClick(stop);
+    };
+
     return (
         <Box sx={{ width: '100%', height: '100%', position: 'relative' }}>
             <Map
@@ -215,7 +248,16 @@ const MapLibreBoard: React.FC<MapLibreBoardProps> = ({
                 initialViewState={initialViewState}
                 style={{ width: '100%', height: '100%' }}
                 mapStyle="https://basemaps.cartocdn.com/gl/dark-matter-gl-style/style.json"
-                onClick={onMapClick} // Always allow click, parent controller handles logic
+                onClick={(e) => {
+                    setPopupInfo(null); // Close popup on map click
+                    if (onMapClick) onMapClick(e);
+                }} // Always allow click, parent controller handles logic
+                onContextMenu={(e) => {
+                    if (isEditingStops && onStopCreate) {
+                        e.preventDefault(); // Prevent browser context menu
+                        onStopCreate(e.lngLat.lat, e.lngLat.lng);
+                    }
+                }}
                 doubleClickZoom={false} // Disable default double click zoom for custom actions
             >
                 <NavigationControl position="top-right" />
@@ -237,38 +279,178 @@ const MapLibreBoard: React.FC<MapLibreBoardProps> = ({
                     />
                 )}
 
-                {/* Stops Layer */}
-                {(mode === 'stops' || mode === 'routes') && stops.map((stop) => (
-                    <Marker
-                        key={stop.id}
-                        longitude={stop.lng}
-                        latitude={stop.lat}
+                {/* Popup for Stops */}
+                {popupInfo && (
+                    <Popup
+                        longitude={popupInfo.stop.lng}
+                        latitude={popupInfo.stop.lat}
                         anchor="bottom"
-                        onClick={(e) => {
-                            e.originalEvent.stopPropagation();
-                            onStopClick && onStopClick(stop);
-                        }}
+                        onClose={() => setPopupInfo(null)}
+                        closeOnClick={false}
+                        offset={15} // Offset to not cover the pin
                     >
-                        <div onDoubleClick={(e) => {
-                            e.stopPropagation();
-                            onStopDoubleClick && onStopDoubleClick(stop);
-                        }}>
-                            <DirectionsBusIcon
-                                color={mode === 'routes' ? "disabled" : "error"}
-                                fontSize={mode === 'routes' ? "small" : "large"}
-                                style={{
-                                    cursor: 'pointer',
-                                    opacity: mode === 'routes' ? 0.6 : 1
-                                }}
-                            />
-                        </div>
-                        {mode === 'stops' && (
-                            <Paper sx={{ p: 0.5, mt: 0.5, display: 'none', position: 'absolute' }}>
-                                <Typography variant="caption">{stop.name}</Typography>
-                            </Paper>
-                        )}
-                    </Marker>
-                ))}
+                        <Box sx={{ p: 1, minWidth: 200 }}>
+                            <Typography variant="subtitle2" fontWeight="bold" gutterBottom>
+                                {popupInfo.stop.name}
+                            </Typography>
+                            <Typography variant="caption" display="block" color="textSecondary" mb={1}>
+                                Geçen Hatlar:
+                            </Typography>
+                            {popupInfo.routes.length > 0 ? (
+                                <Box display="flex" flexWrap="wrap" gap={0.5}>
+                                    {popupInfo.routes.map((r: Route) => (
+                                        <Box
+                                            key={r.id}
+                                            sx={{
+                                                bgcolor: r.color,
+                                                color: 'white',
+                                                px: 1,
+                                                py: 0.2,
+                                                borderRadius: 1,
+                                                fontSize: '0.75rem',
+                                                fontWeight: 'bold'
+                                            }}
+                                        >
+                                            {r.name}
+                                        </Box>
+                                    ))}
+                                </Box>
+                            ) : (
+                                <Typography variant="caption" color="text.disabled">
+                                    Bu duraktan geçen hat bulunamadı.
+                                </Typography>
+                            )}
+                        </Box>
+                    </Popup>
+                )}
+
+                {/* Popup for Stops */}
+                {popupInfo && (
+                    <Popup
+                        longitude={popupInfo.stop.lng}
+                        latitude={popupInfo.stop.lat}
+                        anchor="bottom"
+                        onClose={() => setPopupInfo(null)}
+                        closeOnClick={false}
+                        offset={15} // Offset to not cover the pin
+                    >
+                        <Box sx={{ p: 1, minWidth: 200 }}>
+                            <Typography variant="subtitle2" fontWeight="bold" gutterBottom>
+                                {popupInfo.stop.name}
+                            </Typography>
+                            <Typography variant="caption" display="block" color="textSecondary" mb={1}>
+                                Geçen Hatlar:
+                            </Typography>
+                            {popupInfo.routes.length > 0 ? (
+                                <Box display="flex" flexWrap="wrap" gap={0.5}>
+                                    {popupInfo.routes.map((r: Route) => (
+                                        <Box
+                                            key={r.id}
+                                            sx={{
+                                                bgcolor: r.color,
+                                                color: 'white',
+                                                px: 1,
+                                                py: 0.2,
+                                                borderRadius: 1,
+                                                fontSize: '0.75rem',
+                                                fontWeight: 'bold'
+                                            }}
+                                        >
+                                            {r.name}
+                                        </Box>
+                                    ))}
+                                </Box>
+                            ) : (
+                                <Typography variant="caption" color="text.disabled">
+                                    Bu duraktan geçen hat bulunamadı.
+                                </Typography>
+                            )}
+                        </Box>
+                    </Popup>
+                )}
+
+                {/* Stops Layer */}
+                {(mode === 'stops' || mode === 'routes') && (
+                    // Combine explicitly passed stops with stops found in routes (for overview mode)
+                    [
+                        ...stops,
+                        ...(mode === 'routes' && routes
+                            ? routes.flatMap((r: any) => r.stops || [])
+                            : [])
+                    ]
+                        // Deduplicate stops by ID to avoid overlapping markers
+                        .filter((stop, index, self) =>
+                            index === self.findIndex((t) => t.id === stop.id)
+                        )
+                        .map((stop) => {
+                            const isSelected = selectedStops.some(s => s.id === stop.id);
+                            return (
+                                <Marker
+                                    key={stop.id}
+                                    longitude={stop.lng}
+                                    latitude={stop.lat}
+                                    anchor="center" // Changed to center for better precision
+                                    onClick={(e) => handleStopClick(e, stop)}
+                                >
+                                    <div
+                                        onDoubleClick={(e) => {
+                                            e.stopPropagation();
+                                            onStopDoubleClick && onStopDoubleClick(stop);
+                                        }}
+                                        style={{
+                                            backgroundColor: isSelected ? '#1976d2' : 'white', // Blue if selected
+                                            borderRadius: '50%',
+                                            padding: isSelected ? '6px' : '4px', // Larger if selected
+                                            display: 'flex',
+                                            alignItems: 'center',
+                                            justifyContent: 'center',
+                                            boxShadow: isSelected ? '0 0 10px #1976d2' : '0 2px 6px rgba(0,0,0,0.4)', // Glow if selected
+                                            cursor: 'pointer',
+                                            border: isSelected ? '2px solid white' : '1px solid #ccc',
+                                            zIndex: isSelected ? 20 : 10, // Bring to front if selected
+                                            transition: 'all 0.2s ease-in-out'
+                                        }}
+                                    >
+                                        <DirectionsBusIcon
+                                            sx={{
+                                                fontSize: isSelected ? '1.4rem' : '1.2rem',
+                                                color: isSelected ? 'white' : '#1976d2'
+                                            }}
+                                        />
+                                    </div>
+                                    {/* Sequence Badge for Edit Mode */}
+                                    {isSelected && (
+                                        <Box
+                                            sx={{
+                                                position: 'absolute',
+                                                top: -10,
+                                                right: -10,
+                                                bgcolor: 'error.main',
+                                                color: 'white',
+                                                borderRadius: '50%',
+                                                width: 20,
+                                                height: 20,
+                                                display: 'flex',
+                                                alignItems: 'center',
+                                                justifyContent: 'center',
+                                                fontSize: '0.75rem',
+                                                fontWeight: 'bold',
+                                                zIndex: 25,
+                                                boxShadow: 1
+                                            }}
+                                        >
+                                            {selectedStops.findIndex(s => s.id === stop.id) + 1}
+                                        </Box>
+                                    )}
+
+                                    {mode === 'stops' && (
+                                        <Paper sx={{ p: 0.5, mt: 0.5, display: 'none', position: 'absolute' }}>
+                                            <Typography variant="caption">{stop.name}</Typography>
+                                        </Paper>
+                                    )}
+                                </Marker>
+                            )
+                        }))}
 
                 {/* Auto Route Start/End Markers (Draggable) */}
                 {autoRoutePoints?.start && (
@@ -288,6 +470,37 @@ const MapLibreBoard: React.FC<MapLibreBoardProps> = ({
                         draggable={!!onAutoRoutePointChange}
                         onDragEnd={(e) => onAutoRoutePointChange?.('end', e.lngLat.lng, e.lngLat.lat)}
                     />
+                )}
+
+                {/* Selected Stops Line (Edit Mode) */}
+                {isEditingStops && selectedStops.length > 1 && (
+                    <Source
+                        id="selected-stops-line"
+                        type="geojson"
+                        data={{
+                            type: 'Feature',
+                            properties: {},
+                            geometry: {
+                                type: 'LineString',
+                                coordinates: selectedStops.map(s => [s.lng, s.lat])
+                            }
+                        }}
+                    >
+                        <Layer
+                            id="selected-stops-line-layer"
+                            type="line"
+                            layout={{
+                                'line-join': 'round',
+                                'line-cap': 'round'
+                            }}
+                            paint={{
+                                'line-color': '#1976d2', // Blue
+                                'line-width': 3,
+                                'line-opacity': 0.6,
+                                'line-dasharray': [2, 2] // Dashed
+                            }}
+                        />
+                    </Source>
                 )}
 
                 {/* Preview Route Layer (Blue Dashed) */}
@@ -311,7 +524,7 @@ const MapLibreBoard: React.FC<MapLibreBoardProps> = ({
                 )}
 
                 {/* Routes Layer (Visible in all modes, but lower opacity in 'stops') */}
-                {routes.map((route) => (
+                {routes.map((route, index) => (
                     route.geometry && (
                         <React.Fragment key={route.id}>
                             <Source id={`route-${route.id}`} type="geojson" data={route.geometry}>
@@ -324,33 +537,12 @@ const MapLibreBoard: React.FC<MapLibreBoardProps> = ({
                                     }}
                                     paint={{
                                         'line-color': route.color || '#00e676',
-                                        'line-width': 4,
-                                        'line-opacity': mode === 'stops' ? 0.3 : 1
+                                        'line-width': 6,
+                                        'line-opacity': 1,
+                                        'line-offset': 0
                                     }}
                                 />
                             </Source>
-                            {/* Start Marker */}
-                            {route.geometry && route.geometry.coordinates && route.geometry.coordinates.length > 0 && (
-                                <Marker
-                                    longitude={route.geometry.type === 'LineString' ? route.geometry.coordinates[0][0] : route.geometry.coordinates[0][0][0]}
-                                    latitude={route.geometry.type === 'LineString' ? route.geometry.coordinates[0][1] : route.geometry.coordinates[0][0][1]}
-                                    scale={0.6}
-                                    color={route.color || "green"}
-                                >
-                                    <div style={{ backgroundColor: 'white', padding: '2px', borderRadius: '4px', border: '1px solid black', fontSize: '10px', fontWeight: 'bold' }}>
-                                        {route.name.substring(0, 2)}..
-                                    </div>
-                                </Marker>
-                            )}
-                            {/* End Marker (only if different from start, though usually is) */}
-                            {route.geometry && route.geometry.coordinates && route.geometry.coordinates.length > 0 && (
-                                <Marker
-                                    longitude={route.geometry.type === 'LineString' ? route.geometry.coordinates[route.geometry.coordinates.length - 1][0] : route.geometry.coordinates.flat()[route.geometry.coordinates.flat().length - 1][0]} // simplified for LineString
-                                    latitude={route.geometry.type === 'LineString' ? route.geometry.coordinates[route.geometry.coordinates.length - 1][1] : route.geometry.coordinates.flat()[route.geometry.coordinates.flat().length - 1][1]}
-                                    scale={0.6}
-                                    color={route.color || "red"}
-                                />
-                            )}
                         </React.Fragment>
                     )
                 ))}

@@ -13,6 +13,7 @@ export interface Route {
     geometry: any; // GeoJSON geometry object
     color?: string;
     description?: string;
+    stops?: Stop[]; // Added to support frontend logic
 }
 
 export interface RingType {

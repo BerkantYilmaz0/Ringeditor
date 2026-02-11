@@ -13,7 +13,8 @@ import {
   FormControl,
   InputLabel,
   Select,
-  MenuItem
+  MenuItem,
+  Typography
 } from '@mui/material';
 import { api } from '@/lib/api';
 
@@ -25,6 +26,7 @@ type LinkStop = {
 type Route = {
   id: number;
   name: string;
+  ring_type_id?: number; // Added to check assignment
   stops?: LinkStop[]; // Optional: if backend returns stops
 }
 
@@ -107,6 +109,13 @@ const RingTypeForm = ({ editMode, initialData, onComplete, onClose }: Props) => 
     }
   };
 
+
+  // Calculate the route that is actually assigned to this Ring Type
+  // This overrides the 'active_route_id' from the DB if it's not set, ensuring the user sees the linked route.
+  // This overrides the 'active_route_id' from the DB if it's not set, ensuring the user sees the linked route.
+  const assignedRoute = routes.find(r => Number(r.ring_type_id) === Number(initialData?.id));
+  const displayRouteId = assignedRoute ? assignedRoute.id : (form.active_route_id || '');
+
   return (
     <Dialog open onClose={onClose} maxWidth="sm" fullWidth>
       <DialogTitle>{editMode ? "Ring Tipi Düzenle" : "Yeni Ring Tipi Ekle"}</DialogTitle>
@@ -134,13 +143,14 @@ const RingTypeForm = ({ editMode, initialData, onComplete, onClose }: Props) => 
           />
 
           <FormControl fullWidth>
-            <InputLabel id="select-route-label">Varsayılan Güzergah</InputLabel>
+            <InputLabel id="select-route-label">Bağlı Güzergah (Otomatik)</InputLabel>
             <Select
               labelId="select-route-label"
               id="select-ringtype-route"
-              value={form.active_route_id}
-              label="Varsayılan Güzergah"
-              onChange={(e) => setForm({ ...form, active_route_id: e.target.value })}
+              value={displayRouteId} // Use the calculated ID
+              label="Bağlı Güzergah (Otomatik)"
+              disabled
+            // onChange is irrelevant since it's disabled and auto-calculated
             >
               <MenuItem value="">
                 <em>Hiçbiri</em>
@@ -151,6 +161,11 @@ const RingTypeForm = ({ editMode, initialData, onComplete, onClose }: Props) => 
                 </MenuItem>
               ))}
             </Select>
+            {assignedRoute && (
+              <Typography variant="caption" sx={{ mt: 0.5, color: 'success.main' }}>
+                Bu ring tipine "{assignedRoute.name}" güzergahı atanmış.
+              </Typography>
+            )}
           </FormControl>
 
           <TextField
@@ -159,20 +174,6 @@ const RingTypeForm = ({ editMode, initialData, onComplete, onClose }: Props) => 
             value={form.color}
             onChange={(e) => setForm({ ...form, color: e.target.value })}
             placeholder="#FF0000"
-            fullWidth
-          />
-          <TextField
-            id="input-ringtype-firststop"
-            label="İlk Durak"
-            disabled
-            value={form.default_first_stop}
-            fullWidth
-          />
-          <TextField
-            id="input-ringtype-laststop"
-            label="Son Durak"
-            disabled
-            value={form.default_last_stop}
             fullWidth
           />
         </Box>

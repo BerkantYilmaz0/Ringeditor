@@ -38,10 +38,9 @@ export default function RouteEditor({ open, initialData, onClose, onSave }: Prop
     // GeoJSON Geometry
     const [geometry, setGeometry] = useState<any>(null);
 
-    // Stops
-    const [stops, setStops] = useState<{ name: string, lat: number, lng: number, id?: number }[]>([]);
+    // Stops - REMOVED
 
-    const [mode, setMode] = useState<'view' | 'draw' | 'stop'>('view');
+    const [mode, setMode] = useState<'view' | 'draw'>('view');
     const [saving, setSaving] = useState(false);
 
     const [ringTypes, setRingTypes] = useState<any[]>([]);
@@ -56,7 +55,7 @@ export default function RouteEditor({ open, initialData, onClose, onSave }: Prop
     useEffect(() => {
         // Fetch Ring Types for selection
         api.get('/ring-types').then(res => {
-            const data = Array.isArray(res.data) ? res.data : (res.data?.data || []);
+            const data = Array.isArray(res.data) ? res.data : ((res.data as any)?.data || []);
             setRingTypes(data);
             // Default to first if available and new
             if (!initialData && data.length > 0) {
@@ -81,18 +80,12 @@ export default function RouteEditor({ open, initialData, onClose, onSave }: Prop
                     console.error("Failed to parse geometry", e);
                 }
             }
-
-            // Parse Stops
-            if (initialData.stops) {
-                setStops(initialData.stops);
-            }
         } else {
             // Defaults
             setName('');
             setDescription('');
             setColor('#2196f3');
             setGeometry(null);
-            setStops([]);
             setMode('draw');
         }
     }, [initialData]);
@@ -160,19 +153,10 @@ export default function RouteEditor({ open, initialData, onClose, onSave }: Prop
             return;
         }
 
-        // Stop adding logic
-        if (mode === 'stop') {
-            const stopName = prompt("Durak Adı:", `Durak ${stops.length + 1}`);
-            if (stopName) {
-                setStops([...stops, { name: stopName, lat, lng }]);
-            }
-        }
+        // Stop adding logic - REMOVED
     };
 
     const handleUndo = () => {
-        if (mode === 'stop' && stops.length > 0) {
-            setStops(stops.slice(0, -1));
-        }
         // Undo for drawing is handled by MapLibre's raw draw control usually, 
         // but we can clear geometry if needed or implement custom stack.
         // For now just clear geometry if manual check.
@@ -184,15 +168,14 @@ export default function RouteEditor({ open, initialData, onClose, onSave }: Prop
     };
 
     const handleClear = () => {
-        if (confirm("Tüm çizimi ve durakları temizlemek istiyor musunuz?")) {
+        if (confirm("Tüm çizimi temizlemek istiyor musunuz?")) {
             setGeometry(null);
-            setStops([]);
         }
     };
 
     const handleSave = async () => {
         if (!name.trim()) return alert("Ad zorunludur.");
-        if (!geometry && stops.length === 0) return alert("Lütfen bir güzergah çizin veya durak ekleyin.");
+        if (!geometry) return alert("Lütfen bir güzergah çizin.");
         if (!ringTypeId) return alert("Lütfen bir Ring Tipi seçin (Veritabanı zorunluluğu).");
 
         setSaving(true);
@@ -202,14 +185,7 @@ export default function RouteEditor({ open, initialData, onClose, onSave }: Prop
                 description,
                 color,
                 ring_type_id: Number(ringTypeId),
-                geometry,
-                stops: stops.map((s) => ({
-                    name: s.name,
-                    lat: s.lat,
-                    lng: s.lng,
-                    description: '',
-                    id: s.id
-                }))
+                geometry
             };
 
             if (initialData) {
@@ -332,22 +308,16 @@ export default function RouteEditor({ open, initialData, onClose, onSave }: Prop
                             <ToggleButton value="draw" aria-label="draw">
                                 Çizim Modu
                             </ToggleButton>
-                            <ToggleButton value="stop" aria-label="stop">
-                                Durak Ekle
-                            </ToggleButton>
                         </ToggleButtonGroup>
 
                         <Button variant="outlined" color="warning" onClick={handleUndo} disabled={isAutoRouting}>Geri Al</Button>
                         <Button variant="outlined" color="error" onClick={handleClear} disabled={isAutoRouting}>Temizle</Button>
-                        <Typography variant="caption">
-                            {stops.length} Durak
-                        </Typography>
                     </Stack>
 
                     <Box sx={{ height: 500, width: '100%', border: '1px solid #ccc', borderRadius: 2, overflow: 'hidden', position: 'relative' }}>
                         <MapLibreBoard
                             mode={mode === 'draw' ? 'drawing' : 'routes'}
-                            stops={stops as Stop[]} // Cast to match Stop type expectations
+                            stops={[]} // No stops in this editor anymore
                             routes={mode !== 'draw' && geometry ? [previewRoute] : []} // Show as route if not drawing
                             initialDrawData={geometry} // Pass geometry for editing in draw mode
                             onDrawCreate={handleDrawCreate}
