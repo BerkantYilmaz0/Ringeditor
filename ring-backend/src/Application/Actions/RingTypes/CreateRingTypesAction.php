@@ -30,6 +30,10 @@ final class CreateRingTypesAction extends Action
         $first_stop = trim((string) ($data['default_first_stop'] ?? ''));
         $last_stop = trim((string) ($data['default_last_stop'] ?? ''));
 
+        $active_route_id = isset($data['active_route_id']) ? (int) $data['active_route_id'] : null;
+        if ($active_route_id === 0)
+            $active_route_id = null;
+
         try {
             if ($name === '')
                 throw new InvalidArgumentException('Ad boş olamaz.');
@@ -58,16 +62,10 @@ final class CreateRingTypesAction extends Action
             if ($last_stop !== '' && mb_strlen($last_stop) > 32) {
                 throw new InvalidArgumentException('default_last_stop en fazla 32 karakter olabilir.');
             }
-            if (trim($first_stop) === '') {
-                throw new InvalidArgumentException("İlk Durak boş olamaz");
-            }
-            if (trim($last_stop) === '') {
-                throw new InvalidArgumentException("Son Durak boş girilemez");
-            }
 
             $stmt = $this->pdo->prepare("
-                INSERT INTO ring_types (name, type_id, color, default_first_stop, default_last_stop)
-                VALUES (:name, :type_id, :color, :first_stop, :last_stop)
+                INSERT INTO ring_types (name, type_id, color, default_first_stop, default_last_stop, active_route_id)
+                VALUES (:name, :type_id, :color, :first_stop, :last_stop, :active_route_id)
             ");
             $stmt->execute([
                 ':name' => $name,
@@ -75,6 +73,7 @@ final class CreateRingTypesAction extends Action
                 ':color' => $color,
                 ':first_stop' => $first_stop === '' ? null : $first_stop,
                 ':last_stop' => $last_stop === '' ? null : $last_stop,
+                ':active_route_id' => $active_route_id
             ]);
 
             return $this->respondWithData([

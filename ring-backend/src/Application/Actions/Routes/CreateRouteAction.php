@@ -35,21 +35,65 @@ class CreateRouteAction extends Action
         $color = $data['color'] ?? null;
         $description = $data['description'] ?? null;
 
-        $sql = "INSERT INTO routes (name, ring_type_id, geometry, color, description) VALUES (:name, :ring_type_id, :geometry, :color, :description)";
-        $stmt = $this->pdo->prepare($sql);
-        $stmt->execute([
-            ':name' => $name,
-            ':ring_type_id' => $ringTypeId,
-            ':geometry' => $geometry,
-            ':color' => $color,
-            ':description' => $description
-        ]);
+        try {
+            $this->pdo->beginTransaction();
 
-        $id = $this->pdo->lastInsertId();
+            $sql = "INSERT INTO routes (name, ring_type_id, geometry, color, description) VALUES (:name, :ring_type_id, :geometry, :color, :description)";
+            $stmt = $this->pdo->prepare($sql);
+            $stmt->execute([
+                ':name' => $name,
+                ':ring_type_id' => $ringTypeId,
+                ':geometry' => $geometry,
+                ':color' => $color,
+                ':description' => $description
+            ]);
 
-        return $this->respondWithData([
-            'id' => $id,
-            'message' => 'Route created successfully'
-        ], 201);
+            $routeId = $this->pdo->lastInsertId();
+
+            if (isset($data['stops']) && is_array($data['stops'])) {
+                $stops = $data['stops'];
+                $seq = 1;
+                $insertStopSql = "INSERT INTO stops (name, lat, lng, description) VALUES (:name, :lat, :lng, :description)";
+                $linkStopSql = "INSERT INTO route_stops (route_id, stop_id, sequence) VALUES (:route_id, :stop_id, :sequence)";
+                
+                $stmtInsertStop = $this->pdo->prepare($insertStopSql);
+                $stmtLinkStop = $this->pdo->prepare($linkStopSql);
+
+                foreach ($stops as $stop) {
+                    $stopId = null;
+                    if (isset($stop['id']) && !empty($stop['id'])) {
+                        $stopId = $stop['id'];
+                    } else {
+                        // Create new stop
+                        $stmtInsertStop->execute([
+                            ':name' => $stop['name'] ?? 'New Stop',
+                            ':lat' => $stop['lat'] ?? 0,
+                            ':lng' => $stop['lng'] ?? 0,
+                            ':description' => $stop['description'] ?? ''
+                        ]);
+                        $stopId = $this->pdo->lastInsertId();
+                    }
+
+                    if ($stopId) {
+                        $stmtLinkStop->execute([
+                            ':route_id' => $routeId,
+                            ':stop_id' => $stopId,
+                            ':sequence' => $seq++
+                        ]);
+                    }
+                }
+            }
+
+            $this->pdo->commit();
+
+            return $this->respondWithData([
+                'id' => $routeId,
+                'message' => 'Route created successfully with stops'
+            ], 201);
+
+        } catch (\Exception $e) {
+            $this->pdo->rollBack();
+            return $this->respondWithData(['error' => 'Failed to create route: ' . $e->getMessage()], 500);
+        }
     }
 }

@@ -16,18 +16,23 @@ final class UpdateRingTypesAction extends Action
     public function __construct(
         private PDO $pdo,
         LoggerInterface $logger
-    ) { parent::__construct($logger); }
+    ) {
+        parent::__construct($logger);
+    }
 
     protected function action(): Response
     {
-        $id = (int)$this->resolveArg('id');
-        $data = (array)$this->getFormData();
+        $id = (int) $this->resolveArg('id');
+        $data = (array) $this->getFormData();
 
-        $name = trim((string)($data['name'] ?? ''));
-        $type_id = (int)($data['type_id'] ?? 0);
-        $color = trim((string)($data['color'] ?? ''));
-        $first_stop = trim((string)($data['default_first_stop'] ?? ''));
-        $last_stop = trim((string)($data['default_last_stop'] ?? ''));
+        $name = trim((string) ($data['name'] ?? ''));
+        $type_id = (int) ($data['type_id'] ?? 0);
+        $color = trim((string) ($data['color'] ?? ''));
+        $first_stop = trim((string) ($data['default_first_stop'] ?? ''));
+        $last_stop = trim((string) ($data['default_last_stop'] ?? ''));
+        $active_route_id = isset($data['active_route_id']) ? (int) $data['active_route_id'] : null;
+        if ($active_route_id === 0)
+            $active_route_id = null;
 
         try {
             // Boş alan kontrolü
@@ -41,26 +46,12 @@ final class UpdateRingTypesAction extends Action
                 throw new InvalidArgumentException('Renk değeri boş olamaz.');
             }
             $hex = ltrim($color, '#');
-            if(!preg_match('/^[0-9A-Fa-f]{6}$/',$hex))
-            {
+            if (!preg_match('/^[0-9A-Fa-f]{6}$/', $hex)) {
                 throw new InvalidArgumentException('Renk #RRGGBB formatında olmalıdır.');
             }
-            $color = '#'.strtoupper($hex);
-            if ($first_stop === '') {
-                throw new InvalidArgumentException('İlk durak boş olamaz.');
-            }
-            if($first_stop !==''&& mb_strlen($first_stop)>32)
-            {
-                throw new InvalidArgumentException('İlk Durak en fazla 32 karakter olmalıdır.');
-            }
-            if ($last_stop === '') {
-                throw new InvalidArgumentException('Son durak boş olamaz.');
-            }
-            if($last_stop !==''&& mb_strlen($last_stop)>32)
-            {
-                throw new InvalidArgumentException('Son Durak en fazla 32 karakter olmalıdır.');
-            }
-         
+            $color = '#' . strtoupper($hex);
+
+
 
             // Güncelleme sorgusu
             $stmt = $this->pdo->prepare("
@@ -69,7 +60,8 @@ final class UpdateRingTypesAction extends Action
                     type_id = :type_id,
                     color = :color,
                     default_first_stop = :first_stop,
-                    default_last_stop = :last_stop
+                    default_last_stop = :last_stop,
+                    active_route_id = :active_route_id
                 WHERE id = :id AND is_deleted = 0
             ");
             $stmt->execute([
@@ -78,6 +70,7 @@ final class UpdateRingTypesAction extends Action
                 ':color' => $color,
                 ':first_stop' => $first_stop,
                 ':last_stop' => $last_stop,
+                ':active_route_id' => $active_route_id,
                 ':id' => $id
             ]);
 

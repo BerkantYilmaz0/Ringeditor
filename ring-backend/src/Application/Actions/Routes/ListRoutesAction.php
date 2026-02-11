@@ -27,6 +27,17 @@ class ListRoutesAction extends Action
             if (isset($route['geometry']) && is_string($route['geometry'])) {
                 $route['geometry'] = json_decode($route['geometry'], true);
             }
+
+            // Fetch stops
+            $stmtStops = $this->pdo->prepare("
+                SELECT s.* 
+                FROM stops s
+                JOIN route_stops rs ON rs.stop_id = s.id
+                WHERE rs.route_id = :route_id
+                ORDER BY rs.sequence ASC
+            ");
+            $stmtStops->execute([':route_id' => $route['id']]);
+            $route['stops'] = $stmtStops->fetchAll(PDO::FETCH_ASSOC);
         }
 
         return $this->respondWithData($routes);
