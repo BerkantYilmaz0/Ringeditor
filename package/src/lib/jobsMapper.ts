@@ -13,8 +13,8 @@ export function fromApiJob(api: JobApi): Job {
     duetime: normalizeToMs(api.duetime),
     type: api.type !== undefined ? Number(api.type) : Number(api.type_id),
     deviceid: Number(api.deviceid),
-    first_stop: api.first_stop,
-    last_stop: api.last_stop,
+    route_id: api.route_id ? Number(api.route_id) : null,
+    route_name: api.route_name ?? null,
     selected: false,
     device_plate: api.device_plate ?? api.plate ?? null,
     type_name: api.type_name ?? null,
@@ -27,16 +27,15 @@ export function fromApiJob(api: JobApi): Job {
 
 
 export function toCalendarEvent(job: Job): EventInput {
-  const titleManual = `${job.first_stop} → ${job.last_stop}`;
+  const routeName = job.route_name || job.type_name || '';
   const titleTemplate = job.template_name ?? 'Şablon';
 
   return {
     id: String(job.id),
-    title: job.origin === 'template' ? titleTemplate : titleManual,
+    title: job.origin === 'template' ? titleTemplate : routeName,
     start: new Date(job.duetime),
     allDay: false,
 
-    // Burada renkleri ekle
     backgroundColor: job.color || '#64748b',
     borderColor: job.color || '#64748b',
 
@@ -49,8 +48,7 @@ export function toCalendarEvent(job: Job): EventInput {
       type: job.type,
       type_name: job.type_name ?? null,
       color: job.color ?? null,
-      first_stop: job.first_stop,
-      last_stop: job.last_stop,
+      route_name: job.route_name ?? null,
       duetime: job.duetime,
       job,
     },

@@ -42,27 +42,29 @@ final class UpdateTemplateJobsAction extends Action
             $ts = $dt ? $dt->getTimestamp() : null;
         }
 
-        $sql = "UPDATE template_jobs
-                SET duetime = :duetime,
-                    type_id = :type_id,
-                    deviceid = :deviceid,
-                    route_id = :route_id,
-                    first_stop = :first_stop,
-                    last_stop = :last_stop,
-                    status = :status
-                WHERE id = :id AND (is_deleted = 0 OR is_deleted IS NULL)";
-        $stmt = $this->pdo->prepare($sql);
-        $stmt->execute([
-            ':duetime' => $ts,
-            ':type_id' => (int) ($data['type_id'] ?? 0),
-            ':deviceid' => (int) ($data['deviceid'] ?? 0),
-            ':route_id' => isset($data['route_id']) ? (int) ($data['route_id']) : null,
-            ':first_stop' => (string) ($data['first_stop'] ?? ''),
-            ':last_stop' => (string) ($data['last_stop'] ?? ''),
-            ':status' => (int) ($data['status'] ?? 1),
-            ':id' => $jobId,
-        ]);
+        try {
+            $sql = "UPDATE template_jobs
+                    SET duetime = :duetime,
+                        type_id = :type_id,
+                        deviceid = :deviceid,
+                        route_id = :route_id,
+                        status = :status
+                    WHERE id = :id AND (is_deleted = 0 OR is_deleted IS NULL)";
+            $stmt = $this->pdo->prepare($sql);
+            $stmt->execute([
+                ':duetime' => $ts,
+                ':type_id' => (int) ($data['type_id'] ?? 0),
+                ':deviceid' => (int) ($data['deviceid'] ?? 0),
+                ':route_id' => isset($data['route_id']) ? (int) ($data['route_id']) : null,
+                ':status' => (int) ($data['status'] ?? 1),
+                ':id' => $jobId,
+            ]);
 
-        return $this->respondWithData(['success' => true]);
+            return $this->respondWithData(['success' => true]);
+        } catch (\Throwable $e) {
+            $this->logger->error('UpdateTemplateJobsAction error: ' . $e->getMessage());
+            $payload = new ActionPayload(500, null, new ActionError(ActionError::SERVER_ERROR, 'Güncelleme başarısız.'));
+            return $this->respond($payload)->withStatus(500);
+        }
     }
 }

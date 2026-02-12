@@ -14,7 +14,7 @@ final class TemplateJobsRepository
 
     /**
      * $rows => her eleman şu alanları içerir:
-     * template_id, duetime, type_id, deviceid, first_stop, last_stop, status
+     * template_id, duetime, type_id, deviceid, route_id, status
      */
     public function insertMany(array $rows): array
     {
@@ -26,9 +26,9 @@ final class TemplateJobsRepository
         try {
             $stmt = $this->pdo->prepare("
                 INSERT INTO template_jobs
-                    (template_id, duetime, type_id, deviceid, route_id, first_stop, last_stop, status)
+                    (template_id, duetime, type_id, deviceid, route_id, status)
                 VALUES
-                    (:template_id, :duetime, :type_id, :deviceid, :route_id, :first_stop, :last_stop, :status)
+                    (:template_id, :duetime, :type_id, :deviceid, :route_id, :status)
             ");
 
             $count = 0;
@@ -39,8 +39,6 @@ final class TemplateJobsRepository
                     ':type_id' => (int) $r['type_id'],
                     ':deviceid' => (int) $r['deviceid'],
                     ':route_id' => isset($r['route_id']) ? (int) $r['route_id'] : null,
-                    ':first_stop' => (string) $r['first_stop'],
-                    ':last_stop' => (string) $r['last_stop'],
                     ':status' => (int) $r['status'],
                 ]);
                 $count++;
@@ -62,7 +60,7 @@ final class TemplateJobsRepository
      */
     public function getByTemplateId(int $templateId): array
     {
-        $sql = "SELECT id, template_id, duetime, type_id, deviceid, route_id, first_stop, last_stop, status
+        $sql = "SELECT id, template_id, duetime, type_id, deviceid, route_id, status
                 FROM template_jobs
                 WHERE template_id = :tid AND is_deleted = 0
                 ORDER BY duetime ASC";

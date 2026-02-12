@@ -28,14 +28,8 @@ final class UpdateRingTypesAction extends Action
         $name = trim((string) ($data['name'] ?? ''));
         $type_id = (int) ($data['type_id'] ?? 0);
         $color = trim((string) ($data['color'] ?? ''));
-        $first_stop = trim((string) ($data['default_first_stop'] ?? ''));
-        $last_stop = trim((string) ($data['default_last_stop'] ?? ''));
-        $active_route_id = isset($data['active_route_id']) ? (int) $data['active_route_id'] : null;
-        if ($active_route_id === 0)
-            $active_route_id = null;
 
         try {
-            // Boş alan kontrolü
             if ($name === '') {
                 throw new InvalidArgumentException('Ring tipi adı boş olamaz.');
             }
@@ -51,26 +45,17 @@ final class UpdateRingTypesAction extends Action
             }
             $color = '#' . strtoupper($hex);
 
-
-
-            // Güncelleme sorgusu
             $stmt = $this->pdo->prepare("
                 UPDATE ring_types
                 SET name = :name,
                     type_id = :type_id,
-                    color = :color,
-                    default_first_stop = :first_stop,
-                    default_last_stop = :last_stop,
-                    active_route_id = :active_route_id
+                    color = :color
                 WHERE id = :id AND is_deleted = 0
             ");
             $stmt->execute([
                 ':name' => $name,
                 ':type_id' => $type_id,
                 ':color' => $color,
-                ':first_stop' => $first_stop,
-                ':last_stop' => $last_stop,
-                ':active_route_id' => $active_route_id,
                 ':id' => $id
             ]);
 

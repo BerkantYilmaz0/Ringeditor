@@ -55,9 +55,7 @@ export default function TemplateJobRow({
     duetime: string;
     type: number | null;
     deviceid: number | null;
-    route_id?: number | null; // New field
-    first_stop: string;
-    last_stop: string;
+    route_id: number | null;
   };
   onChangeEdit?: (p: Partial<NonNullable<typeof editValues>>) => void;
 
@@ -73,7 +71,7 @@ export default function TemplateJobRow({
   };
 
   if (editing && editValues) {
-    const { duetime, type, deviceid, route_id, first_stop, last_stop } = editValues;
+    const { duetime, type, deviceid, route_id } = editValues;
 
     return (
       <TableRow
@@ -115,13 +113,13 @@ export default function TemplateJobRow({
           <Autocomplete<RingType, false, false, false>
             options={ringTypes}
             value={ringTypes.find((r) => r.id === (type ?? -1)) ?? null}
-            onChange={(_, val) =>
+            onChange={(_, val) => {
+              const matched = routes.filter(r => r.ring_type_id === (val?.id ?? -1));
               onChangeEdit?.({
                 type: val?.id ?? null,
-                first_stop: val?.default_first_stop ?? '',
-                last_stop: val?.default_last_stop ?? '',
-              })
-            }
+                route_id: matched.length > 0 ? matched[0].id : null,
+              });
+            }}
             getOptionLabel={(o) => o?.name ?? ''}
             isOptionEqualToValue={(o, v) => o.id === v.id}
             renderOption={(props, option) => {
@@ -138,17 +136,15 @@ export default function TemplateJobRow({
           />
         </TableCell>
 
-        <TableCell sx={{ minWidth: 220 }} onClick={(e) => e.stopPropagation()}>
-          <Autocomplete<Route, false, false, false>
-            options={routes.filter(r => r.ring_type_id === type)}
-            value={routes.find((r) => r.id === (route_id ?? -1)) ?? null}
-            onChange={(_, val) => onChangeEdit?.({ route_id: val?.id ?? null })}
-            getOptionLabel={(o) => o?.name ?? ''}
-            isOptionEqualToValue={(o, v) => o.id === v.id}
-            renderInput={(params) => (
-              <TextField {...params} id="edit-route" label="Rota" size="small" />
-            )}
-            noOptionsText="Ring tipine uygun rota yok"
+        <TableCell sx={{ minWidth: 220 }}>
+          <TextField
+            id="edit-route"
+            label="Rota"
+            size="small"
+            fullWidth
+            value={routes.find((r) => r.id === (route_id ?? -1))?.name ?? job.route_name ?? '—'}
+            InputProps={{ readOnly: true }}
+            InputLabelProps={{ shrink: true }}
           />
         </TableCell>
 
@@ -191,7 +187,7 @@ export default function TemplateJobRow({
       <TableCell>
         <RingLabel ring={rtMap[job.type]} />
       </TableCell>
-      <TableCell>{job.route_name || (job.first_stop && job.last_stop ? `${job.first_stop} - ${job.last_stop}` : '-')}</TableCell>
+      <TableCell>{job.route_name || '—'}</TableCell>
       <TableCell>
         <DeviceLabel name={deviceMap[job.deviceid]} />
       </TableCell>

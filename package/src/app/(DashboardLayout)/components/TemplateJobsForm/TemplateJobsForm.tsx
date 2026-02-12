@@ -48,8 +48,7 @@ type EditValues = {
   duetime: string;
   type: number | null;
   deviceid: number | null;
-  first_stop: string;
-  last_stop: string;
+  route_id: number | null;
 };
 
 const tfProps = { InputLabelProps: { shrink: true }, fullWidth: true };
@@ -71,8 +70,6 @@ export default function TemplateJobsForm({ templateId, editMode = false, onClose
   const [type, setType] = useState<number | null>(null);
   const [deviceid, setDeviceID] = useState<number | null>(null);
   const [routeId, setRouteId] = useState<number | null>(null);
-  const [first_stop, setFirstStop] = useState('');
-  const [last_stop, setLastStop] = useState('');
 
   const [ringTypes, setRingTypes] = useState<RingType[]>([]);
   const [devices, setDevices] = useState<Device[]>([]);
@@ -80,13 +77,11 @@ export default function TemplateJobsForm({ templateId, editMode = false, onClose
   const [jobs, setJobs] = useState<Job[]>([]);
 
   const [editIndex, setEditIndex] = useState<number | null>(null);
-  const [editValues, setEditValues] = useState<EditValues & { route_id?: number | null }>({
+  const [editValues, setEditValues] = useState<EditValues>({
     duetime: '',
     type: null,
     deviceid: null,
     route_id: null,
-    first_stop: '',
-    last_stop: '',
   });
 
   const [jobSearchTerm, setJobSearchTerm] = useState('');
@@ -130,10 +125,8 @@ export default function TemplateJobsForm({ templateId, editMode = false, onClose
           deviceid: Number(j.deviceid),
           route_id: j.route_id ? Number(j.route_id) : null,
           route_name: j.route_name,
-          first_stop: j.first_stop,
-          last_stop: j.last_stop,
           selected: false,
-          origin: j.origin || 'template', // Provide default origin
+          origin: j.origin || 'template',
         } as Job;
       });
       setJobs(formatted);
@@ -154,8 +147,6 @@ export default function TemplateJobsForm({ templateId, editMode = false, onClose
       const list = payload.map((r) => ({
         ...r,
         color: r.color ?? '#ccc',
-        default_first_stop: r.default_first_stop ?? '',
-        default_last_stop: r.default_last_stop ?? '',
       })) as RingType[];
       setRingTypes(list);
     });
@@ -184,19 +175,15 @@ export default function TemplateJobsForm({ templateId, editMode = false, onClose
     if (editMode) fetchJobs();
   }, [editMode, templateId, fetchJobs]);
 
-  // create form: type → default stops
+  // create form: type → auto-select first route
   useEffect(() => {
     if (type) {
-      const selected = ringTypes.find((rt) => rt.id === type);
-      setFirstStop(selected?.default_first_stop || '');
-      setLastStop(selected?.default_last_stop || '');
-      setRouteId(null);
+      const matched = routes.filter(r => r.ring_type_id === type);
+      setRouteId(matched.length > 0 ? matched[0].id : null);
     } else {
-      setFirstStop('');
-      setLastStop('');
       setRouteId(null);
     }
-  }, [type, ringTypes]);
+  }, [type, routes]);
 
   // helpers for inline edit
   const patchEdit = (patch: Partial<typeof editValues>) =>
@@ -217,16 +204,14 @@ export default function TemplateJobsForm({ templateId, editMode = false, onClose
 
     setJobs((prev) => [
       ...prev,
-      { duetime: ms, type, deviceid, route_id: routeId, first_stop, last_stop, selected: false } as Job,
+      { duetime: ms, type, deviceid, route_id: routeId, selected: false, origin: 'template' as const } as Job,
     ]);
 
     setDuetime('');
     setType(null);
     setDeviceID(null);
     setRouteId(null);
-    setFirstStop('');
-    setLastStop('');
-  }, [duetime, type, deviceid, routeId, first_stop, last_stop, jobs]);
+  }, [duetime, type, deviceid, routeId, jobs]);
 
   // save inline edit
   const handleSaveEdit = useCallback(() => {
@@ -252,18 +237,16 @@ export default function TemplateJobsForm({ templateId, editMode = false, onClose
         type: v.type as number,
         deviceid: v.deviceid as number,
         route_id: v.route_id,
-        first_stop: v.first_stop,
-        last_stop: v.last_stop,
       };
       return next;
     });
     setEditIndex(null);
-    setEditValues({ duetime: '', type: null, deviceid: null, route_id: null, first_stop: '', last_stop: '' });
+    setEditValues({ duetime: '', type: null, deviceid: null, route_id: null });
   }, [editIndex, editValues, jobs]);
 
   const handleCancelEdit = useCallback(() => {
     setEditIndex(null);
-    setEditValues({ duetime: '', type: null, deviceid: null, route_id: null, first_stop: '', last_stop: '' });
+    setEditValues({ duetime: '', type: null, deviceid: null, route_id: null });
   }, []);
 
   // bulk
@@ -332,8 +315,6 @@ export default function TemplateJobsForm({ templateId, editMode = false, onClose
               type_id: job.type,
               deviceid: job.deviceid,
               route_id: job.route_id,
-              first_stop: job.first_stop,
-              last_stop: job.last_stop,
               status: 1,
             });
             setSaveProgress((prev) => prev + 1);
@@ -348,8 +329,6 @@ export default function TemplateJobsForm({ templateId, editMode = false, onClose
               type_id: j.type,
               deviceid: j.deviceid,
               route_id: j.route_id,
-              first_stop: j.first_stop,
-              last_stop: j.last_stop,
               status: 1,
             })),
           });
@@ -366,8 +345,6 @@ export default function TemplateJobsForm({ templateId, editMode = false, onClose
             type_id: j.type,
             deviceid: j.deviceid,
             route_id: j.route_id,
-            first_stop: j.first_stop,
-            last_stop: j.last_stop,
             status: 1,
           })),
         });
@@ -546,9 +523,7 @@ export default function TemplateJobsForm({ templateId, editMode = false, onClose
                                     duetime: msToTimeString(j.duetime),
                                     type: j.type,
                                     deviceid: j.deviceid,
-                                    route_id: j.route_id,
-                                    first_stop: j.first_stop,
-                                    last_stop: j.last_stop,
+                                    route_id: j.route_id ?? null,
                                   });
                                 }}
                                 onDeleteAsk={setDeleteIndex}
@@ -560,9 +535,8 @@ export default function TemplateJobsForm({ templateId, editMode = false, onClose
                                 editValues={editValues}
                                 onChangeEdit={(patch) => {
                                   if (typeof patch.type !== 'undefined') {
-                                    const sel = ringTypes.find((r) => r.id === patch.type!);
-                                    // Reset/Set stops based on ring type if needed, or clear route
-                                    patch.route_id = null;
+                                    const matched = routes.filter(r => r.ring_type_id === patch.type);
+                                    patch.route_id = matched.length > 0 ? matched[0].id : null;
                                   }
                                   patchEdit(patch);
                                 }}

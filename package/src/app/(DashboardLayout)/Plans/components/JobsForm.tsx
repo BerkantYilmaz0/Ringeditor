@@ -29,7 +29,7 @@ import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import ConfirmDialog from './ConfirmDialog';
 import JobRow from './JobRow';
 import { api } from '@/lib/api';
-import { Device, Job, RingType, ToastState, JobApi } from '@/types/jobs';
+import { Device, Job, RingType, Route, ToastState, JobApi } from '@/types/jobs';
 import { ApiResponse, PaginatedResponse } from '@/types';
 
 function msToTimeString(ms: number): string {
@@ -54,13 +54,13 @@ type EditValues = {
   duetime: string;
   type: number | null;
   deviceid: number | null;
-  first_stop: string;
-  last_stop: string;
+  route_id: number | null;
 };
 
 export default function JobsForm({ editMode = false, onClose, onUpdated, date }: Props) {
   const [ringTypes, setRingTypes] = useState<RingType[]>([]);
   const [devices, setDevices] = useState<Device[]>([]);
+  const [routes, setRoutes] = useState<Route[]>([]);
   const [jobs, setJobs] = useState<Job[]>([]);
 
   const [editIndex, setEditIndex] = useState<number | null>(null);
@@ -68,8 +68,7 @@ export default function JobsForm({ editMode = false, onClose, onUpdated, date }:
     duetime: '',
     type: null,
     deviceid: null,
-    first_stop: '',
-    last_stop: '',
+    route_id: null,
   });
 
   const [jobSearchTerm, setJobSearchTerm] = useState('');
@@ -108,17 +107,11 @@ export default function JobsForm({ editMode = false, onClose, onUpdated, date }:
           duetime: Number(j.duetime) * 1000,
           type: Number(j.type || j.type_id || 0),
           deviceid: j.deviceid ? Number(j.deviceid) : 0,
-          first_stop: j.first_stop ?? '',
-          last_stop: j.last_stop ?? '',
+          route_id: j.route_id ? Number(j.route_id) : null,
+          route_name: j.route_name ?? null,
           selected: false,
           origin: j.origin || 'manual',
-        }))
-        // Note: Filter removed or kept based on logic requirements? Original had filter.
-        // Assuming we keep original logic:
-        // .filter((j: any) => j.duetime >= now); 
-        // But j.duetime is formatted (ms). Original was checking formatted >= now? 
-        // No, original map was: j.duetime * 1000.  Then filter j.duetime >= now.
-        // So yes, filter by formatted date.
+        } as Job))
         .filter((j) => j.duetime >= now);
 
       setJobs(formatted);
@@ -147,6 +140,11 @@ export default function JobsForm({ editMode = false, onClose, onUpdated, date }:
       }
       setDevices(payload);
     });
+    // Rotaları yükle
+    api.get('/routes').then((res) => {
+      const payload = Array.isArray(res.data) ? res.data : (res.data as any)?.data;
+      setRoutes(Array.isArray(payload) ? payload : []);
+    }).catch(() => setRoutes([]));
   }, []);
 
   useEffect(() => {
@@ -168,8 +166,7 @@ export default function JobsForm({ editMode = false, onClose, onUpdated, date }:
         duetime: v.duetime ? Math.floor(timeStringToMs(v.duetime) / 1000) : undefined,
         type: v.type,
         deviceid: v.deviceid,
-        first_stop: v.first_stop,
-        last_stop: v.last_stop,
+        route_id: v.route_id,
         status: 1,
       });
 
@@ -184,13 +181,13 @@ export default function JobsForm({ editMode = false, onClose, onUpdated, date }:
     } finally {
       setSaving(false);
       setEditIndex(null);
-      setEditValues({ duetime: '', type: null, deviceid: null, first_stop: '', last_stop: '' });
+      setEditValues({ duetime: '', type: null, deviceid: null, route_id: null });
     }
   }, [editIndex, editValues, jobs, fetchJobs]);
 
   const handleCancelEdit = useCallback(() => {
     setEditIndex(null);
-    setEditValues({ duetime: '', type: null, deviceid: null, first_stop: '', last_stop: '' });
+    setEditValues({ duetime: '', type: null, deviceid: null, route_id: null });
   }, []);
 
   // Ring tiplerine göre gruplanmış seferler
@@ -198,7 +195,6 @@ export default function JobsForm({ editMode = false, onClose, onUpdated, date }:
     const q = jobSearchTerm.trim().toLowerCase();
     const base = jobs.map((j, i) => ({ job: { ...j, duetime: msToTimeString(j.duetime) }, index: i }));
 
-    // Filtreleme
     const filtered = q
       ? base.filter(({ job }) => {
         const rtName = rtMap[job.type]?.name?.toLowerCase() ?? '';
@@ -207,7 +203,6 @@ export default function JobsForm({ editMode = false, onClose, onUpdated, date }:
       })
       : base;
 
-    // Ring tipine göre gruplama
     const groups: Record<number, { ringType: RingType; jobs: typeof filtered }> = {};
 
     filtered.forEach((item) => {
@@ -325,8 +320,7 @@ export default function JobsForm({ editMode = false, onClose, onUpdated, date }:
                             />
                           </TableCell>
                           <TableCell>Saat</TableCell>
-                          <TableCell>İlk Durak</TableCell>
-                          <TableCell>Son Durak</TableCell>
+                          <TableCell>Rota</TableCell>
                           <TableCell>Plaka</TableCell>
                           <TableCell align="right">Aksiyonlar</TableCell>
                         </TableRow>
@@ -352,14 +346,14 @@ export default function JobsForm({ editMode = false, onClose, onUpdated, date }:
                                   duetime: msToTimeString(j.duetime),
                                   type: j.type,
                                   deviceid: j.deviceid,
-                                  first_stop: j.first_stop,
-                                  last_stop: j.last_stop,
+                                  route_id: j.route_id ?? null,
                                 });
                               }}
                               onDeleteAsk={() => setDeleteIndex(index)}
                               editing={editIndex === index}
                               ringTypes={ringTypes}
                               devices={devices}
+                              routes={routes}
                               editValues={editValues}
                               onChangeEdit={patchEdit}
                               onSaveEdit={handleSaveEdit}

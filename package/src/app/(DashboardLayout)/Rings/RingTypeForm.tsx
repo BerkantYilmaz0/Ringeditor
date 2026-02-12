@@ -35,8 +35,6 @@ type RingType = {
   name: string;
   type_id: number;
   color: string;
-  default_first_stop: string;
-  default_last_stop: string;
   active_route_id?: number | null;
 };
 
@@ -52,9 +50,7 @@ const RingTypeForm = ({ editMode, initialData, onComplete, onClose }: Props) => 
     name: initialData?.name || '',
     type_id: initialData?.type_id || 0,
     color: initialData?.color || '#000000',
-    default_first_stop: initialData?.default_first_stop || '',
-    default_last_stop: initialData?.default_last_stop || '',
-    active_route_id: initialData?.active_route_id || '' // '' for none/select
+    active_route_id: initialData?.active_route_id || ''
   });
 
   const [error, setError] = useState('');

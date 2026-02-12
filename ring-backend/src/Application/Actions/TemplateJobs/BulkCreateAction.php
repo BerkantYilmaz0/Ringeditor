@@ -53,7 +53,7 @@ final class BulkCreateAction
 
             // --- 2) Referans job kaydını çek ---
             $stmt = $this->pdo->prepare("
-                SELECT template_id, type_id, deviceid, first_stop, last_stop
+                SELECT template_id, type_id, deviceid, route_id
                 FROM template_jobs
                 WHERE id = :id
                 LIMIT 1
@@ -100,8 +100,7 @@ final class BulkCreateAction
                     'duetime' => $ts,
                     'type_id' => (int) $job['type_id'],
                     'deviceid' => (int) $job['deviceid'],
-                    'first_stop' => (string) $job['first_stop'],
-                    'last_stop' => (string) $job['last_stop'],
+                    'route_id' => isset($job['route_id']) ? (int) $job['route_id'] : null,
                     'status' => 1
                 ];
                 $created[] = date('H:i', $ts);

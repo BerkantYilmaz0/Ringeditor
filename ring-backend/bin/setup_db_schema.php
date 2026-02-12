@@ -22,8 +22,6 @@ try {
         name TEXT NOT NULL,
         type_id INTEGER DEFAULT 0,
         color TEXT DEFAULT '#000000',
-        default_first_stop TEXT DEFAULT '',
-        default_last_stop TEXT DEFAULT '',
         route_data TEXT DEFAULT NULL
     )");
 

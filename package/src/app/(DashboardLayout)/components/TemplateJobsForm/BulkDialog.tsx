@@ -281,7 +281,7 @@ export default function BulkDialog({
               <b>Plaka:</b> {deviceMap[baseJob.deviceid] ?? '-'}
             </Typography>
             <Typography component="div">
-              <b>İlk/Son Durak:</b> {baseJob.first_stop} → {baseJob.last_stop}
+              <b>Güzergah:</b> {baseJob.route_name || '—'}
             </Typography>
           </Box>
         )}

@@ -35,8 +35,7 @@ export async function createJob(payload: {
   deviceid: number;
   duetime: number;     // UNIX saniye
   type: number;
-  first_stop: string;
-  last_stop: string;
+  route_id?: number | null;
   status?: number;     // varsayılan 1
 }): Promise<{ id: number; message: string }> {
   const body = { ...payload, status: payload.status ?? 1 };
@@ -55,4 +54,3 @@ export async function deleteJob(id: number) {
   const { data } = await api.delete(`/jobs/${id}`);
   return data;
 }
-

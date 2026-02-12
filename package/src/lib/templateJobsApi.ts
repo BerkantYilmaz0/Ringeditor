@@ -1,22 +1,31 @@
-import {api} from './api';
+import { api } from './api';
 
 export type ApplyTemplateRequest = {
   templateId: number;
   startDate: string;
   endDate: string;
   daysOfWeek: number[];
-  conflict: 'skip' | 'overwrite';   // ✅ duplicate yerine conflict
+  conflict: 'skip' | 'overwrite';
 };
 
-export async function applyTemplateToPlans(data: ApplyTemplateRequest) {
+export type ApplyTemplateResponse = {
+  inserted?: number;
+  insertedCount?: number;
+  skipped?: number;
+  conflicts?: Conflict[];
+  data?: Record<string, unknown>[];
+  [key: string]: unknown;
+};
+
+export async function applyTemplateToPlans(data: ApplyTemplateRequest): Promise<ApplyTemplateResponse> {
   const res = await api.post('/jobs/apply-template', {
     template_id: data.templateId,
     start_date: data.startDate,
     end_date: data.endDate,
     days_of_week: data.daysOfWeek,
-    conflict: data.conflict,        // ✅ conflict gönderiliyor
+    conflict: data.conflict,
   });
-  return res.data;
+  return res.data as ApplyTemplateResponse;
 }
 
 // ✅ Toplu conflict kontrolü
@@ -30,14 +39,13 @@ export type ConflictCheckRequest = {
 export type Conflict = {
   duetime: number;
   deviceid: number;
-  first_stop?: string | null;
-  last_stop?: string | null;
+  route_name?: string | null;
 };
 
 export async function checkTemplateConflicts(
   data: ConflictCheckRequest
 ): Promise<{ conflicts: Conflict[]; count: number }> {
-  const res = await api.post('/jobs/check-conflict', {
+  const res = await api.post<{ data?: { conflicts: Conflict[]; count: number }; conflicts?: Conflict[]; count?: number }>('/jobs/check-conflict', {
     template_id: data.templateId,
     start_date: data.startDate,
     end_date: data.endDate,

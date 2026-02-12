@@ -7,12 +7,13 @@ import {
   TableRow,
   Checkbox,
   TextField,
+  MenuItem,
   Autocomplete,
 } from '@mui/material';
 import { IconTrash, IconCheck, IconX } from '@tabler/icons-react';
 import RingLabel from '@/app/(DashboardLayout)/components/TemplateJobsForm/RingLabel';
 import DeviceLabel from '@/app/(DashboardLayout)/components/TemplateJobsForm/DeviceLabel';
-import { Job, RingType, Device } from '@/types/jobs';
+import { Job, RingType, Device, Route } from '@/types/jobs';
 
 type EditJob = Omit<Job, 'duetime'> & { duetime: string };
 
@@ -27,6 +28,7 @@ export default function JobRow({
   editing = false,
   ringTypes = [],
   devices = [],
+  routes = [],
   editValues,
   onChangeEdit,
   onSaveEdit,
@@ -42,12 +44,12 @@ export default function JobRow({
   editing?: boolean;
   ringTypes?: RingType[];
   devices?: Device[];
+  routes?: Route[];
   editValues?: {
     duetime: string;
     type: number | null;
     deviceid: number | null;
-    first_stop: string;
-    last_stop: string;
+    route_id: number | null;
   };
   onChangeEdit?: (p: Partial<NonNullable<typeof editValues>>) => void;
   onSaveEdit?: () => void;
@@ -60,10 +62,10 @@ export default function JobRow({
   };
 
   if (editing && editValues) {
-    const { duetime, type, deviceid, first_stop, last_stop } = editValues;
-console.log("job.deviceid:", job.deviceid, typeof job.deviceid);
-console.log("editValues.deviceid:", editValues?.deviceid, typeof editValues?.deviceid);
-console.log("devices:", devices.map(d => ({ id: d.id, type: typeof d.id, name: d.displayName })));
+    const { duetime, type, deviceid, route_id } = editValues;
+
+    // Seçilen ring type'a ait rotalar
+    const filteredRoutes = routes.filter((r) => r.ring_type_id === (type ?? -1));
 
     return (
       <TableRow
@@ -108,13 +110,13 @@ console.log("devices:", devices.map(d => ({ id: d.id, type: typeof d.id, name: d
             id={`input-job-type-${job.id ?? index}`}
             options={ringTypes}
             value={ringTypes.find((r) => r.id === (type ?? -1)) ?? null}
-            onChange={(_, val) =>
+            onChange={(_, val) => {
+              const newRoutes = routes.filter((r) => r.ring_type_id === (val?.id ?? -1));
               onChangeEdit?.({
                 type: val?.id ?? null,
-                first_stop: val?.default_first_stop ?? '',
-                last_stop: val?.default_last_stop ?? '',
-              })
-            }
+                route_id: newRoutes.length > 0 ? newRoutes[0].id : null,
+              });
+            }}
             getOptionLabel={(o) => o?.name ?? ''}
             isOptionEqualToValue={(o, v) => o.id === v.id}
             renderOption={(props, option) => {
@@ -129,32 +131,32 @@ console.log("devices:", devices.map(d => ({ id: d.id, type: typeof d.id, name: d
           />
         </TableCell>
 
-        <TableCell sx={{ minWidth: 160 }} onClick={(e) => e.stopPropagation()}>
+        {/* Rota Seçimi */}
+        <TableCell sx={{ minWidth: 200 }} onClick={(e) => e.stopPropagation()}>
           <TextField
-            id={`input-job-first-stop-${job.id ?? index}`}
-            label="İlk Durak"
-            value={first_stop}
+            id={`input-job-route-${job.id ?? index}`}
+            select
+            label="Rota"
+            value={route_id ?? ''}
+            onChange={(e) => onChangeEdit?.({ route_id: Number(e.target.value) || null })}
             size="small"
             fullWidth
-            disabled
-          />
-        </TableCell>
-        <TableCell sx={{ minWidth: 160 }} onClick={(e) => e.stopPropagation()}>
-          <TextField
-            id={`input-job-last-stop-${job.id ?? index}`}
-            label="Son Durak"
-            value={last_stop}
-            size="small"
-            fullWidth
-            disabled
-          />
+          >
+            {filteredRoutes.map((r) => (
+              <MenuItem key={r.id} value={r.id}>
+                {r.name}
+              </MenuItem>
+            ))}
+            {filteredRoutes.length === 0 && (
+              <MenuItem value="" disabled>Rota yok</MenuItem>
+            )}
+          </TextField>
         </TableCell>
 
         <TableCell sx={{ minWidth: 220 }} onClick={(e) => e.stopPropagation()}>
           <Autocomplete<Device, false, false, false>
             id={`input-job-device-${job.id ?? index}`}
             options={devices}
-            
             getOptionLabel={(d) => d?.customName || d?.displayName}
             value={devices.find((d) => String(d.id) === String(deviceid ?? job.deviceid ?? -1)) || null}
             onChange={(_, val) => onChangeEdit?.({ deviceid: val?.id ?? null })}
@@ -185,6 +187,9 @@ console.log("devices:", devices.map(d => ({ id: d.id, type: typeof d.id, name: d
     );
   }
 
+  // Rota adı: job nesnesinde route_name varsa göster
+  const routeName = (job as any).route_name || '—';
+
   return (
     <TableRow
       id={`row-job-${job.id ?? index}`}
@@ -206,8 +211,7 @@ console.log("devices:", devices.map(d => ({ id: d.id, type: typeof d.id, name: d
       <TableCell>
         <RingLabel ring={rtMap[job.type]} />
       </TableCell>
-      <TableCell>{job.first_stop}</TableCell>
-      <TableCell>{job.last_stop}</TableCell>
+      <TableCell>{routeName}</TableCell>
       <TableCell>
         <DeviceLabel name={deviceMap[job.deviceid]} />
       </TableCell>

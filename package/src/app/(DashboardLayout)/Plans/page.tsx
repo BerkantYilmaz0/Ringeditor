@@ -14,11 +14,10 @@ import JobsForm from './components/JobsForm';
 
 import { groupForMonthView } from '@/lib/calendarGrouping';
 import { fetchJobsAsEvents, updateJob, deleteJob } from '@/lib/jobsApi';
-import type { RingType, Device, Job } from '@/types/jobs';
+import type { RingType, Device, Job, Route } from '@/types/jobs';
 import { api } from '@/lib/api';
 import { ApiResponse } from '@/types';
 import { Paper, Typography, Button, Stack, Box, CircularProgress } from '@mui/material';
-import { relative } from 'path';
 
 export default function PlansPage() {
   const calendarRef = useRef<FullCalendar | null>(null);
@@ -28,6 +27,7 @@ export default function PlansPage() {
   const [rawEvents, setRawEvents] = useState<EventInput[]>([]);
   const [ringTypes, setRingTypes] = useState<RingType[]>([]);
   const [devices, setDevices] = useState<Device[]>([]);
+  const [routes, setRoutes] = useState<Route[]>([]);
   const [loading, setLoading] = useState(false);
   const [errMsg, setErrMsg] = useState<string | null>(null);
 
@@ -85,6 +85,20 @@ export default function PlansPage() {
       } catch (e) {
         console.error('Device fetch error', e);
         setDevices([]);
+      }
+    })();
+  }, []);
+
+  // Rotaları yükle
+  useEffect(() => {
+    (async () => {
+      try {
+        const { data } = await api.get('/routes');
+        const payload = Array.isArray(data) ? data : (data as any)?.data;
+        setRoutes(Array.isArray(payload) ? payload : []);
+      } catch (e) {
+        console.error('Routes fetch error', e);
+        setRoutes([]);
       }
     })();
   }, []);
@@ -249,6 +263,7 @@ export default function PlansPage() {
         job={selectedJob}
         devices={devices}
         ringTypes={ringTypes}
+        routes={routes}
         onClose={() => setSelectedJob(null)}
         onUpdate={handleUpdateJob}
         onDelete={handleDeleteJob}

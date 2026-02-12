@@ -54,7 +54,7 @@ export default function JobsTable({ onDelete, onEdit }: Props) {
             <TableCell>ID</TableCell>
             <TableCell>Cihaz</TableCell>
             <TableCell>Tip</TableCell>
-            <TableCell>Durak (İlk → Son)</TableCell>
+            <TableCell>Rota</TableCell>
             <TableCell>Saati</TableCell>
             <TableCell align="right">İşlemler</TableCell>
           </TableRow>
@@ -65,7 +65,7 @@ export default function JobsTable({ onDelete, onEdit }: Props) {
               <TableCell>{j.id}</TableCell>
               <TableCell>{j.deviceid}</TableCell>
               <TableCell>{j.type}</TableCell>
-              <TableCell>{j.first_stop} → {j.last_stop}</TableCell>
+              <TableCell>{j.route_name || '—'}</TableCell>
               <TableCell>{j.duetime}</TableCell>
               <TableCell align="right">
                 <IconButton

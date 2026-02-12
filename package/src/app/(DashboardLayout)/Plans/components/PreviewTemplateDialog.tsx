@@ -93,7 +93,7 @@ export default function PreviewTemplateDialog({ open, onClose, params, onApplied
                           📅 {new Date(c.duetime * 1000).toLocaleString()} – 🚍 {deviceMap[String(c.deviceid)] || c.deviceid}
                         </Typography>
                         <Typography variant="caption">
-                          {c.first_stop} → {c.last_stop}
+                          Güzergah: {c.route_name || '—'}
                         </Typography>
                       </Box>
                     ))}
@@ -149,7 +149,7 @@ export default function PreviewTemplateDialog({ open, onClose, params, onApplied
                     <Box key={i} sx={{ mb: 1, borderBottom: '1px solid #eee' }}>
                       📅 {new Date(j.duetime * 1000).toLocaleString()} – 🚍 {deviceMap[String(j.deviceid)] || j.deviceid}
                       <br />
-                      {j.first_stop} → {j.last_stop}
+                      Güzergah: {j.route_name || '—'}
                     </Box>
                   ))}
                 </Box>

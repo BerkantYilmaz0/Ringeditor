@@ -55,7 +55,7 @@ const CalendarShell = forwardRef<FullCalendar, Props>(function CalendarShell(
 
   const renderMonthContent = (arg: any) => {
     const ext = arg.event.extendedProps || {};
-    const title = `${ext.first_stop ?? ''} → ${ext.last_stop ?? ''}`.trim();
+    const title = ext.route_name || ext.type_name || '';
     const color = ext.color ?? '#64748b';
     return { html: `${badge(color)}<span class="evt-title">${title}</span>` };
   };
@@ -65,7 +65,7 @@ const CalendarShell = forwardRef<FullCalendar, Props>(function CalendarShell(
     const color = ext.color ?? '#64748b';
     const time = formatDate(arg.event.start, { hour: '2-digit', minute: '2-digit', hour12: false });
     const plate = ext.plate ?? ext.device_plate ?? ext.deviceid ?? '';
-    const route = `${ext.first_stop ?? ''} → ${ext.last_stop ?? ''}`.trim();
+    const route = ext.route_name || ext.type_name || '';
     const title = plate ? `${time} ${route} (${plate})` : `${time} ${route}`;
     return { html: `${badge(color)}<span class="evt-title" style="color:#000">${title}</span>` };
   };

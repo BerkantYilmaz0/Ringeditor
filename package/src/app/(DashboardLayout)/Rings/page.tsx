@@ -27,8 +27,6 @@ type RingType = {
   name: string;
   type_id: number;
   color: string;
-  default_first_stop: string;
-  default_last_stop: string;
 };
 
 const RingTypesPage = () => {
@@ -65,9 +63,7 @@ const RingTypesPage = () => {
   };
 
   const filtered = ringTypes.filter((rt) =>
-    rt.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    rt.default_first_stop.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    rt.default_last_stop.toLowerCase().includes(searchTerm.toLowerCase())
+    rt.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   const paginated = filtered.slice(

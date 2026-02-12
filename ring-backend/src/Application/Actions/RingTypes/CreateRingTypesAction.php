@@ -27,12 +27,7 @@ final class CreateRingTypesAction extends Action
         $name = trim((string) ($data['name'] ?? ''));
         $type_id = (int) ($data['type_id'] ?? 0);
         $colorRaw = trim((string) ($data['color'] ?? ''));
-        $first_stop = trim((string) ($data['default_first_stop'] ?? ''));
-        $last_stop = trim((string) ($data['default_last_stop'] ?? ''));
 
-        $active_route_id = isset($data['active_route_id']) ? (int) $data['active_route_id'] : null;
-        if ($active_route_id === 0)
-            $active_route_id = null;
 
         try {
             if ($name === '')
@@ -56,24 +51,14 @@ final class CreateRingTypesAction extends Action
             }
             $color = '#' . strtoupper($hex);
 
-            if ($first_stop !== '' && mb_strlen($first_stop) > 32) {
-                throw new InvalidArgumentException('default_first_stop en fazla 32 karakter olabilir.');
-            }
-            if ($last_stop !== '' && mb_strlen($last_stop) > 32) {
-                throw new InvalidArgumentException('default_last_stop en fazla 32 karakter olabilir.');
-            }
-
             $stmt = $this->pdo->prepare("
-                INSERT INTO ring_types (name, type_id, color, default_first_stop, default_last_stop, active_route_id)
-                VALUES (:name, :type_id, :color, :first_stop, :last_stop, :active_route_id)
+                INSERT INTO ring_types (name, type_id, color)
+                VALUES (:name, :type_id, :color)
             ");
             $stmt->execute([
                 ':name' => $name,
                 ':type_id' => $type_id,
-                ':color' => $color,
-                ':first_stop' => $first_stop === '' ? null : $first_stop,
-                ':last_stop' => $last_stop === '' ? null : $last_stop,
-                ':active_route_id' => $active_route_id
+                ':color' => $color
             ]);
 
             return $this->respondWithData([

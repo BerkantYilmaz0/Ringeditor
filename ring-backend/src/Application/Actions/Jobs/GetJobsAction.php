@@ -13,13 +13,14 @@ final class GetJobsAction
     public function __construct(
         private JobsRepository $repo,
         private LoggerInterface $logger,
-    ) {}
+    ) {
+    }
 
     public function __invoke(Request $request, Response $response, array $args): Response
     {
         $q = $request->getQueryParams();
         $from = $q['from'] ?? null;
-        $to   = $q['to']   ?? null;
+        $to = $q['to'] ?? null;
 
         if (!$from || !$to) {
             $response->getBody()->write(json_encode([
@@ -29,7 +30,7 @@ final class GetJobsAction
         }
 
         $fromEpoch = $this->toEpoch($from);
-        $toEpoch   = $this->toEpoch($to);
+        $toEpoch = $this->toEpoch($to);
         if ($fromEpoch === null || $toEpoch === null) {
             $response->getBody()->write(json_encode([
                 'error' => 'Invalid date format. Use ISO 8601 or epoch seconds.'
@@ -37,16 +38,24 @@ final class GetJobsAction
             return $response->withStatus(400)->withHeader('Content-Type', 'application/json');
         }
 
-        $deviceId = isset($q['deviceId']) ? (int)$q['deviceId'] : null;
-        $type     = isset($q['type'])     ? (int)$q['type']     : null;
+        $deviceId = isset($q['deviceId']) ? (int) $q['deviceId'] : null;
+        $type = isset($q['type']) ? (int) $q['type'] : null;
 
-        $items = $this->repo->getBetween($fromEpoch, $toEpoch, $deviceId, $type);
+        try {
+            $items = $this->repo->getBetween($fromEpoch, $toEpoch, $deviceId, $type);
+        } catch (\Throwable $e) {
+            $response->getBody()->write(json_encode([
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ], JSON_UNESCAPED_UNICODE));
+            return $response->withStatus(500)->withHeader('Content-Type', 'application/json');
+        }
 
         $response->getBody()->write(json_encode([
             'items' => $items,
-            'meta'  => [
+            'meta' => [
                 'from' => $from,
-                'to'   => $to,
+                'to' => $to,
                 'deviceId' => $deviceId,
                 'type' => $type,
             ]
@@ -58,7 +67,7 @@ final class GetJobsAction
     private function toEpoch(string|int $v): ?int
     {
         if (is_numeric($v)) {
-            $n = (int)$v;
+            $n = (int) $v;
             return $n > 2_000_000_000_000 ? intdiv($n, 1000) : $n;
         }
         try {

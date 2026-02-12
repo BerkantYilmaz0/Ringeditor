@@ -14,6 +14,7 @@ import {
   Box,
 } from '@mui/material';
 import { api } from '@/lib/api';
+import type { Route } from '@/types/jobs';
 
 type Props = {
   open: boolean;
@@ -27,15 +28,13 @@ type Props = {
 type Device = {
   id: number;
   displayName: string;
-  customName?:string;
+  customName?: string;
 };
 
 type RingType = {
   id: number;
   name: string;
   color: string;
-  default_first_stop: string;
-  default_last_stop: string;
 };
 
 export default function AddJobDialog({
@@ -48,18 +47,31 @@ export default function AddJobDialog({
 }: Props) {
   const [deviceId, setDeviceId] = useState<string>('');
   const [typeId, setTypeId] = useState<string>('');
-  const [firstStop, setFirstStop] = useState('');
-  const [lastStop, setLastStop] = useState('');
+  const [routeId, setRouteId] = useState<string>('');
   const [time, setTime] = useState('');
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
+
+  const [routes, setRoutes] = useState<Route[]>([]);
+
+  // Rotaları yükle
+  useEffect(() => {
+    (async () => {
+      try {
+        const { data } = await api.get('/routes');
+        const payload = Array.isArray(data) ? data : (data as any)?.data;
+        setRoutes(Array.isArray(payload) ? payload : []);
+      } catch {
+        setRoutes([]);
+      }
+    })();
+  }, []);
 
   useEffect(() => {
     if (open) {
       setTime('');
       setTypeId('');
       setDeviceId('');
-      setFirstStop('');
-      setLastStop('');
+      setRouteId('');
       setErrorMsg(null);
     }
   }, [open]);
@@ -67,24 +79,26 @@ export default function AddJobDialog({
   const resetForm = () => {
     setDeviceId('');
     setTypeId('');
-    setFirstStop('');
-    setLastStop('');
+    setRouteId('');
     setTime('');
     setErrorMsg(null);
   };
 
+  // Ring tipi değişince ilgili rotaları filtrele ve ilk rotayı otomatik seç
   useEffect(() => {
     if (!typeId) {
-      setFirstStop('');
-      setLastStop('');
+      setRouteId('');
       return;
     }
-    const rt = ringTypes.find((r) => r.id === Number(typeId));
-    if (rt) {
-      setFirstStop(rt.default_first_stop);
-      setLastStop(rt.default_last_stop);
+    const filtered = routes.filter((r) => String(r.ring_type_id) === typeId);
+    if (filtered.length > 0) {
+      setRouteId(String(filtered[0].id));
+    } else {
+      setRouteId('');
     }
-  }, [typeId, ringTypes]);
+  }, [typeId, routes]);
+
+  const filteredRoutes = routes.filter((r) => String(r.ring_type_id) === typeId);
 
   const handleSave = async () => {
     if (!time) {
@@ -99,8 +113,8 @@ export default function AddJobDialog({
       setErrorMsg('Lütfen plaka seçin.');
       return;
     }
-    if (!firstStop || !lastStop) {
-      setErrorMsg('İlk ve son durak boş olamaz.');
+    if (!routeId) {
+      setErrorMsg('Lütfen bir rota seçin.');
       return;
     }
 
@@ -125,7 +139,7 @@ export default function AddJobDialog({
     const duetime = Math.floor(jobDate.getTime() / 1000);
 
     try {
-      const check = await api.post('/jobs/check-conflict', {
+      const check = await api.post<{ conflict: boolean }>('/jobs/check-conflict', {
         duetime,
         deviceid: Number(deviceId),
       });
@@ -139,8 +153,7 @@ export default function AddJobDialog({
         duetime,
         type: Number(typeId),
         deviceid: Number(deviceId),
-        first_stop: firstStop,
-        last_stop: lastStop,
+        route_id: Number(routeId),
         status: 1,
       });
 
@@ -219,25 +232,26 @@ export default function AddJobDialog({
             />
             <Typography variant="body2">{selectedRing.name}</Typography>
           </Box>
-        )}  
+        )}
 
+        {/* Rota Seçimi */}
         <TextField
-          id="input-first-stop"
-          label="İlk Durak"
-          value={firstStop}
+          id="route-select"
+          select
+          label="Rota"
+          value={routeId}
+          onChange={(e) => setRouteId(e.target.value)}
           fullWidth
           margin="normal"
-          disabled
-        />
-
-        <TextField
-          id="input-last-stop"
-          label="Son Durak"
-          value={lastStop}
-          fullWidth
-          margin="normal"
-          disabled
-        />
+          disabled={!typeId || filteredRoutes.length === 0}
+          helperText={typeId && filteredRoutes.length === 0 ? 'Bu ring tipine ait rota yok' : ''}
+        >
+          {filteredRoutes.map((r) => (
+            <MenuItem key={r.id} value={String(r.id)}>
+              {r.name}
+            </MenuItem>
+          ))}
+        </TextField>
 
         <TextField
           id="device-select"
@@ -253,7 +267,7 @@ export default function AddJobDialog({
         >
           {(devices ?? []).map((d) => (
             <MenuItem key={d.id} value={String(d.id)}>
-              {d.customName||d.displayName}
+              {d.customName || d.displayName}
             </MenuItem>
           ))}
         </TextField>

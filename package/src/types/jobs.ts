@@ -1,6 +1,6 @@
 export type Origin = 'manual' | 'template';
 
-/** Backend’ten gelen ham şekil */
+/** Backend'ten gelen ham şekil */
 export type JobApi = {
   id: number | string;
   duetime: number | string;
@@ -8,8 +8,6 @@ export type JobApi = {
   type_id?: number | string;
   deviceid: number | string;
   route_id?: number | string | null;
-  first_stop?: string;
-  last_stop?: string;
   route_name?: string | null;
 
   // Ekstra join alanları
@@ -31,8 +29,6 @@ export type Job = {
   deviceid: number;
   route_id?: number | null;
   route_name?: string | null;
-  first_stop: string;
-  last_stop: string;
   selected?: boolean;
   device_plate?: string | null;
   type_name?: string | null;
@@ -53,8 +49,6 @@ export type RingType = {
   name: string;
   type_id: number;
   color: string;
-  default_first_stop: string;
-  default_last_stop: string;
 };
 
 export type ToastState = {

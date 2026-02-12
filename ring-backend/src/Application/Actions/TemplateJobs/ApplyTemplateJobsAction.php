@@ -79,8 +79,6 @@ final class ApplyTemplateJobsAction
                                 'deviceid' => $deviceid,
                                 'type' => (int) $tpl['type_id'],
                                 'route_id' => isset($tpl['route_id']) ? (int) $tpl['route_id'] : null,
-                                'first_stop' => $tpl['first_stop'],
-                                'last_stop' => $tpl['last_stop'],
                                 'status' => (int) $tpl['status'],
                             ]);
                             $overwritten++;
@@ -93,8 +91,6 @@ final class ApplyTemplateJobsAction
                             'deviceid' => $deviceid,
                             'type' => (int) $tpl['type_id'],
                             'route_id' => isset($tpl['route_id']) ? (int) $tpl['route_id'] : null,
-                            'first_stop' => $tpl['first_stop'],
-                            'last_stop' => $tpl['last_stop'],
                             'status' => (int) $tpl['status'],
                         ]);
                         $applied++;

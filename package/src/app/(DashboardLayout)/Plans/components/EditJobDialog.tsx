@@ -15,13 +15,14 @@ import {
 } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
 import { useState, useEffect } from 'react';
-import type { Job, RingType, Device } from '@/types/jobs';
+import type { Job, RingType, Device, Route } from '@/types/jobs';
 
 type Props = {
   open: boolean;
   job: Job | null;
   devices: Device[];
   ringTypes: RingType[];
+  routes: Route[];
   onClose: () => void;
   onDelete: (id: number) => Promise<void>;
   onUpdate: (id: number, changes: Partial<Job>) => Promise<void>;
@@ -32,6 +33,7 @@ export default function EditJobDialog({
   job,
   devices,
   ringTypes,
+  routes,
   onClose,
   onDelete,
   onUpdate,
@@ -51,6 +53,9 @@ export default function EditJobDialog({
 
   if (!job) return null;
 
+  // Bu job'un ring type'ına ait rotalar
+  const filteredRoutes = routes.filter((r) => r.ring_type_id === job.type);
+
   const handleChange = async (field: keyof Job, value: any) => {
     try {
       const fullPayload: Partial<Job> = {
@@ -58,8 +63,7 @@ export default function EditJobDialog({
         deviceid: job.deviceid,
         duetime: Math.floor(job.duetime / 1000),
         type: job.type,
-        first_stop: job.first_stop,
-        last_stop: job.last_stop,
+        route_id: job.route_id,
         [field]: value,
       };
 
@@ -87,7 +91,7 @@ export default function EditJobDialog({
             <CloseIcon />
           </IconButton>
         </DialogTitle>
-      
+
         <DialogContent>
           {message && (
             <Box mb={2}>
@@ -130,23 +134,30 @@ export default function EditJobDialog({
                 </MenuItem>
               ))}
             </TextField>
-            {/* İlk Durak */}
+
+            {/* Rota */}
             <TextField
-              id="input-edit-job-first-stop"
-              label="İlk Durak"
-              value={job.first_stop || ''}
-              disabled
-            />
-            {/* Son Durak */}
-            <TextField
-              id="input-edit-job-last-stop"
-              label="Son Durak"
-              value={job.last_stop || ''}
-              disabled
-            />
+              id="input-edit-job-route"
+              select
+              label="Rota"
+              value={job.route_id || ''}
+              onChange={(e) => handleChange('route_id', Number(e.target.value))}
+              sx={{ minWidth: 200 }}
+            >
+              {filteredRoutes.map((r) => (
+                <MenuItem key={r.id} value={r.id}>
+                  {r.name}
+                </MenuItem>
+              ))}
+              {filteredRoutes.length === 0 && (
+                <MenuItem value="" disabled>
+                  Rota bulunamadı
+                </MenuItem>
+              )}
+            </TextField>
+
             {/* Plaka */}
             <TextField
-            
               id="input-edit-job-device"
               select
               label="Plaka"
@@ -155,7 +166,7 @@ export default function EditJobDialog({
             >
               {devices.map((d) => (
                 <MenuItem key={d.id} value={d.id}>
-                  {d.customName ||d.displayName}
+                  {d.customName || d.displayName}
                 </MenuItem>
               ))}
             </TextField>

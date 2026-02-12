@@ -42,8 +42,6 @@ class CreateRouteAction extends Action
         try {
             $this->pdo->beginTransaction();
 
-            $this->pdo->beginTransaction();
-
             // Prepare data for repository
             $routeData = [
                 'name' => $name,

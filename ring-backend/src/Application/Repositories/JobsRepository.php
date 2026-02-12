@@ -58,8 +58,8 @@ final class JobsRepository
             }
 
             $stmt = $this->pdo->prepare("
-                INSERT INTO jobs (deviceid, duetime, type, route_id, first_stop, last_stop, status)
-                VALUES (:deviceid, :duetime, :type, :route_id, :first_stop, :last_stop, :status)
+                INSERT INTO jobs (deviceid, duetime, type, route_id, status)
+                VALUES (:deviceid, :duetime, :type, :route_id, :status)
             ");
 
             $stmt->execute([
@@ -67,8 +67,6 @@ final class JobsRepository
                 ':duetime' => (int) $data['duetime'],
                 ':type' => (int) $data['type'],
                 ':route_id' => isset($data['route_id']) ? (int) $data['route_id'] : null,
-                ':first_stop' => !empty($data['first_stop']) ? $data['first_stop'] : null,
-                ':last_stop' => !empty($data['last_stop']) ? $data['last_stop'] : null,
                 ':status' => $data['status'] ?? 1,
             ]);
 
@@ -167,19 +165,17 @@ final class JobsRepository
             $params = [];
 
             foreach ($uniqueRows as $idx => $r) {
-                $placeholders[] = "(:deviceid_{$idx}, :duetime_{$idx}, :type_{$idx}, :route_id_{$idx}, :first_stop_{$idx}, :last_stop_{$idx}, :status_{$idx})";
+                $placeholders[] = "(:deviceid_{$idx}, :duetime_{$idx}, :type_{$idx}, :route_id_{$idx}, :status_{$idx})";
 
                 $params[":deviceid_{$idx}"] = (int) $r['deviceid'];
                 $params[":duetime_{$idx}"] = (int) $r['duetime'];
                 $params[":type_{$idx}"] = (int) $r['type'];
                 $params[":route_id_{$idx}"] = isset($r['route_id']) ? (int) $r['route_id'] : null;
-                $params[":first_stop_{$idx}"] = !empty($r['first_stop']) ? $r['first_stop'] : null;
-                $params[":last_stop_{$idx}"] = !empty($r['last_stop']) ? $r['last_stop'] : null;
                 $params[":status_{$idx}"] = $r['status'] ?? 1;
             }
 
             $sql = "
-                INSERT INTO jobs (deviceid, duetime, type, route_id, first_stop, last_stop, status)
+                INSERT INTO jobs (deviceid, duetime, type, route_id, status)
                 VALUES " . implode(', ', $placeholders);
 
             $stmt = $this->pdo->prepare($sql);
@@ -240,8 +236,6 @@ final class JobsRepository
                     duetime = :duetime,
                     type = :type,
                     route_id = :route_id,
-                    first_stop = :first_stop,
-                    last_stop = :last_stop,
                     status = :status
                 WHERE id = :id
             ");
@@ -252,8 +246,6 @@ final class JobsRepository
                 ':duetime' => (int) $data['duetime'],
                 ':type' => (int) $data['type'],
                 ':route_id' => isset($data['route_id']) ? (int) $data['route_id'] : null,
-                ':first_stop' => !empty($data['first_stop']) ? $data['first_stop'] : null,
-                ':last_stop' => !empty($data['last_stop']) ? $data['last_stop'] : null,
                 ':status' => $data['status'] ?? 1,
             ]);
 
@@ -276,14 +268,12 @@ final class JobsRepository
                 d.displayName AS device_plate,
                 rt.name AS type_name,
                 rt.color AS color,
-                rt.default_first_stop,
-                rt.default_last_stop,
-                routes.name AS route_name,
-                routes.id AS route_id
+                r.name AS route_name,
+                r.id AS route_id
             FROM jobs j
             LEFT JOIN device d ON d.deviceID = j.deviceid
             LEFT JOIN ring_types rt ON rt.id = j.type
-            LEFT JOIN routes ON routes.id = j.route_id
+            LEFT JOIN routes r ON r.id = j.route_id
             WHERE j.duetime BETWEEN :from AND :to
         ";
 
@@ -325,7 +315,7 @@ final class JobsRepository
     public function getTemplateJobs(int $templateId): array
     {
         $stmt = $this->pdo->prepare("
-            SELECT tj.id, tj.template_id, tj.duetime, tj.type_id, tj.deviceid, tj.route_id, tj.first_stop, tj.last_stop, r.name as route_name
+            SELECT tj.id, tj.template_id, tj.duetime, tj.type_id, tj.deviceid, tj.route_id, r.name as route_name
             FROM template_jobs tj
             LEFT JOIN routes r ON r.id = tj.route_id
             WHERE tj.template_id = :templateId
