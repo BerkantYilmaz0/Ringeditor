@@ -8,7 +8,9 @@ use PDOException;
 
 final class TemplateJobsRepository
 {
-    public function __construct(private PDO $pdo) {}
+    public function __construct(private PDO $pdo)
+    {
+    }
 
     /**
      * $rows => her eleman şu alanları içerir:
@@ -24,21 +26,22 @@ final class TemplateJobsRepository
         try {
             $stmt = $this->pdo->prepare("
                 INSERT INTO template_jobs
-                    (template_id, duetime, type_id, deviceid, first_stop, last_stop, status)
+                    (template_id, duetime, type_id, deviceid, route_id, first_stop, last_stop, status)
                 VALUES
-                    (:template_id, :duetime, :type_id, :deviceid, :first_stop, :last_stop, :status)
+                    (:template_id, :duetime, :type_id, :deviceid, :route_id, :first_stop, :last_stop, :status)
             ");
 
             $count = 0;
             foreach ($rows as $r) {
                 $stmt->execute([
-                    ':template_id' => (int)$r['template_id'],
-                    ':duetime'     => (int)$r['duetime'],
-                    ':type_id'     => (int)$r['type_id'],
-                    ':deviceid'    => (int)$r['deviceid'],
-                    ':first_stop'  => (string)$r['first_stop'],
-                    ':last_stop'   => (string)$r['last_stop'],
-                    ':status'      => (int)$r['status'],
+                    ':template_id' => (int) $r['template_id'],
+                    ':duetime' => (int) $r['duetime'],
+                    ':type_id' => (int) $r['type_id'],
+                    ':deviceid' => (int) $r['deviceid'],
+                    ':route_id' => isset($r['route_id']) ? (int) $r['route_id'] : null,
+                    ':first_stop' => (string) $r['first_stop'],
+                    ':last_stop' => (string) $r['last_stop'],
+                    ':status' => (int) $r['status'],
                 ]);
                 $count++;
             }
@@ -52,14 +55,14 @@ final class TemplateJobsRepository
             throw $e;
         }
     }
-     /**
+    /**
      * Bir şablona ait tüm satırları getirir.
      *
      * @return array<int, array<string,mixed>>
      */
     public function getByTemplateId(int $templateId): array
     {
-        $sql = "SELECT id, template_id, duetime, type_id, deviceid, first_stop, last_stop, status
+        $sql = "SELECT id, template_id, duetime, type_id, deviceid, route_id, first_stop, last_stop, status
                 FROM template_jobs
                 WHERE template_id = :tid AND is_deleted = 0
                 ORDER BY duetime ASC";

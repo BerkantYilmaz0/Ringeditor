@@ -6,14 +6,34 @@ export interface Stop {
     description?: string;
 }
 
+export type Position = [number, number];
+export type GeometryCoordinates = Position | Position[] | Position[][];
+
+export interface GeoJSONGeometry {
+    type: 'Point' | 'LineString' | 'Polygon' | 'MultiPoint' | 'MultiLineString' | 'MultiPolygon';
+    coordinates: GeometryCoordinates;
+}
+
+export interface GeoJSONFeature {
+    type: 'Feature';
+    geometry: GeoJSONGeometry;
+    properties?: Record<string, any>;
+    id?: string | number;
+}
+
+export interface GeoJSONFeatureCollection {
+    type: 'FeatureCollection';
+    features: GeoJSONFeature[];
+}
+
 export interface Route {
     id: number;
     name: string;
     ring_type_id: number;
-    geometry: any; // GeoJSON geometry object
+    geometry: GeoJSONGeometry | null;
     color?: string;
     description?: string;
-    stops?: Stop[]; // Added to support frontend logic
+    stops?: Stop[];
 }
 
 export interface RingType {

@@ -13,7 +13,7 @@ import {
 import { IconPencil, IconTrash, IconCalendarPlus, IconCheck, IconX } from '@tabler/icons-react';
 import RingLabel from './RingLabel';
 import DeviceLabel from './DeviceLabel';
-import { Job, RingType, Device } from '@/types/jobs';
+import { Job, RingType, Device, Route } from '@/types/jobs';
 
 // Job tipinde duetime number ama burada string kullanacağız
 type EditJob = Omit<Job, 'duetime'> & { duetime: string };
@@ -32,6 +32,7 @@ export default function TemplateJobRow({
   editing = false,
   ringTypes = [],
   devices = [],
+  routes = [], // New prop
   editValues,
   onChangeEdit,
   onSaveEdit,
@@ -49,10 +50,12 @@ export default function TemplateJobRow({
   editing?: boolean;
   ringTypes?: RingType[];
   devices?: Device[];
+  routes?: Route[]; // New prop
   editValues?: {
     duetime: string;
     type: number | null;
     deviceid: number | null;
+    route_id?: number | null; // New field
     first_stop: string;
     last_stop: string;
   };
@@ -70,7 +73,7 @@ export default function TemplateJobRow({
   };
 
   if (editing && editValues) {
-    const { duetime, type, deviceid, first_stop, last_stop } = editValues;
+    const { duetime, type, deviceid, route_id, first_stop, last_stop } = editValues;
 
     return (
       <TableRow
@@ -135,11 +138,18 @@ export default function TemplateJobRow({
           />
         </TableCell>
 
-        <TableCell sx={{ minWidth: 160 }} onClick={(e) => e.stopPropagation()}>
-          <TextField id="edit-first-stop" label="İlk Durak" value={first_stop} size="small" fullWidth disabled />
-        </TableCell>
-        <TableCell sx={{ minWidth: 160 }} onClick={(e) => e.stopPropagation()}>
-          <TextField id="edit-last-stop" label="Son Durak" value={last_stop} size="small" fullWidth disabled />
+        <TableCell sx={{ minWidth: 220 }} onClick={(e) => e.stopPropagation()}>
+          <Autocomplete<Route, false, false, false>
+            options={routes.filter(r => r.ring_type_id === type)}
+            value={routes.find((r) => r.id === (route_id ?? -1)) ?? null}
+            onChange={(_, val) => onChangeEdit?.({ route_id: val?.id ?? null })}
+            getOptionLabel={(o) => o?.name ?? ''}
+            isOptionEqualToValue={(o, v) => o.id === v.id}
+            renderInput={(params) => (
+              <TextField {...params} id="edit-route" label="Rota" size="small" />
+            )}
+            noOptionsText="Ring tipine uygun rota yok"
+          />
         </TableCell>
 
         <TableCell sx={{ minWidth: 220 }} onClick={(e) => e.stopPropagation()}>
@@ -181,8 +191,7 @@ export default function TemplateJobRow({
       <TableCell>
         <RingLabel ring={rtMap[job.type]} />
       </TableCell>
-      <TableCell>{job.first_stop}</TableCell>
-      <TableCell>{job.last_stop}</TableCell>
+      <TableCell>{job.route_name || (job.first_stop && job.last_stop ? `${job.first_stop} - ${job.last_stop}` : '-')}</TableCell>
       <TableCell>
         <DeviceLabel name={deviceMap[job.deviceid]} />
       </TableCell>

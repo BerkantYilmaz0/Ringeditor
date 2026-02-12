@@ -7,8 +7,10 @@ export type JobApi = {
   type?: number | string;
   type_id?: number | string;
   deviceid: number | string;
-  first_stop: string;
-  last_stop: string;
+  route_id?: number | string | null;
+  first_stop?: string;
+  last_stop?: string;
+  route_name?: string | null;
 
   // Ekstra join alanları
   device_plate?: string | null;
@@ -27,6 +29,8 @@ export type Job = {
   duetime: number; // ms epoch
   type: number;
   deviceid: number;
+  route_id?: number | null;
+  route_name?: string | null;
   first_stop: string;
   last_stop: string;
   selected?: boolean;
@@ -66,4 +70,12 @@ export type RingStop = {
   sequence_order: number;
   lat?: number | null;
   lng?: number | null;
+};
+
+export type Route = {
+  id: number;
+  name: string;
+  ring_type_id: number;
+  color?: string;
+  description?: string;
 };

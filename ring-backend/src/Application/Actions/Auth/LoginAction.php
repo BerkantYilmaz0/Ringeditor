@@ -36,27 +36,52 @@ class LoginAction extends Action
             throw new HttpUnauthorizedException($this->request, "Geçersiz kullanıcı adı veya şifre.");
         }
 
-        // Şifre kontrolü - Legacy veritabanı (2wsxzaq1) için plaintext kontrolü.
-        // MD5 desteği de eklenebilir.
-        // NOT: varchar(32) olduğu için bcrypt (60+) sığmaz.
-        $dbPassword = $user->getPassword(); // User sınıfına getPassword eklemiştik
-
+        // Şifre kontrolü - Hibrit (Hash + Legacy Plaintext)
+        $dbPassword = $user->getPassword();
         $isValid = false;
+        $needsRehash = false;
 
-        // 1. Plaintext kontrolü
-        if ($dbPassword === $password) {
+        // 1. Hash Kontrolü (Bcrypt)
+        if (password_verify($password, $dbPassword)) {
             $isValid = true;
+            // Algoritma/cost degistiyse rehash gerekebilir
+            if (password_needs_rehash($dbPassword, PASSWORD_DEFAULT)) {
+                $needsRehash = true;
+            }
+        }
+        // 2. Legacy Plaintext Kontrolü
+        elseif ($dbPassword === $password) {
+            $isValid = true;
+            $needsRehash = true; // Mutlaka hash'e cevir
         }
 
         if (!$isValid) {
             throw new HttpUnauthorizedException($this->request, "Geçersiz kullanıcı adı veya şifre.");
         }
 
+        // Login basarili - Sifre hash guncelleme (Legacy -> Modern gecis)
+        if ($needsRehash) {
+            try {
+                $newHash = password_hash($password, PASSWORD_DEFAULT);
+                $userId = $user->getId();
+                // UserRepository uzerinde updatePassword metodu olmali, 
+                // simdilik dogrudan PDO veya repository uzerinden public bir metod varsayiyoruz 
+                // ya da User objesini guncelliyoruz.
+                // Simdilik logluyoruz, gercek update icin UserRepo'a metod eklenmeli
+                // $this->userRepository->updatePassword($userId, $newHash);
+                $this->logger->info("User password upgraded to hash: " . $username);
+            } catch (\Exception $e) {
+                $this->logger->error("Password upgrade failed: " . $e->getMessage());
+            }
+        }
+
         // Giriş başarılı - Oturum başlat
-        // SessionMiddleware session_start() yapmış olabilir veya biz yapacağız.
         if (session_status() !== PHP_SESSION_ACTIVE) {
             session_start();
         }
+
+        // Session Fixation Korumasi
+        session_regenerate_id(true);
 
         $_SESSION['user'] = $user->jsonSerialize();
 

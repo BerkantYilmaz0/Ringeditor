@@ -1,13 +1,23 @@
 
 import axios from 'axios';
 
+import { GeoJSONGeometry } from '../types';
+
 // OSRM Public API Base URL
 const OSRM_API_BASE = 'https://router.project-osrm.org/route/v1/driving';
 
 export interface RouteResponse {
-    geometry: any; // GeoJSON LineString
+    geometry: GeoJSONGeometry; // GeoJSON LineString
     duration: number; // Seconds
     distance: number; // Meters
+}
+
+interface OSRMResponse {
+    routes: {
+        geometry: GeoJSONGeometry;
+        duration: number;
+        distance: number;
+    }[];
 }
 
 /**
@@ -24,10 +34,8 @@ export const getRouteFromOSRM = async (start: [number, number], end: [number, nu
 
         console.log('Fetching route from OSRM:', url);
 
-        const response = await axios.get(url, { timeout: 10000 });
-
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const data = response.data as any;
+        const response = await axios.get<OSRMResponse>(url, { timeout: 10000 });
+        const data = response.data;
 
         if (data && data.routes && data.routes.length > 0) {
             const route = data.routes[0];

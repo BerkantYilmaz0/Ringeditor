@@ -48,17 +48,22 @@ final class JobsValidator
             throw new ValidationException("Geçerli bir ring tipi seçilmedi.");
         }
 
-        // 5. Durak kontrolü
-        if (empty($data['first_stop']) || empty($data['last_stop'])) {
-            throw new ValidationException("Başlangıç ve bitiş durağı seçilmelidir.");
+        // 5. Durak veya Rota kontrolü
+        $hasRoute = !empty($data['route_id']) && is_numeric($data['route_id']);
+        $hasStops = !empty($data['first_stop']) && !empty($data['last_stop']);
+
+        if (!$hasRoute && !$hasStops) {
+            throw new ValidationException("Bir Rota seçilmeli veya Başlangıç/Bitiş durakları girilmelidir.");
         }
 
-        if (!is_numeric($data['first_stop']) || !is_numeric($data['last_stop'])) {
-            throw new ValidationException("Geçersiz durak ID'si.");
-        }
+        if ($hasStops) {
+            if (!is_numeric($data['first_stop']) || !is_numeric($data['last_stop'])) {
+                throw new ValidationException("Geçersiz durak ID'si.");
+            }
 
-        if ($data['first_stop'] === $data['last_stop']) {
-            throw new ValidationException("Başlangıç ve bitiş durağı aynı olamaz.");
+            if ($data['first_stop'] === $data['last_stop']) {
+                throw new ValidationException("Başlangıç ve bitiş durağı aynı olamaz.");
+            }
         }
     }
 

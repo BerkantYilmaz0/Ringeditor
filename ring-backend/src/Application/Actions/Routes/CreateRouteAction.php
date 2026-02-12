@@ -7,14 +7,18 @@ use App\Application\Actions\Action;
 use Psr\Http\Message\ResponseInterface as Response;
 use PDO;
 
+use App\Domain\Route\RouteService;
+use App\Infrastructure\Persistence\Route\RouteRepository;
+
 class CreateRouteAction extends Action
 {
-    private PDO $pdo;
-
-    public function __construct(PDO $pdo, \Psr\Log\LoggerInterface $logger)
-    {
+    public function __construct(
+        private PDO $pdo,
+        private RouteRepository $routeRepository,
+        private RouteService $routeService,
+        \Psr\Log\LoggerInterface $logger
+    ) {
         parent::__construct($logger);
-        $this->pdo = $pdo;
     }
 
     protected function action(): Response
@@ -38,50 +42,21 @@ class CreateRouteAction extends Action
         try {
             $this->pdo->beginTransaction();
 
-            $sql = "INSERT INTO routes (name, ring_type_id, geometry, color, description) VALUES (:name, :ring_type_id, :geometry, :color, :description)";
-            $stmt = $this->pdo->prepare($sql);
-            $stmt->execute([
-                ':name' => $name,
-                ':ring_type_id' => $ringTypeId,
-                ':geometry' => $geometry,
-                ':color' => $color,
-                ':description' => $description
-            ]);
+            $this->pdo->beginTransaction();
 
-            $routeId = $this->pdo->lastInsertId();
+            // Prepare data for repository
+            $routeData = [
+                'name' => $name,
+                'ring_type_id' => $ringTypeId,
+                'geometry' => isset($data['geometry']) ? $data['geometry'] : null, // Pass raw array/object, repository handles encoding
+                'color' => $color,
+                'description' => $description
+            ];
+
+            $routeId = $this->routeRepository->create($routeData);
 
             if (isset($data['stops']) && is_array($data['stops'])) {
-                $stops = $data['stops'];
-                $seq = 1;
-                $insertStopSql = "INSERT INTO stops (name, lat, lng, description) VALUES (:name, :lat, :lng, :description)";
-                $linkStopSql = "INSERT INTO route_stops (route_id, stop_id, sequence) VALUES (:route_id, :stop_id, :sequence)";
-                
-                $stmtInsertStop = $this->pdo->prepare($insertStopSql);
-                $stmtLinkStop = $this->pdo->prepare($linkStopSql);
-
-                foreach ($stops as $stop) {
-                    $stopId = null;
-                    if (isset($stop['id']) && !empty($stop['id'])) {
-                        $stopId = $stop['id'];
-                    } else {
-                        // Create new stop
-                        $stmtInsertStop->execute([
-                            ':name' => $stop['name'] ?? 'New Stop',
-                            ':lat' => $stop['lat'] ?? 0,
-                            ':lng' => $stop['lng'] ?? 0,
-                            ':description' => $stop['description'] ?? ''
-                        ]);
-                        $stopId = $this->pdo->lastInsertId();
-                    }
-
-                    if ($stopId) {
-                        $stmtLinkStop->execute([
-                            ':route_id' => $routeId,
-                            ':stop_id' => $stopId,
-                            ':sequence' => $seq++
-                        ]);
-                    }
-                }
+                $this->routeService->processRouteStops($routeId, $data['stops']);
             }
 
             $this->pdo->commit();
@@ -93,7 +68,8 @@ class CreateRouteAction extends Action
 
         } catch (\Exception $e) {
             $this->pdo->rollBack();
-            return $this->respondWithData(['error' => 'Failed to create route: ' . $e->getMessage()], 500);
+            $this->logger->error("CreateRouteAction: " . $e->getMessage());
+            throw $e;
         }
     }
 }

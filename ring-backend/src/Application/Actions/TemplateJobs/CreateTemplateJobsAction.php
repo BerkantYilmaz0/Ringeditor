@@ -78,6 +78,7 @@ final class CreateTemplateJobsAction extends Action
                         'duetime' => $ts,
                         'type_id' => $typeId,
                         'deviceid' => $deviceId,
+                        'route_id' => isset($job['route_id']) ? (int) $job['route_id'] : null,
                         'first_stop' => (string) ($job['first_stop'] ?? ''),
                         'last_stop' => (string) ($job['last_stop'] ?? ''),
                         'status' => $status,

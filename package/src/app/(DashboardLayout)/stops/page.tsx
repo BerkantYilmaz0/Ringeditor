@@ -36,7 +36,7 @@ import AutoFixHighIcon from '@mui/icons-material/AutoFixHigh';
 import EditIcon from '@mui/icons-material/Edit';
 
 // Types
-import { Stop, Route, RingType, ApiResponse } from '@/types';
+import { Stop, Route, RingType, ApiResponse, Position } from '@/types';
 
 type ViewMode = 'stops' | 'routes' | 'drawing';
 
@@ -326,7 +326,7 @@ const StopsPage = () => {
             if (isAddingStopToRoute && editingRoute && editingRoute.geometry) {
                 try {
                     const pt = point([lng, lat]);
-                    const line = lineString(editingRoute.geometry.coordinates); // Assuming LineString. If MultiLineString, needs flattening or handling.
+                    const line = lineString(editingRoute.geometry.coordinates as Position[]); // Assuming LineString. If MultiLineString, needs flattening or handling.
                     const snapped = nearestPointOnLine(line, pt);
 
                     if (snapped && snapped.geometry) {

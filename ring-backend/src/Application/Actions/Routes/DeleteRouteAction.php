@@ -9,21 +9,18 @@ use PDO;
 
 class DeleteRouteAction extends Action
 {
-    private PDO $pdo;
-
-    public function __construct(PDO $pdo, \Psr\Log\LoggerInterface $logger)
-    {
+    public function __construct(
+        private \App\Infrastructure\Persistence\Route\RouteRepository $routeRepository,
+        \Psr\Log\LoggerInterface $logger
+    ) {
         parent::__construct($logger);
-        $this->pdo = $pdo;
     }
 
     protected function action(): Response
     {
         $id = (int) $this->resolveArg('id');
 
-        $sql = "DELETE FROM routes WHERE id = :id";
-        $stmt = $this->pdo->prepare($sql);
-        $stmt->execute([':id' => $id]);
+        $this->routeRepository->delete($id);
 
         return $this->respondWithData(['message' => 'Route deleted successfully']);
     }

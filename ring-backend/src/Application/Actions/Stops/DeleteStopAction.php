@@ -18,17 +18,17 @@ final class DeleteStopAction extends Action
     {
         $stopId = (int) $this->resolveArg('id');
 
-        // Check if stop exists
+        // Durak var mi kontrol et
         $stmt = $this->pdo->prepare("SELECT id FROM stops WHERE id = :id");
         $stmt->execute([':id' => $stopId]);
         if (!$stmt->fetch()) {
             return $this->respondWithData(['message' => 'Stop not found'], 404);
         }
 
-        // Check dependencies (e.g. ring_stops)
-        // If we want to allow deleting even if used, we might need to cascade or warn.
-        // For now, let's assume simple delete is allowed or DB constraints handle it.
-        // If there are FK constraints without cascade, this will fail.
+        // Bagimliliklari kontrol et (orn. ring_stops)
+        // Kullanilmasina ragmen silmeye izin vermek istiyorsak cascade veya uyari gerekebilir.
+        // Simdilik basit silmeye izin verildigini veya DB kisitlamalarinin hallettigini varsayiyoruz.
+        // Eger cascade olmadan FK kisitlamalari varsa, bu islem basarisiz olacaktir.
 
         $stmt = $this->pdo->prepare("DELETE FROM stops WHERE id = :id");
         $stmt->execute([':id' => $stopId]);

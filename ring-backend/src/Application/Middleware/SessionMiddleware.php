@@ -21,14 +21,17 @@ class SessionMiddleware implements Middleware
     {
         // 1. Session Başlatma
         if (session_status() !== PHP_SESSION_ACTIVE) {
+            // HTTPS kontrolü
+            $isSecure = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on';
+
             // Cookie ayarları
             session_set_cookie_params([
-                'lifetime' => 3600, // 1 saat (0 = browser kapanana kadar)
+                'lifetime' => 3600, // 1 saat
                 'path' => '/',
-                'domain' => '', // Otomatik domain
-                'secure' => false, // Production'da true yapın (HTTPS gerektirir)
+                'domain' => '',
+                'secure' => $isSecure, // Sadece HTTPS ise true
                 'httponly' => true, // XSS koruması
-                'samesite' => 'Lax' // CSRF koruması (Strict daha güvenli ama bazı durumlarda sorun çıkarabilir)
+                'samesite' => 'Lax' // CSRF koruması
             ]);
             session_start();
         }
@@ -59,10 +62,10 @@ class SessionMiddleware implements Middleware
             '/docs'
         ];
 
-        // Public prefix'ler (bu prefix ile başlayan tüm route'lar public)
+        // Public prefix'ler
         $publicPrefixes = [
-            '/device',
             '/api/public'
+            // '/device' kaldirildi: Guvenlik analizi istegi uzerine
         ];
 
         // Tam eşleşme kontrolü

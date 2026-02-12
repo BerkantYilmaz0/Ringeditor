@@ -36,7 +36,7 @@ import BulkDialog from './BulkDialog';
 import RingLabel from './RingLabel';
 
 import { api } from '@/lib/api';
-import { Device, Job, RingType, ToastState, JobApi } from '@/types/jobs';
+import { Device, Job, RingType, ToastState, JobApi, Route } from '@/types/jobs';
 import { ApiResponse } from '@/types';
 
 type Props = {
@@ -70,18 +70,21 @@ export default function TemplateJobsForm({ templateId, editMode = false, onClose
   const [duetime, setDuetime] = useState('');
   const [type, setType] = useState<number | null>(null);
   const [deviceid, setDeviceID] = useState<number | null>(null);
+  const [routeId, setRouteId] = useState<number | null>(null);
   const [first_stop, setFirstStop] = useState('');
   const [last_stop, setLastStop] = useState('');
 
   const [ringTypes, setRingTypes] = useState<RingType[]>([]);
   const [devices, setDevices] = useState<Device[]>([]);
+  const [routes, setRoutes] = useState<Route[]>([]);
   const [jobs, setJobs] = useState<Job[]>([]);
 
   const [editIndex, setEditIndex] = useState<number | null>(null);
-  const [editValues, setEditValues] = useState<EditValues>({
+  const [editValues, setEditValues] = useState<EditValues & { route_id?: number | null }>({
     duetime: '',
     type: null,
     deviceid: null,
+    route_id: null,
     first_stop: '',
     last_stop: '',
   });
@@ -125,6 +128,8 @@ export default function TemplateJobsForm({ templateId, editMode = false, onClose
           duetime: Number(j.duetime) * 1000,
           type: Number(j.type_id),
           deviceid: Number(j.deviceid),
+          route_id: j.route_id ? Number(j.route_id) : null,
+          route_name: j.route_name,
           first_stop: j.first_stop,
           last_stop: j.last_stop,
           selected: false,
@@ -163,6 +168,16 @@ export default function TemplateJobsForm({ templateId, editMode = false, onClose
       }
       setDevices(payload);
     });
+    api.get<ApiResponse<Route[]>>('/routes').then((res) => {
+      let payload: Route[] = [];
+      if (Array.isArray(res.data)) {
+        payload = res.data;
+      } else if ('data' in res.data && Array.isArray(res.data.data)) {
+        // @ts-ignore
+        payload = res.data.data;
+      }
+      setRoutes(payload);
+    });
   }, []);
 
   useEffect(() => {
@@ -175,9 +190,11 @@ export default function TemplateJobsForm({ templateId, editMode = false, onClose
       const selected = ringTypes.find((rt) => rt.id === type);
       setFirstStop(selected?.default_first_stop || '');
       setLastStop(selected?.default_last_stop || '');
+      setRouteId(null);
     } else {
       setFirstStop('');
       setLastStop('');
+      setRouteId(null);
     }
   }, [type, ringTypes]);
 
@@ -200,15 +217,16 @@ export default function TemplateJobsForm({ templateId, editMode = false, onClose
 
     setJobs((prev) => [
       ...prev,
-      { duetime: ms, type, deviceid, first_stop, last_stop, selected: false } as Job,
+      { duetime: ms, type, deviceid, route_id: routeId, first_stop, last_stop, selected: false } as Job,
     ]);
 
     setDuetime('');
     setType(null);
     setDeviceID(null);
+    setRouteId(null);
     setFirstStop('');
     setLastStop('');
-  }, [duetime, type, deviceid, first_stop, last_stop, jobs]);
+  }, [duetime, type, deviceid, routeId, first_stop, last_stop, jobs]);
 
   // save inline edit
   const handleSaveEdit = useCallback(() => {
@@ -233,18 +251,19 @@ export default function TemplateJobsForm({ templateId, editMode = false, onClose
         duetime: ms,
         type: v.type as number,
         deviceid: v.deviceid as number,
+        route_id: v.route_id,
         first_stop: v.first_stop,
         last_stop: v.last_stop,
       };
       return next;
     });
     setEditIndex(null);
-    setEditValues({ duetime: '', type: null, deviceid: null, first_stop: '', last_stop: '' });
+    setEditValues({ duetime: '', type: null, deviceid: null, route_id: null, first_stop: '', last_stop: '' });
   }, [editIndex, editValues, jobs]);
 
   const handleCancelEdit = useCallback(() => {
     setEditIndex(null);
-    setEditValues({ duetime: '', type: null, deviceid: null, first_stop: '', last_stop: '' });
+    setEditValues({ duetime: '', type: null, deviceid: null, route_id: null, first_stop: '', last_stop: '' });
   }, []);
 
   // bulk
@@ -312,6 +331,7 @@ export default function TemplateJobsForm({ templateId, editMode = false, onClose
               duetime: Math.floor(job.duetime / 1000), // ms → s
               type_id: job.type,
               deviceid: job.deviceid,
+              route_id: job.route_id,
               first_stop: job.first_stop,
               last_stop: job.last_stop,
               status: 1,
@@ -327,6 +347,7 @@ export default function TemplateJobsForm({ templateId, editMode = false, onClose
               duetime: Math.floor(j.duetime / 1000),
               type_id: j.type,
               deviceid: j.deviceid,
+              route_id: j.route_id,
               first_stop: j.first_stop,
               last_stop: j.last_stop,
               status: 1,
@@ -344,6 +365,7 @@ export default function TemplateJobsForm({ templateId, editMode = false, onClose
             duetime: Math.floor(j.duetime / 1000),
             type_id: j.type,
             deviceid: j.deviceid,
+            route_id: j.route_id,
             first_stop: j.first_stop,
             last_stop: j.last_stop,
             status: 1,
@@ -403,8 +425,22 @@ export default function TemplateJobsForm({ templateId, editMode = false, onClose
                 </MenuItem>
               ))}
             </TextField>
-            <TextField label="İlk Durak" value={first_stop} disabled sx={{ minWidth: 180 }} />
-            <TextField label="Son Durak" value={last_stop} disabled sx={{ minWidth: 180 }} />
+            <TextField
+              label="Rota"
+              select
+              value={routeId ?? ''}
+              onChange={(e) => setRouteId(Number(e.target.value))}
+              sx={{ flex: '1 1 180px', minWidth: 180 }}
+            >
+              <MenuItem value=""><em>Seçiniz</em></MenuItem>
+              {routes
+                .filter(r => r.ring_type_id === type)
+                .map((r) => (
+                  <MenuItem key={r.id} value={r.id}>
+                    {r.name}
+                  </MenuItem>
+                ))}
+            </TextField>
             <TextField
               label="Plaka"
               select
@@ -483,8 +519,7 @@ export default function TemplateJobsForm({ templateId, editMode = false, onClose
                           <TableCell padding="checkbox" />
                           <TableCell width="10%">Saat</TableCell>
                           <TableCell width="15%">Ring</TableCell>
-                          <TableCell width="20%">İlk Durak</TableCell>
-                          <TableCell width="20%">Son Durak</TableCell>
+                          <TableCell width="30%">Rota</TableCell>
                           <TableCell width="20%">Plaka</TableCell>
                           <TableCell align="right">İşlemler</TableCell>
                         </TableRow>
@@ -511,6 +546,7 @@ export default function TemplateJobsForm({ templateId, editMode = false, onClose
                                     duetime: msToTimeString(j.duetime),
                                     type: j.type,
                                     deviceid: j.deviceid,
+                                    route_id: j.route_id,
                                     first_stop: j.first_stop,
                                     last_stop: j.last_stop,
                                   });
@@ -520,12 +556,13 @@ export default function TemplateJobsForm({ templateId, editMode = false, onClose
                                 editing={isEditing}
                                 ringTypes={ringTypes}
                                 devices={devices}
+                                routes={routes}
                                 editValues={editValues}
                                 onChangeEdit={(patch) => {
                                   if (typeof patch.type !== 'undefined') {
                                     const sel = ringTypes.find((r) => r.id === patch.type!);
-                                    patch.first_stop = sel?.default_first_stop ?? '';
-                                    patch.last_stop = sel?.default_last_stop ?? '';
+                                    // Reset/Set stops based on ring type if needed, or clear route
+                                    patch.route_id = null;
                                   }
                                   patchEdit(patch);
                                 }}

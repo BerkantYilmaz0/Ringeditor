@@ -6,40 +6,36 @@ import '@mapbox/mapbox-gl-draw/dist/mapbox-gl-draw.css';
 import { Box, Paper, Typography } from '@mui/material';
 import DirectionsBusIcon from '@mui/icons-material/DirectionsBus';
 import { drawStyles } from '@/lib/mapDrawStyles';
-// Helper to calculate BBox for GeoJSON
-const calculateBBox = (geometry: any): [number, number, number, number] | null => {
+// GeoJSON için BBox hesaplayan yardımcı fonksiyon
+const calculateBBox = (geometry: GeoJSONGeometry | null): [number, number, number, number] | null => {
     if (!geometry || !geometry.coordinates) return null;
 
-    let coords: number[][] = [];
+    let flatCoords: number[] = [];
 
-    // Handle different GeoJSON types
-    if (geometry.type === 'LineString') {
-        coords = geometry.coordinates;
-    } else if (geometry.type === 'MultiLineString') {
-        coords = geometry.coordinates.flat();
-    } else if (geometry.type === 'Polygon') {
-        coords = geometry.coordinates[0];
-    } else {
-        return null;
+    // Flatten coordinates based on type or just recursively flatten
+    if (Array.isArray(geometry.coordinates)) {
+        // @ts-ignore - flat method with depth
+        flatCoords = geometry.coordinates.flat(Infinity);
     }
 
-    if (coords.length === 0) return null;
+    if (flatCoords.length === 0) return null;
 
     let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
 
-    coords.forEach(([lng, lat]) => {
+    for (let i = 0; i < flatCoords.length; i += 2) {
+        const lng = flatCoords[i];
+        const lat = flatCoords[i + 1];
         if (lng < minX) minX = lng;
         if (lng > maxX) maxX = lng;
         if (lat < minY) minY = lat;
         if (lat > maxY) maxY = lat;
-    });
+    }
 
     return [minX, minY, maxX, maxY];
 };
 import '@mapbox/mapbox-gl-draw/dist/mapbox-gl-draw.css';
 
-// Custom Draw Control Hook
-// Custom Draw Control Hook
+// Özel Çizim Kontrol Hook'u
 interface DrawControlProps {
     position?: 'top-right' | 'top-left' | 'bottom-right' | 'bottom-left';
     displayControlsDefault?: boolean;
@@ -52,15 +48,15 @@ interface DrawControlProps {
         uncombine_features?: boolean;
     };
     defaultMode?: string;
-    onCreate?: (e: any) => void;
-    onUpdate?: (e: any) => void;
-    onDelete?: (e: any) => void;
-    styles?: any[];
-    initialDrawData?: any;
+    onCreate?: (e: { features: GeoJSONFeature[] }) => void;
+    onUpdate?: (e: { features: GeoJSONFeature[], action: string }) => void;
+    onDelete?: (e: { features: GeoJSONFeature[] }) => void;
+    styles?: object[]; // Mapbox styles are objects
+    initialDrawData?: GeoJSONGeometry | GeoJSONFeature | null;
 }
 
 function DrawControl(props: DrawControlProps) {
-    // Use InstanceType to get the class instance type from the constructor
+    // Constructor'dan sınıf örneği tipini almak için InstanceType kullan
     const drawRef = useRef<InstanceType<typeof MapboxDraw> | null>(null);
 
     useControl(
@@ -76,34 +72,35 @@ function DrawControl(props: DrawControlProps) {
 
             // Load initial data if provided
             if (props.initialDrawData) {
-                // Load initial data if provided
+                // Varsa başlangıç verisini yükle
                 if (props.initialDrawData) {
-                    // Use invalidation loop to ensure map style is loaded and draw control is ready
+                    // Harita stilinin yüklendiğinden ve çizim kontrolünün hazır olduğundan emin olmak için döngü kullan
                     const checkInterval = setInterval(() => {
                         if (drawRef.current && map && map.isStyleLoaded()) {
                             try {
-                                // Ensure data is in Feature or FeatureCollection format
-                                let dataToAdd = props.initialDrawData;
-                                if (dataToAdd.type === 'LineString' || dataToAdd.type === 'Polygon' || dataToAdd.type === 'Point') {
-                                    dataToAdd = {
-                                        type: 'Feature',
-                                        properties: {},
-                                        geometry: dataToAdd
-                                    };
-                                }
+                                // Verinin Feature veya FeatureCollection formatında olduğundan emin ol
+                                let dataToAdd: GeoJSONFeature | GeoJSONFeatureCollection | GeoJSONGeometry | null | undefined = props.initialDrawData;
 
-                                drawRef.current.add(dataToAdd);
+                                if (dataToAdd) {
+                                    // Geometry nesneleri için basit tip kontrolü
+                                    if ('type' in dataToAdd && (dataToAdd.type === 'LineString' || dataToAdd.type === 'Polygon' || dataToAdd.type === 'Point')) {
+                                        dataToAdd = {
+                                            type: 'Feature',
+                                            properties: {},
+                                            geometry: dataToAdd as GeoJSONGeometry
+                                        };
+                                    }
+
+                                    drawRef.current.add(dataToAdd as any);
+                                }
                                 clearInterval(checkInterval);
                             } catch (e) {
                                 console.error("Error adding initial draw data (retrying):", e);
-                                // If error persists (e.g. invalid GeoJSON), clear interval to avoid infinite loop
-                                // For now, let it retry a few times or use a counter if needed. 
-                                // But usually 'reading get' means map not ready.
                             }
                         }
                     }, 100);
 
-                    // Clear interval after 5 seconds to prevent infinite loop
+                    // Sonsuz döngüyü önlemek için 5 saniye sonra interval'i temizle
                     setTimeout(() => clearInterval(checkInterval), 5000);
                 }
             }
@@ -129,27 +126,27 @@ function DrawControl(props: DrawControlProps) {
     return null;
 }
 
-import { Stop, Route } from '@/types';
+import { Stop, Route, GeoJSONGeometry, GeoJSONFeature, GeoJSONFeatureCollection } from '@/types';
 
 interface MapLibreBoardProps {
     stops?: Stop[];
     routes?: Route[];
-    allRoutes?: Route[]; // All routes for lookup
+    allRoutes?: Route[]; // Arama için tüm rotalar
     mode?: 'stops' | 'routes' | 'drawing';
-    selectedItem?: Stop | Route | null; // Prop to trigger FlyTo
-    onMapClick?: (e: any) => void;
+    selectedItem?: Stop | Route | null; // FlyTo tetiklemek için Prop
+    onMapClick?: (e: MapLayerMouseEvent) => void;
     onStopClick?: (stop: Stop) => void;
     onStopDoubleClick?: (stop: Stop) => void; // New Prop
-    onDrawCreate?: (e: any) => void;
-    onDrawUpdate?: (e: any) => void;
-    initialDrawData?: any; // New Prop for existing geometry editing
+    onDrawCreate?: (e: { features: GeoJSONFeature[] }) => void;
+    onDrawUpdate?: (e: { features: GeoJSONFeature[], action: string }) => void;
+    initialDrawData?: GeoJSONGeometry | GeoJSONFeature | null; // New Prop for existing geometry editing
     initialViewState?: {
         longitude: number;
         latitude: number;
         zoom: number;
     };
     autoRoutePoints?: { start: [number, number] | null; end: [number, number] | null }; // New Prop
-    previewGeometry?: any; // For visualizing auto-routed path before saving
+    previewGeometry?: GeoJSONGeometry | null; // For visualizing auto-routed path before saving
     onAutoRoutePointChange?: (type: 'start' | 'end', lng: number, lat: number) => void; // For draggable markers
     isEditingStops?: boolean; // New prop for edit mode
     selectedStops?: Stop[]; // Currently selected stops in edit mode
@@ -190,19 +187,19 @@ const MapLibreBoard: React.FC<MapLibreBoardProps> = ({
         if (!selectedItem || !mapRef.current) return;
 
         if ('lat' in selectedItem && 'lng' in selectedItem) {
-            // It's a Stop
+            // Bu bir Durak (Stop)
             mapRef.current.flyTo({
                 center: [selectedItem.lng, selectedItem.lat],
                 zoom: 16,
                 essential: true
             });
         } else if ('geometry' in selectedItem) {
-            // It's a Route
+            // Bu bir Rota (Route)
             const route = selectedItem as Route;
             if (route.geometry) {
                 // Calculate center or bbox
-                // Simple approach: if LineString, take first coordinate or use turf/center
-                // For better UX, fitBounds is preferred for routes
+                // Basit yaklaşım: LineString ise, ilk koordinatı al veya turf/center kullan
+                // Daha iyi UX için rotalarda fitBounds tercih edilir
                 try {
                     const bboxResult = calculateBBox(route.geometry);
                     if (bboxResult) {
@@ -222,7 +219,7 @@ const MapLibreBoard: React.FC<MapLibreBoardProps> = ({
     const handleStopClick = (e: any, stop: Stop) => {
         e.originalEvent.stopPropagation();
 
-        // Edit Mode Logic
+        // Düzenleme Modu Mantığı
         if (isEditingStops && onStopSelect) {
             onStopSelect(stop);
             return;
@@ -251,14 +248,14 @@ const MapLibreBoard: React.FC<MapLibreBoardProps> = ({
                 onClick={(e) => {
                     setPopupInfo(null); // Close popup on map click
                     if (onMapClick) onMapClick(e);
-                }} // Always allow click, parent controller handles logic
+                }} // Her zaman tıklamaya izin ver, mantığı ebeveyn denetleyici yönetir
                 onContextMenu={(e) => {
                     if (isEditingStops && onStopCreate) {
-                        e.preventDefault(); // Prevent browser context menu
+                        e.preventDefault(); // Tarayıcı sağ tık menüsünü engelle
                         onStopCreate(e.lngLat.lat, e.lngLat.lng);
                     }
                 }}
-                doubleClickZoom={false} // Disable default double click zoom for custom actions
+                doubleClickZoom={false} // Özel eylemler için varsayılan çift tıklama yakınlaştırmayı devre dışı bırak
             >
                 <NavigationControl position="top-right" />
 
@@ -371,14 +368,14 @@ const MapLibreBoard: React.FC<MapLibreBoardProps> = ({
 
                 {/* Stops Layer */}
                 {(mode === 'stops' || mode === 'routes') && (
-                    // Combine explicitly passed stops with stops found in routes (for overview mode)
+                    // Açıkça geçilen durakları ve rotalarda bulunan durakları birleştir (genel bakış modu için)
                     [
                         ...stops,
                         ...(mode === 'routes' && routes
-                            ? routes.flatMap((r: any) => r.stops || [])
+                            ? routes.flatMap((r: Route) => r.stops || [])
                             : [])
                     ]
-                        // Deduplicate stops by ID to avoid overlapping markers
+                        // Çakışan işaretçileri önlemek için durakları ID'ye göre tekilleştir
                         .filter((stop, index, self) =>
                             index === self.findIndex((t) => t.id === stop.id)
                         )
@@ -505,7 +502,7 @@ const MapLibreBoard: React.FC<MapLibreBoardProps> = ({
 
                 {/* Preview Route Layer (Blue Dashed) */}
                 {previewGeometry && (
-                    <Source id="preview-route" type="geojson" data={previewGeometry}>
+                    <Source id="preview-route" type="geojson" data={previewGeometry as any}>
                         <Layer
                             id="preview-route-layer"
                             type="line"
@@ -527,7 +524,7 @@ const MapLibreBoard: React.FC<MapLibreBoardProps> = ({
                 {routes.map((route, index) => (
                     route.geometry && (
                         <React.Fragment key={route.id}>
-                            <Source id={`route-${route.id}`} type="geojson" data={route.geometry}>
+                            <Source id={`route-${route.id}`} type="geojson" data={route.geometry as any}>
                                 <Layer
                                     id={`route-layer-${route.id}`}
                                     type="line"
