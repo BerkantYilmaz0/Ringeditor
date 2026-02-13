@@ -22,6 +22,12 @@ const Menuitems = [
   },
   {
     id: uniqueId(),
+    title: "Genel Bakış",
+    icon: IconLayoutDashboard,
+    href: "/",
+  },
+  {
+    id: uniqueId(),
     title: "Planlar",
     icon: IconCalendarEvent,
     href: "/Plans",
@@ -56,35 +62,9 @@ const Menuitems = [
     href: "/color-codes",
     description: "Ring Seferleri için renk kodlarını yönetin",
   },
-  {
-    navlabel: true,
-    subheader: "AUTH",
-  },
-  {
-    id: uniqueId(),
-    title: "Login",
-    icon: IconLogin,
-    href: "/authentication/login",
-  },
-  {
-    id: uniqueId(),
-    title: "Register",
-    icon: IconUserPlus,
-    href: "/authentication/register",
-  },
-  {
-    navlabel: true,
-    subheader: " EXTRA",
-  },
-  {
-    id: uniqueId(),
-    title: "Icons",
-    icon: IconMoodHappy,
-    href: "/icons",
-  },
-
-
 ];
+
+
 
 export default Menuitems;
 

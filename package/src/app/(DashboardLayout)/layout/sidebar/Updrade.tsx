@@ -4,11 +4,11 @@ import Link from 'next/link';
 
 export const Upgrade = () => {
     return (
-        <Box           
+        <Box
         >
             <>
-                
-               
+
+
             </>
         </Box>
     );

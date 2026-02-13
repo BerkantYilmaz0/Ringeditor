@@ -404,20 +404,11 @@ export default function TemplateJobsForm({ templateId, editMode = false, onClose
             </TextField>
             <TextField
               label="Rota"
-              select
-              value={routeId ?? ''}
-              onChange={(e) => setRouteId(Number(e.target.value))}
+              value={routes.find(r => r.id === routeId)?.name ?? '—'}
               sx={{ flex: '1 1 180px', minWidth: 180 }}
-            >
-              <MenuItem value=""><em>Seçiniz</em></MenuItem>
-              {routes
-                .filter(r => r.ring_type_id === type)
-                .map((r) => (
-                  <MenuItem key={r.id} value={r.id}>
-                    {r.name}
-                  </MenuItem>
-                ))}
-            </TextField>
+              InputProps={{ readOnly: true }}
+              InputLabelProps={{ shrink: true }}
+            />
             <TextField
               label="Plaka"
               select

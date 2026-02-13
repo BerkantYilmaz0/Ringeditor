@@ -272,7 +272,7 @@ export default function RouteEditor({ open, initialData, onClose, onSave }: Prop
                             sx={{ minWidth: 150 }}
                             disabled={isAutoRouting}
                         >
-                            <option value="" disabled>Seçiniz</option>
+
                             {ringTypes.map((rt) => (
                                 <option key={rt.id} value={rt.id}>{rt.name}</option>
                             ))}

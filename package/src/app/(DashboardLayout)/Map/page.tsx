@@ -15,11 +15,6 @@ const RingMap = dynamic(() => import('@/app/(DashboardLayout)/components/RingMap
 const MapPage = () => {
     const [stops, setStops] = useState<RingStop[]>([]);
     const [loading, setLoading] = useState(false);
-
-    // TODO: Fetch all stops from all ring types?
-    // Current API lists stops by Ring Type ID. 
-    // For now, we'll initialize with empty or maybe loop through known types in future.
-
     return (
         <PageContainer title="Ring Haritası" description="Tüm durakları haritada görüntüleyin">
             <Card>

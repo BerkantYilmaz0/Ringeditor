@@ -8,7 +8,7 @@ import AuthLogin from "../auth/AuthLogin";
 
 const Login2 = () => {
   return (
-    <PageContainer title="Login" description="this is Login page">
+    <PageContainer title="Login" description="Yönetim Paneli Giriş">
       <Box
         sx={{
           position: "relative",
@@ -45,17 +45,17 @@ const Login2 = () => {
               sx={{ p: 4, zIndex: 1, width: "100%", maxWidth: "500px" }}
             >
               <Box display="flex" alignItems="center" justifyContent="center">
-                <Logo />
+                {/*<Logo /> burası yönetim paneli için logo eklendiginde Logo.tsx içerisnden aktif edilecek */}
               </Box>
               <AuthLogin
                 subtext={
                   <Typography
-                    variant="subtitle1"
+                    variant="h1"
                     textAlign="center"
                     color="textSecondary"
                     mb={1}
                   >
-                    Your Social Campaigns
+                    Ring Yönetim Paneli
                   </Typography>
                 }
                 subtitle={
@@ -65,24 +65,8 @@ const Login2 = () => {
                     justifyContent="center"
                     mt={3}
                   >
-                    <Typography
-                      color="textSecondary"
-                      variant="h6"
-                      fontWeight="500"
-                    >
-                      New to Modernize?
-                    </Typography>
-                    <Typography
-                      component={Link}
-                      href="/authentication/register"
-                      fontWeight="500"
-                      sx={{
-                        textDecoration: "none",
-                        color: "primary.main",
-                      }}
-                    >
-                      Create an account
-                    </Typography>
+
+
                   </Stack>
                 }
               />

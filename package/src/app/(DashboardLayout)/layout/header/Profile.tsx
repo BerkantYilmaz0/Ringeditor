@@ -1,20 +1,17 @@
 import React, { useState } from "react";
-import Link from "next/link";
 import {
   Avatar,
   Box,
   Menu,
   Button,
   IconButton,
-  MenuItem,
-  ListItemIcon,
-  ListItemText,
 } from "@mui/material";
-
-import { IconListCheck, IconMail, IconUser } from "@tabler/icons-react";
+import { api } from "@/lib/api";
 
 const Profile = () => {
   const [anchorEl2, setAnchorEl2] = useState(null);
+  const [loggingOut, setLoggingOut] = useState(false);
+
   const handleClick2 = (event: any) => {
     setAnchorEl2(event.currentTarget);
   };
@@ -22,11 +19,23 @@ const Profile = () => {
     setAnchorEl2(null);
   };
 
+  const handleLogout = async () => {
+    setLoggingOut(true);
+    try {
+      await api.post("/logout");
+    } catch (err) {
+      console.error("Logout hatası:", err);
+    } finally {
+      // Session yok edilsin veya edilmesin login sayfasına yönlendir
+      window.location.href = "/authentication/login";
+    }
+  };
+
   return (
     <Box>
       <IconButton
         size="large"
-        aria-label="show 11 new notifications"
+        aria-label="profil menüsü"
         color="inherit"
         aria-controls="msgs-menu"
         aria-haspopup="true"
@@ -46,9 +55,6 @@ const Profile = () => {
           }}
         />
       </IconButton>
-      {/* ------------------------------------------- */}
-      {/* Message Dropdown */}
-      {/* ------------------------------------------- */}
       <Menu
         id="msgs-menu"
         anchorEl={anchorEl2}
@@ -63,33 +69,15 @@ const Profile = () => {
           },
         }}
       >
-        <MenuItem>
-          <ListItemIcon>
-            <IconUser width={20} />
-          </ListItemIcon>
-          <ListItemText>Profilim</ListItemText>
-        </MenuItem>
-        <MenuItem>
-          <ListItemIcon>
-            <IconMail width={20} />
-          </ListItemIcon>
-          <ListItemText>My Account</ListItemText>
-        </MenuItem>
-        <MenuItem>
-          <ListItemIcon>
-            <IconListCheck width={20} />
-          </ListItemIcon>
-          <ListItemText>My Tasks</ListItemText>
-        </MenuItem>
         <Box mt={1} py={1} px={2}>
           <Button
-            href="/authentication/login"
             variant="outlined"
             color="primary"
-            component={Link}
             fullWidth
+            onClick={handleLogout}
+            disabled={loggingOut}
           >
-            Logout
+            {loggingOut ? "Çıkış Yapılıyor..." : "Çıkış Yap"}
           </Button>
         </Box>
       </Menu>

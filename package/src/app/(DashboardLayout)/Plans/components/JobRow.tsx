@@ -131,26 +131,17 @@ export default function JobRow({
           />
         </TableCell>
 
-        {/* Rota Seçimi */}
-        <TableCell sx={{ minWidth: 200 }} onClick={(e) => e.stopPropagation()}>
+        {/* Rota (Salt Okunur) */}
+        <TableCell sx={{ minWidth: 200 }}>
           <TextField
             id={`input-job-route-${job.id ?? index}`}
-            select
             label="Rota"
-            value={route_id ?? ''}
-            onChange={(e) => onChangeEdit?.({ route_id: Number(e.target.value) || null })}
+            value={filteredRoutes.find(r => r.id === (route_id ?? -1))?.name ?? (job as any).route_name ?? '—'}
             size="small"
             fullWidth
-          >
-            {filteredRoutes.map((r) => (
-              <MenuItem key={r.id} value={r.id}>
-                {r.name}
-              </MenuItem>
-            ))}
-            {filteredRoutes.length === 0 && (
-              <MenuItem value="" disabled>Rota yok</MenuItem>
-            )}
-          </TextField>
+            InputProps={{ readOnly: true }}
+            InputLabelProps={{ shrink: true }}
+          />
         </TableCell>
 
         <TableCell sx={{ minWidth: 220 }} onClick={(e) => e.stopPropagation()}>

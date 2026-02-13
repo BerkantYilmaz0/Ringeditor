@@ -135,26 +135,15 @@ export default function EditJobDialog({
               ))}
             </TextField>
 
-            {/* Rota */}
+            {/* Rota (Salt Okunur) */}
             <TextField
               id="input-edit-job-route"
-              select
               label="Rota"
-              value={job.route_id || ''}
-              onChange={(e) => handleChange('route_id', Number(e.target.value))}
+              value={filteredRoutes.find(r => r.id === job.route_id)?.name ?? '—'}
               sx={{ minWidth: 200 }}
-            >
-              {filteredRoutes.map((r) => (
-                <MenuItem key={r.id} value={r.id}>
-                  {r.name}
-                </MenuItem>
-              ))}
-              {filteredRoutes.length === 0 && (
-                <MenuItem value="" disabled>
-                  Rota bulunamadı
-                </MenuItem>
-              )}
-            </TextField>
+              InputProps={{ readOnly: true }}
+              InputLabelProps={{ shrink: true }}
+            />
 
             {/* Plaka */}
             <TextField

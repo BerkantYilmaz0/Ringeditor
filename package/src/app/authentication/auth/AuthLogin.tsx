@@ -8,7 +8,7 @@ import {
   Checkbox,
   FormGroup,
 } from "@mui/material";
-import Link from "next/link";
+
 import { useRouter } from "next/navigation";
 import { api } from "@/lib/api";
 import CustomTextField from "@/app/(DashboardLayout)/components/forms/theme-elements/CustomTextField";
@@ -19,41 +19,63 @@ interface loginType {
   subtext?: React.ReactNode;
 }
 
+const REMEMBER_KEY = "ring_remembered_user";
+
 const AuthLogin = ({ title, subtitle, subtext }: loginType) => {
   const router = useRouter();
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
+  const [rememberMe, setRememberMe] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
+  // Sayfa açılınca kaydedilmiş kullanıcı adını yükle
+  React.useEffect(() => {
+    const saved = localStorage.getItem(REMEMBER_KEY);
+    if (saved) {
+      setUsername(saved);
+      setRememberMe(true);
+    }
+  }, []);
+
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (loading) return;
+
+    // Frontend alan kontrolü
+    if (!username.trim()) {
+      setError("Kullanıcı adı boş bırakılamaz.");
+      return;
+    }
+    if (!password) {
+      setError("Şifre boş bırakılamaz.");
+      return;
+    }
+
     setError(null);
     setLoading(true);
 
     try {
-      // 1. Backend'e istek at
-      const response = await api.post("/login", {
-        username,
-        password,
-      });
-
-      // 2. Başarılı ise token/user bilgisini kaydet (opsiyonel)
-      // Session cookie otomatik set edilecek.
+      const response = await api.post("/login", { username, password });
       console.log("Login success:", response.data);
 
-      // 3. Yönlendir
-      // window.location.href yerine router.push kullanmak daha SPA experience sağlar
-      // ama cookie'nin header'a işlenmesi için bazen full reload gerekir.
-      // Şimdilik router.push deneyelim.
+      if (rememberMe) {
+        localStorage.setItem(REMEMBER_KEY, username);
+      } else {
+        localStorage.removeItem(REMEMBER_KEY);
+      }
+
       router.push("/");
     } catch (err: any) {
       console.error("Login hatası:", err);
-      // Hata mesajını göster
-      if (err.response?.status === 401) {
-        setError("Kullanıcı adı veya şifre hatalı.");
+      const backendMsg =
+        err.response?.data?.message ||
+        err.response?.data?.error?.description;
+
+      if (backendMsg) {
+        setError(backendMsg);
       } else {
-        setError("Giriş yapılırken bir sorun oluştu.");
+        setError("Sunucuya bağlanamıyor. Lütfen daha sonra tekrar deneyin.");
       }
     } finally {
       setLoading(false);
@@ -80,7 +102,7 @@ const AuthLogin = ({ title, subtitle, subtext }: loginType) => {
               htmlFor="username"
               mb="5px"
             >
-              Username
+              Kullanıcı Adı
             </Typography>
             <CustomTextField
               id="username"
@@ -98,7 +120,7 @@ const AuthLogin = ({ title, subtitle, subtext }: loginType) => {
               htmlFor="password"
               mb="5px"
             >
-              Password
+              Şifre
             </Typography>
             <CustomTextField
               id="password"
@@ -110,28 +132,22 @@ const AuthLogin = ({ title, subtitle, subtext }: loginType) => {
             />
           </Box>
           <Stack
-            justifyContent="space-between"
+            justifyContent="flex-start"
             direction="row"
             alignItems="center"
             my={2}
           >
             <FormGroup>
               <FormControlLabel
-                control={<Checkbox defaultChecked />}
-                label="Remeber this Device"
+                control={
+                  <Checkbox
+                    checked={rememberMe}
+                    onChange={(e) => setRememberMe(e.target.checked)}
+                  />
+                }
+                label="Beni Hatırla"
               />
             </FormGroup>
-            <Typography
-              component={Link}
-              href="/"
-              fontWeight="500"
-              sx={{
-                textDecoration: "none",
-                color: "primary.main",
-              }}
-            >
-              Forgot Password ?
-            </Typography>
           </Stack>
         </Stack>
 
@@ -150,7 +166,7 @@ const AuthLogin = ({ title, subtitle, subtext }: loginType) => {
             type="submit"
             disabled={loading}
           >
-            {loading ? "Giriliyor..." : "Sign In"}
+            {loading ? "Giriş Yapılıyor..." : "Giriş Yap"}
           </Button>
         </Box>
       </form>

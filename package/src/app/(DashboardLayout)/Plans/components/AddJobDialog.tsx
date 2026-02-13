@@ -234,24 +234,16 @@ export default function AddJobDialog({
           </Box>
         )}
 
-        {/* Rota Seçimi */}
+        {/* Rota (Salt Okunur - Ring tipine göre otomatik seçilir) */}
         <TextField
           id="route-select"
-          select
           label="Rota"
-          value={routeId}
-          onChange={(e) => setRouteId(e.target.value)}
+          value={filteredRoutes.find(r => String(r.id) === routeId)?.name ?? (typeId ? 'Bu ring tipine ait rota yok' : '—')}
           fullWidth
           margin="normal"
-          disabled={!typeId || filteredRoutes.length === 0}
-          helperText={typeId && filteredRoutes.length === 0 ? 'Bu ring tipine ait rota yok' : ''}
-        >
-          {filteredRoutes.map((r) => (
-            <MenuItem key={r.id} value={String(r.id)}>
-              {r.name}
-            </MenuItem>
-          ))}
-        </TextField>
+          InputProps={{ readOnly: true }}
+          InputLabelProps={{ shrink: true }}
+        />
 
         <TextField
           id="device-select"

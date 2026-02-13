@@ -23,8 +23,11 @@ api.interceptors.response.use(
   (response: AxiosResponse) => response,
   (error: AxiosError) => {
     if (error.response?.status === 401) {
-      // Örn: login sayfasına yönlendir
-      window.location.href = "/authentication/login";
+      // Login isteğinde 401 gelirse yönlendirme yapma, hata mesajını göster
+      const reqUrl = error.config?.url || "";
+      if (!reqUrl.includes("/login")) {
+        window.location.href = "/authentication/login";
+      }
     }
     if (error.response?.status === 500) {
       console.error("Sunucu hatası:", error.response.data);
