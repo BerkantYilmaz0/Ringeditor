@@ -32,8 +32,7 @@ class LoginAction extends Action
         try {
             $user = $this->userRepository->findByUsername($username);
         } catch (UserNotFoundException $e) {
-            // Güvenlik için "Kullanıcı bulunamadı" demek yerine genel hata fırlatabiliriz veya direk 401.
-            throw new HttpUnauthorizedException($this->request, "Geçersiz kullanıcı adı veya şifre.");
+            throw new HttpUnauthorizedException($this->request, "Kullanıcı adı bulunamadı.");
         }
 
         // Şifre kontrolü - Hibrit (Hash + Legacy Plaintext)
@@ -56,7 +55,7 @@ class LoginAction extends Action
         }
 
         if (!$isValid) {
-            throw new HttpUnauthorizedException($this->request, "Geçersiz kullanıcı adı veya şifre.");
+            throw new HttpUnauthorizedException($this->request, "Şifre hatalı.");
         }
 
         // Login basarili - Sifre hash guncelleme (Legacy -> Modern gecis)

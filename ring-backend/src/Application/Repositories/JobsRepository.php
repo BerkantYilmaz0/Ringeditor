@@ -342,4 +342,71 @@ final class JobsRepository
 
         return $stmt->rowCount();
     }
+    public function getDashboardStats(): array
+    {
+        $todayStart = strtotime('today midnight');
+        $todayEnd = strtotime('tomorrow midnight') - 1;
+        $now = time();
+
+        // 1. Günlük İstatistikler
+        $stats = [
+            'total' => 0,
+            'completed' => 0,
+            'remaining' => 0,
+            'active_vehicles' => 0,
+            'conflict_count' => 0
+        ];
+
+        // Bugünün seferleri
+        $sql = "SELECT count(*) as total,
+                SUM(CASE WHEN duetime < :now THEN 1 ELSE 0 END) as completed,
+                SUM(CASE WHEN duetime >= :now THEN 1 ELSE 0 END) as remaining,
+                COUNT(DISTINCT route_id) as active_vehicles
+                FROM jobs 
+                WHERE duetime BETWEEN :start AND :end";
+
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->execute(['start' => $todayStart, 'end' => $todayEnd, 'now' => $now]);
+        $row = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        if ($row) {
+            $stats['total'] = (int) $row['total'];
+            $stats['completed'] = (int) $row['completed'];
+            $stats['remaining'] = (int) $row['remaining'];
+            $stats['active_vehicles'] = (int) $row['active_vehicles'];
+        }
+
+        // 2. Yaklaşan Seferler (Gelecek 2 saat)
+        $twoHoursLater = $now + (2 * 3600);
+        $sqlUpcoming = "SELECT j.*, r.name as route_name, rt.name as ring_type_name, rt.color as ring_color, d.displayName as device_name
+                        FROM jobs j
+                        LEFT JOIN routes r ON j.route_id = r.id
+                        LEFT JOIN ring_types rt ON j.type = rt.id
+                        LEFT JOIN device d ON j.deviceid = d.deviceID
+                        WHERE j.duetime BETWEEN :now AND :end
+                        ORDER BY j.duetime ASC
+                        LIMIT 5";
+
+        $stmtUpcoming = $this->pdo->prepare($sqlUpcoming);
+        $stmtUpcoming->execute(['now' => $now, 'end' => $twoHoursLater]);
+        $upcomingJobs = $stmtUpcoming->fetchAll(PDO::FETCH_ASSOC);
+
+        // 3. Son İşlemler (Son eklenen 5 sefer)
+        $sqlRecent = "SELECT j.*, r.name as route_name
+                      FROM jobs j
+                      LEFT JOIN routes r ON j.route_id = r.id
+                      ORDER BY j.id DESC
+                      LIMIT 5";
+        $stmtRecent = $this->pdo->query($sqlRecent);
+        $recentActivity = $stmtRecent->fetchAll(PDO::FETCH_ASSOC);
+
+        return [
+            'stats' => $stats,
+            'upcoming' => $upcomingJobs,
+            'recent' => $recentActivity,
+            'meta' => [
+                'timestamp' => $now
+            ]
+        ];
+    }
 }

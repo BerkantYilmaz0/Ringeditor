@@ -56,6 +56,7 @@ use App\Application\Actions\Jobs\{
     ApplyTemplateAction
 };
 use App\Application\Actions\Auth\LoginAction;
+use App\Application\Actions\Auth\LogoutAction;
 
 return function (App $app) {
     $app->options('/{routes:.*}', function (Request $request, Response $response) {
@@ -64,6 +65,7 @@ return function (App $app) {
     });
 
     $app->post('/login', LoginAction::class);
+    $app->post('/logout', LogoutAction::class);
 
     $app->get('/', function (Request $request, Response $response) {
         $response->getBody()->write('Hello world!');
@@ -152,5 +154,8 @@ return function (App $app) {
         $g->delete('/{id}', DeleteJobAction::class);
         $g->post('/apply-template', ApplyTemplateAction::class);
     });
+    // Dashboard
+    $app->get('/dashboard/stats', \App\Application\Actions\Dashboard\GetDashboardStatsAction::class);
+
     $app->post('/jobs/check-conflict', CheckJobConflictAction::class);
 };

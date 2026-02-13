@@ -58,6 +58,7 @@ class SessionMiddleware implements Middleware
         // Public route'lar (tam eşleşme)
         $publicRoutes = [
             '/login',
+            '/logout',
             '/',
             '/docs'
         ];
