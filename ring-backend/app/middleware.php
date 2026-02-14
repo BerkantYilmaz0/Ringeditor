@@ -19,7 +19,8 @@ return function (App $app) {
         $allowedOrigins = [
             'http://localhost:3000',
             'http://localhost:5173',
-            'https://planner.ring.com' // Ornek production domain
+            'https://planner.ring.com',
+            'https://ring-editor.vercel.app'
         ];
 
         // Eger origin allowed listesindiyse veya gelistirme ortamindaysak (dikkatli kullanilmali)
