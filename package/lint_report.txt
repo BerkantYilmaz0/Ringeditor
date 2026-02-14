@@ -1,0 +1,238 @@
+
+> modernize-next-free@0.1.0 lint
+> next lint
+
+
+./src/app/(DashboardLayout)/color-codes/page.tsx
+5:8  Warning: 'Button' is defined but never used.  @typescript-eslint/no-unused-vars
+
+./src/app/(DashboardLayout)/components/container/PageContainer.tsx
+2:8  Warning: 'react' is defined but never used.  @typescript-eslint/no-unused-vars
+
+./src/app/(DashboardLayout)/components/dashboard/Blog.tsx
+19:8  Warning: 'Image' is defined but never used.  @typescript-eslint/no-unused-vars
+
+./src/app/(DashboardLayout)/components/dashboard/MonthlyEarnings.tsx
+17:29  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+47:28  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+
+./src/app/(DashboardLayout)/components/dashboard/SalesOverview.tsx
+14:34  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+24:31  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+81:30  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+
+./src/app/(DashboardLayout)/components/dashboard/YearlyBreakup.tsx
+18:29  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+63:28  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+
+./src/app/(DashboardLayout)/components/forms/theme-elements/CustomTextField.tsx
+5:40  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+
+./src/app/(DashboardLayout)/components/RingMap/RingMap.tsx
+9:1  Error: Use "@ts-expect-error" instead of "@ts-ignore", as "@ts-ignore" will do nothing if the following line is error-free.  @typescript-eslint/ban-ts-comment
+
+./src/app/(DashboardLayout)/components/shared/DashboardCard.tsx
+7:30  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+
+./src/app/(DashboardLayout)/components/TemplateJobsForm/BulkDialog.tsx
+242:19  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+
+./src/app/(DashboardLayout)/components/TemplateJobsForm/TemplateJobsForm.tsx
+19:3  Warning: 'TableContainer' is defined but never used.  @typescript-eslint/no-unused-vars
+27:3  Warning: 'Stack' is defined but never used.  @typescript-eslint/no-unused-vars
+167:9  Error: Use "@ts-expect-error" instead of "@ts-ignore", as "@ts-ignore" will do nothing if the following line is error-free.  @typescript-eslint/ban-ts-comment
+
+./src/app/(DashboardLayout)/icons/page.tsx
+4:28  Warning: 'Box' is defined but never used.  @typescript-eslint/no-unused-vars
+
+./src/app/(DashboardLayout)/layout/header/Header.tsx
+2:59  Warning: 'Badge' is defined but never used.  @typescript-eslint/no-unused-vars
+2:66  Warning: 'Button' is defined but never used.  @typescript-eslint/no-unused-vars
+4:8  Warning: 'Link' is defined but never used.  @typescript-eslint/no-unused-vars
+7:10  Warning: 'IconBellRinging' is defined but never used.  @typescript-eslint/no-unused-vars
+
+./src/app/(DashboardLayout)/layout/header/Profile.tsx
+15:32  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+
+./src/app/(DashboardLayout)/layout/shared/logo/Logo.tsx
+3:8  Warning: 'Image' is defined but never used.  @typescript-eslint/no-unused-vars
+5:7  Warning: 'LinkStyled' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+
+./src/app/(DashboardLayout)/layout/sidebar/MenuItems.tsx
+2:3  Warning: 'IconAperture' is defined but never used.  @typescript-eslint/no-unused-vars
+3:3  Warning: 'IconCopy' is defined but never used.  @typescript-eslint/no-unused-vars
+5:3  Warning: 'IconLogin' is defined but never used.  @typescript-eslint/no-unused-vars
+6:3  Warning: 'IconMoodHappy' is defined but never used.  @typescript-eslint/no-unused-vars
+7:3  Warning: 'IconTypography' is defined but never used.  @typescript-eslint/no-unused-vars
+8:3  Warning: 'IconUserPlus' is defined but never used.  @typescript-eslint/no-unused-vars
+
+./src/app/(DashboardLayout)/layout/sidebar/Sidebar.tsx
+17:38  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+
+./src/app/(DashboardLayout)/layout/sidebar/SidebarItems.tsx
+3:15  Warning: 'Typography' is defined but never used.  @typescript-eslint/no-unused-vars
+17:33  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+17:50  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+19:27  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+
+./src/app/(DashboardLayout)/layout/sidebar/Updrade.tsx
+1:15  Warning: 'Typography' is defined but never used.  @typescript-eslint/no-unused-vars
+1:27  Warning: 'Button' is defined but never used.  @typescript-eslint/no-unused-vars
+2:8  Warning: 'Image' is defined but never used.  @typescript-eslint/no-unused-vars
+3:8  Warning: 'Link' is defined but never used.  @typescript-eslint/no-unused-vars
+
+./src/app/(DashboardLayout)/layout.tsx
+23:11  Warning: 'Props' is defined but never used.  @typescript-eslint/no-unused-vars
+34:25  Warning: 'setSidebarOpen' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+
+./src/app/(DashboardLayout)/Map/page.tsx
+3:20  Warning: 'useEffect' is defined but never used.  @typescript-eslint/no-unused-vars
+7:10  Warning: 'api' is defined but never used.  @typescript-eslint/no-unused-vars
+16:19  Warning: 'setStops' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+17:12  Warning: 'loading' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+17:21  Warning: 'setLoading' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+
+./src/app/(DashboardLayout)/page.tsx
+4:19  Warning: 'IconClock' is defined but never used.  @typescript-eslint/no-unused-vars
+15:13  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+16:11  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+114:51  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+175:43  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+202:60  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+
+./src/app/(DashboardLayout)/Plans/components/AddJobDialog.tsx
+61:63  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+163:17  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+
+./src/app/(DashboardLayout)/Plans/components/CalendarShell.tsx
+20:24  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+56:36  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+63:34  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+
+./src/app/(DashboardLayout)/Plans/components/EditJobDialog.tsx
+59:56  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+74:14  Warning: 'err' is defined but never used.  @typescript-eslint/no-unused-vars
+
+./src/app/(DashboardLayout)/Plans/components/JobRow.tsx
+10:3  Warning: 'MenuItem' is defined but never used.  @typescript-eslint/no-unused-vars
+139:89  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+182:29  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+
+./src/app/(DashboardLayout)/Plans/components/JobsForm.tsx
+60:36  Warning: 'editMode' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+145:73  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+175:19  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+333:43  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+
+./src/app/(DashboardLayout)/Plans/components/PreviewTemplateDialog.tsx
+21:68  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+28:50  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+54:17  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+148:45  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+
+./src/app/(DashboardLayout)/Plans/page.tsx
+38:50  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+69:63  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+71:19  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+83:63  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+97:63  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+119:17  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+136:33  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+150:34  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+
+./src/app/(DashboardLayout)/Rings/RingTypeForm.tsx
+99:19  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+162:32  Error: `"` can be escaped with `&quot;`, `&ldquo;`, `&#34;`, `&rdquo;`.  react/no-unescaped-entities
+162:53  Error: `"` can be escaped with `&quot;`, `&ldquo;`, `&#34;`, `&rdquo;`.  react/no-unescaped-entities
+
+./src/app/(DashboardLayout)/Routes/components/LeafletMap.tsx
+3:10  Warning: 'useEffect' is defined but never used.  @typescript-eslint/no-unused-vars
+9:1  Error: Use "@ts-expect-error" instead of "@ts-ignore", as "@ts-ignore" will do nothing if the following line is error-free.  @typescript-eslint/ban-ts-comment
+34:22  Warning: 'mode' is defined but never used.  @typescript-eslint/no-unused-vars
+
+./src/app/(DashboardLayout)/Routes/components/RouteEditor.tsx
+23:10  Warning: 'Stop' is defined but never used.  @typescript-eslint/no-unused-vars
+39:46  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+46:48  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+58:77  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+108:34  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+114:34  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+120:32  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+197:23  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+
+./src/app/(DashboardLayout)/Routes/components/RouteList.tsx
+38:16  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+
+./src/app/(DashboardLayout)/Routes/components/StopManager.tsx
+20:46  Warning: 'List' is defined but never used.  @typescript-eslint/no-unused-vars
+20:52  Warning: 'ListItem' is defined but never used.  @typescript-eslint/no-unused-vars
+20:62  Warning: 'ListItemText' is defined but never used.  @typescript-eslint/no-unused-vars
+20:76  Warning: 'ListItemIcon' is defined but never used.  @typescript-eslint/no-unused-vars
+
+./src/app/(DashboardLayout)/Routes/page.tsx
+11:18  Warning: 'IconButton' is defined but never used.  @typescript-eslint/no-unused-vars
+21:48  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+61:8  Warning: React Hook useEffect has a missing dependency: 'fetchRoutes'. Either include it or remove the dependency array.  react-hooks/exhaustive-deps
+109:42  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+229:52  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+230:60  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+
+./src/app/(DashboardLayout)/stops/components/RoutesPanel.tsx
+1:17  Warning: 'useEffect' is defined but never used.  @typescript-eslint/no-unused-vars
+1:28  Warning: 'useState' is defined but never used.  @typescript-eslint/no-unused-vars
+11:5  Warning: 'CircularProgress' is defined but never used.  @typescript-eslint/no-unused-vars
+16:8  Warning: 'DeleteIcon' is defined but never used.  @typescript-eslint/no-unused-vars
+18:10  Warning: 'api' is defined but never used.  @typescript-eslint/no-unused-vars
+20:17  Warning: 'ApiResponse' is defined but never used.  @typescript-eslint/no-unused-vars
+
+./src/app/(DashboardLayout)/stops/page.tsx
+3:44  Warning: 'useRef' is defined but never used.  @typescript-eslint/no-unused-vars
+64:74  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+171:46  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+180:46  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+265:32  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+402:64  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+
+./src/app/authentication/auth/AuthLogin.tsx
+69:19  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+112:29  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+131:29  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+
+./src/app/authentication/login/page.tsx
+2:8  Warning: 'Link' is defined but never used.  @typescript-eslint/no-unused-vars
+6:8  Warning: 'Logo' is defined but never used.  @typescript-eslint/no-unused-vars
+
+./src/app/authentication/register/page.tsx
+5:8  Warning: 'Logo' is defined but never used.  @typescript-eslint/no-unused-vars
+
+./src/components/map/MapLibreBoard.tsx
+17:9  Error: Use "@ts-expect-error" instead of "@ts-ignore", as "@ts-ignore" will do nothing if the following line is error-free.  @typescript-eslint/ban-ts-comment
+68:26  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+94:70  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+108:26  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+120:22  Warning: 'e' is defined but never used.  @typescript-eslint/no-unused-vars
+219:33  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+395:45  Warning: Expected an assignment or function call and instead saw an expression.  @typescript-eslint/no-unused-expressions
+505:88  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+524:37  Warning: 'index' is defined but never used.  @typescript-eslint/no-unused-vars
+527:101  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+
+./src/lib/calendarGrouping.ts
+17:16  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+28:37  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+
+./src/lib/jobsApi.ts
+17:12  Warning: 'err' is defined but never used.  @typescript-eslint/no-unused-vars
+17:17  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+23:14  Warning: 'err2' is defined but never used.  @typescript-eslint/no-unused-vars
+
+./src/lib/mapDrawStyles.ts
+1:26  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+
+./src/lib/ringTypesApi.ts
+7:23  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+
+./src/types/index.ts
+20:33  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+
+info  - Need to disable some ESLint rules? Learn more here: https://nextjs.org/docs/app/api-reference/config/eslint#disabling-rules

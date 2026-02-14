@@ -21,17 +21,20 @@ class SessionMiddleware implements Middleware
     {
         // 1. Session Başlatma
         if (session_status() !== PHP_SESSION_ACTIVE) {
-            // HTTPS kontrolü
+            // HTTPS kontrolü (Load Balancer arkasında)
             $isSecure = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on';
+            if (!$isSecure && isset($_SERVER['HTTP_X_FORWARDED_PROTO']) && $_SERVER['HTTP_X_FORWARDED_PROTO'] === 'https') {
+                $isSecure = true;
+            }
 
             // Cookie ayarları
             session_set_cookie_params([
                 'lifetime' => 3600, // 1 saat
                 'path' => '/',
                 'domain' => '',
-                'secure' => $isSecure, // Sadece HTTPS ise true
-                'httponly' => true, // XSS koruması
-                'samesite' => 'Lax' // CSRF koruması
+                'secure' => $isSecure,
+                'httponly' => true,
+                'samesite' => $isSecure ? 'None' : 'Lax' // Cross-site (Vercel->Railway) icin None sart
             ]);
             session_start();
         }
