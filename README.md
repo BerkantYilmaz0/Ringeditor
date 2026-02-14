@@ -9,6 +9,13 @@ Otobüs ve servis güzergahlarını, durakları ve ring hatlarını harita üzer
 *   **Durak ve Hat Yönetimi:** Durakların ve ring hatlarının anlık düzenlenmesi.
 *   **Modern Arayüz:** Next.js ve Material UI ile hızlı ve duyarlı kullanıcı deneyimi.
 
+## Demo Yayını ve Dokümantasyon
+
+Demo yayını yapmak, ücretsiz hosting servislerini kullanmak ve veritabanı kurulumu hakkında detaylı bilgi için **[DEMO.md](DEMO.md)** dosyasını inceleyebilirsiniz.
+
+> **Not:** Veritabanı kurulumu için `aa.sql` (hassas veriler içerir) yerine, GitHub deposunda bulunan ve sadece tablo yapılarını içeren **`schema.sql`** dosyasını kullanmalısınız.
+
+
 ---
 
 ## Kurulum ve Çalıştırma

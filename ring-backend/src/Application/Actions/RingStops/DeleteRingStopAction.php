@@ -18,7 +18,7 @@ final class DeleteRingStopAction extends Action
     {
         $id = (int) $this->resolveArg('id');
 
-        $stmt = $this->pdo->prepare("DELETE FROM ring_stops WHERE id = :id");
+        $stmt = $this->pdo->prepare("DELETE FROM ring_stop_pivot WHERE id = :id");
         $stmt->execute([':id' => $id]);
 
         return $this->respondWithData(['status' => 'deleted']);

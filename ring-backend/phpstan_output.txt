@@ -1,0 +1,11 @@
+Note: Using configuration file C:\Users\berkant\Desktop\ring-planner\ring-backend\phpstan.neon.
+
+[33mNo rules detected[39m
+
+You have the following choices:
+
+* while running the analyse option, use the [32m--level[39m option to adjust your rule level - the higher the stricter
+
+* create your own [32mcustom ruleset[39m by selecting which rules you want to check by copying the service definitions from the built-in config level files in [1mphar://C:\Users\berkant\Desktop\ring-planner\ring-backend\vendor\phpstan\phpstan\phpstan.phar\conf[22m.
+  * in this case, don't forget to define parameter [1mcustomRulesetUsed[22m in your config file.
+

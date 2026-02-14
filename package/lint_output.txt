@@ -1,0 +1,6 @@
+
+> modernize-next-free@0.1.0 lint
+> next lint
+
+Failed to load config "next/typescript" to extend from.
+Referenced from: C:\Users\berkant\Desktop\ring-planner\package\.eslintrc.json

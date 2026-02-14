@@ -1,0 +1,11 @@
+{
+    "framework": "nextjs",
+    "buildCommand": "cd package && npm install && npm run build",
+    "outputDirectory": "package/.next",
+    "rewrites": [
+        {
+            "source": "/api/:path*",
+            "destination": "https://your-backend-url.com/api/:path*"
+        }
+    ]
+}

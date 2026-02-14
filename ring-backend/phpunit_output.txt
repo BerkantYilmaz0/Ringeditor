@@ -1,0 +1,77 @@
+PHPUnit 9.6.23 by Sebastian Bergmann and contributors.
+
+Warning:       Your XML configuration validates against a deprecated schema.
+Suggestion:    Migrate your XML configuration using "--migrate-configuration"!
+
+EEEEF..............                                               19 / 19 (100%)
+
+Time: 00:00.047, Memory: 10.00 MB
+
+There were 4 errors:
+
+1) Tests\Application\Actions\ActionTest::testActionSetsHttpCodeInRespond
+session_set_cookie_params(): Session cookie parameters cannot be changed after headers have already been sent
+
+C:\Users\berkant\Desktop\ring-planner\ring-backend\src\Application\Middleware\SessionMiddleware.php:28
+C:\Users\berkant\Desktop\ring-planner\ring-backend\vendor\slim\slim\Slim\MiddlewareDispatcher.php:177
+C:\Users\berkant\Desktop\ring-planner\ring-backend\app\middleware.php:30
+C:\Users\berkant\Desktop\ring-planner\ring-backend\vendor\slim\slim\Slim\MiddlewareDispatcher.php:280
+C:\Users\berkant\Desktop\ring-planner\ring-backend\vendor\slim\slim\Slim\MiddlewareDispatcher.php:73
+C:\Users\berkant\Desktop\ring-planner\ring-backend\vendor\slim\slim\Slim\App.php:209
+C:\Users\berkant\Desktop\ring-planner\ring-backend\tests\Application\Actions\ActionTest.php:44
+
+2) Tests\Application\Actions\ActionTest::testActionSetsHttpCodeRespondData
+session_set_cookie_params(): Session cookie parameters cannot be changed after headers have already been sent
+
+C:\Users\berkant\Desktop\ring-planner\ring-backend\src\Application\Middleware\SessionMiddleware.php:28
+C:\Users\berkant\Desktop\ring-planner\ring-backend\vendor\slim\slim\Slim\MiddlewareDispatcher.php:177
+C:\Users\berkant\Desktop\ring-planner\ring-backend\app\middleware.php:30
+C:\Users\berkant\Desktop\ring-planner\ring-backend\vendor\slim\slim\Slim\MiddlewareDispatcher.php:280
+C:\Users\berkant\Desktop\ring-planner\ring-backend\vendor\slim\slim\Slim\MiddlewareDispatcher.php:73
+C:\Users\berkant\Desktop\ring-planner\ring-backend\vendor\slim\slim\Slim\App.php:209
+C:\Users\berkant\Desktop\ring-planner\ring-backend\tests\Application\Actions\ActionTest.php:75
+
+3) Tests\Application\Actions\User\ListUserActionTest::testAction
+session_set_cookie_params(): Session cookie parameters cannot be changed after headers have already been sent
+
+C:\Users\berkant\Desktop\ring-planner\ring-backend\src\Application\Middleware\SessionMiddleware.php:28
+C:\Users\berkant\Desktop\ring-planner\ring-backend\vendor\slim\slim\Slim\MiddlewareDispatcher.php:177
+C:\Users\berkant\Desktop\ring-planner\ring-backend\app\middleware.php:30
+C:\Users\berkant\Desktop\ring-planner\ring-backend\vendor\slim\slim\Slim\MiddlewareDispatcher.php:280
+C:\Users\berkant\Desktop\ring-planner\ring-backend\vendor\slim\slim\Slim\MiddlewareDispatcher.php:73
+C:\Users\berkant\Desktop\ring-planner\ring-backend\vendor\slim\slim\Slim\App.php:209
+C:\Users\berkant\Desktop\ring-planner\ring-backend\tests\Application\Actions\User\ListUserActionTest.php:33
+
+4) Tests\Application\Actions\User\ViewUserActionTest::testAction
+session_set_cookie_params(): Session cookie parameters cannot be changed after headers have already been sent
+
+C:\Users\berkant\Desktop\ring-planner\ring-backend\src\Application\Middleware\SessionMiddleware.php:28
+C:\Users\berkant\Desktop\ring-planner\ring-backend\vendor\slim\slim\Slim\MiddlewareDispatcher.php:177
+C:\Users\berkant\Desktop\ring-planner\ring-backend\app\middleware.php:30
+C:\Users\berkant\Desktop\ring-planner\ring-backend\vendor\slim\slim\Slim\MiddlewareDispatcher.php:280
+C:\Users\berkant\Desktop\ring-planner\ring-backend\vendor\slim\slim\Slim\MiddlewareDispatcher.php:73
+C:\Users\berkant\Desktop\ring-planner\ring-backend\vendor\slim\slim\Slim\App.php:209
+C:\Users\berkant\Desktop\ring-planner\ring-backend\tests\Application\Actions\User\ViewUserActionTest.php:37
+
+--
+
+There was 1 failure:
+
+1) Tests\Application\Actions\User\ViewUserActionTest::testActionThrowsUserNotFoundException
+Failed asserting that two strings are equal.
+--- Expected
++++ Actual
+@@ @@
+-'{\n
+-    "statusCode": 404,\n
+-    "error": {\n
+-        "type": "RESOURCE_NOT_FOUND",\n
+-        "description": "The user you requested does not exist."\n
+-    }\n
+-}'
++'{"statusCode":500,"error":{"type":"SERVER_ERROR","description":"session_set_cookie_params(): Session cookie parameters cannot be changed after headers have already been sent"}}'
+
+C:\Users\berkant\Desktop\ring-planner\ring-backend\tests\Application\Actions\User\ViewUserActionTest.php:78
+
+ERRORS!
+Tests: 19, Assertions: 30, Errors: 4, Failures: 1.

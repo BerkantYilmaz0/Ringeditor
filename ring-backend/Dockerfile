@@ -14,6 +14,11 @@ COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 # Set working directory
 WORKDIR /var/www/html
 
+# Update Apache DocumentRoot to point to public folder
+RUN sed -i 's!/var/www/html!/var/www/html/public!g' /etc/apache2/sites-available/000-default.conf \
+    && sed -i 's!/var/www/html!/var/www/html/public!g' /etc/apache2/apache2.conf
+
+
 # Copy composer files first for caching
 COPY composer.json composer.lock ./
 

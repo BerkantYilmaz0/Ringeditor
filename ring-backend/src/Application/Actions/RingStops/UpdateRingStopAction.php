@@ -28,8 +28,8 @@ final class UpdateRingStopAction extends Action
         }
 
         $stmt = $this->pdo->prepare("
-            UPDATE ring_stops 
-            SET stop_name = :name, lat = :lat, lng = :lng
+            UPDATE stops 
+            SET name = :name, lat = :lat, lng = :lng
             WHERE id = :id
         ");
         $stmt->execute([

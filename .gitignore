@@ -30,6 +30,17 @@ vendor/
 .gemini/
 .antigravity/
 
+# Database
+aa.sql
+*.sql
+!schema.sql
+
+# Environment
+.env
+.env.local
+.env.*
+
+
 # Logs
 logs/
 *.log
