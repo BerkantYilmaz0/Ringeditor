@@ -1,10 +1,10 @@
 {
     "build": {
-        "builder": "nixpacks"
+        "builder": "nixpacks",
+        "buildCommand": "composer install --no-dev"
     },
     "deploy": {
-        "startCommand": "vendor/bin/heroku-php-apache2 public/",
-        "restartPolicyType": "on_failure",
-        "restartPolicyMaxRetries": 5
+        "startCommand": "php -S 0.0.0.0:8080 -t public/",
+        "restartPolicyType": "on_failure"
     }
 }
