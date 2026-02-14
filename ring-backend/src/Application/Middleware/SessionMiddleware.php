@@ -42,9 +42,9 @@ class SessionMiddleware implements Middleware
         $session = $_SESSION ?? [];
         $request = $request->withAttribute('session', $session);
 
-        // 2. OPTIONS İsteklerini Geçir (CORS Preflight)
+        // 2. OPTIONS İsteklerini Geçir (CORS Preflight) - Check and return 200 OK immediately
         if ($request->getMethod() === 'OPTIONS') {
-            return $handler->handle($request);
+            return new \Slim\Psr7\Response();
         }
 
         // 3. Route Whitelist Kontrolü (Login ve Public endpointler)
@@ -87,7 +87,12 @@ class SessionMiddleware implements Middleware
         // 4. Authentication Kontrolü
         // LoginAction'da $_SESSION['user'] set ediyoruz.
         if (empty($session['user'])) {
-            throw new HttpUnauthorizedException($request, "Oturum açmanız gerekiyor.");
+            // Exception uzantisini degistirdik: Throw yerine Response donuyoruz ki CORS middleware calissin.
+            $response = new \Slim\Psr7\Response();
+            $response->getBody()->write(json_encode(['error' => 'Unauthorized', 'message' => 'Oturum acmaniz gerekiyor.']));
+            return $response
+                ->withHeader('Content-Type', 'application/json')
+                ->withStatus(401);
         }
 
         // 5. Session Hijacking Koruması (Opsiyonel - Production için önerilir)
@@ -102,7 +107,11 @@ class SessionMiddleware implements Middleware
             $_SESSION['fingerprint'] = $currentFingerprint;
         } elseif ($session['fingerprint'] !== $currentFingerprint) {
             session_destroy();
-            throw new HttpUnauthorizedException($request, "Geçersiz oturum. Lütfen tekrar giriş yapın.");
+            $response = new \Slim\Psr7\Response();
+            $response->getBody()->write(json_encode(['error' => 'Unauthorized', 'message' => 'Gecersiz oturum.']));
+            return $response
+                ->withHeader('Content-Type', 'application/json')
+                ->withStatus(401);
         }
 
 
