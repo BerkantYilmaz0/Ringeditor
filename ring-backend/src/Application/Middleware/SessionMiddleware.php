@@ -34,7 +34,7 @@ class SessionMiddleware implements Middleware
                 'domain' => '',
                 'secure' => $isSecure,
                 'httponly' => true,
-                'samesite' => $isSecure ? 'None' : 'Lax' // Cross-site (Vercel->Railway) icin None sart
+                'samesite' => 'None'
             ]);
             session_start();
         }

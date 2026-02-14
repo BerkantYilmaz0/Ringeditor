@@ -12,8 +12,8 @@ use Slim\Psr7\Response;
 return function (App $app) {
 
     $app->addBodyParsingMiddleware();
-    $app->add(SessionMiddleware::class);
 
+    // ⭐ CORS MIDDLEWARE ÖNCE ÇALIŞMALI (SessionMiddleware'den önce)
     $app->add(function (Request $request, RequestHandler $handler) {
         $origin = $request->getHeaderLine('Origin');
         $allowedOrigins = [
@@ -23,29 +23,39 @@ return function (App $app) {
             'https://ring-editor.vercel.app'
         ];
 
-        // Eger origin allowed listesindiyse veya gelistirme ortamindaysak (dikkatli kullanilmali)
-        // Simdilik genis izin veriyoruz ama kontrollu:
-        // $isAllowed = in_array($origin, $allowedOrigins);
-        // Pratiklik icin: Eger origin varsa ona izin ver, yoksa * (fakat credentials ile * olmaz)
+        // ⭐ PREFLIGHT (OPTIONS) İsteğini hemen ele al
+        if ($request->getMethod() === 'OPTIONS') {
+            $response = new Response();
 
+            if (in_array($origin, $allowedOrigins, true)) {
+                $response = $response
+                    ->withHeader('Access-Control-Allow-Origin', $origin)
+                    ->withHeader('Access-Control-Allow-Headers', 'X-Requested-With, Content-Type, Accept, Origin, Authorization')
+                    ->withHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, PATCH, OPTIONS')
+                    ->withHeader('Access-Control-Allow-Credentials', 'true')
+                    ->withHeader('Access-Control-Max-Age', '86400');
+            }
+
+            return $response->withStatus(200);
+        }
+
+        // Normal istekler için handler'a git
         $response = $handler->handle($request);
 
-        if (!empty($origin)) {
-            return $response
+        // CORS header'larını ekle
+        if (in_array($origin, $allowedOrigins, true)) {
+            $response = $response
                 ->withHeader('Access-Control-Allow-Origin', $origin)
                 ->withHeader('Access-Control-Allow-Headers', 'X-Requested-With, Content-Type, Accept, Origin, Authorization')
                 ->withHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, PATCH, OPTIONS')
                 ->withHeader('Access-Control-Allow-Credentials', 'true');
         }
 
-        // Fallback for non-browser or no-origin requests
-
-        // Guvenlik Basliklari (Security Headers)
+        // Guvenlik Basliklari
         $response = $response
             ->withHeader('X-Content-Type-Options', 'nosniff')
             ->withHeader('X-Frame-Options', 'SAMEORIGIN')
             ->withHeader('X-XSS-Protection', '1; mode=block')
-            // CSP: Simdilik report-only veya genis izinli basliyoruz, MapLibre ivin worker/blob/style izinleri gerekebilir
             ->withHeader('Content-Security-Policy', "default-src 'self' https: data: blob: 'unsafe-inline' 'unsafe-eval';");
 
         // HTTPS ise HSTS ekle
@@ -55,4 +65,7 @@ return function (App $app) {
 
         return $response;
     });
+
+    // ⭐ SESSION MIDDLEWARE SONRA ÇALIŞMALI
+    $app->add(SessionMiddleware::class);
 };
