@@ -42,7 +42,7 @@
     "leaflet": "^1.9.4",
     "lodash": "^4.17.21",
     "maplibre-gl": "^5.17.0",
-    "next": "^15.1.7",
+    "next": "15.1.11",
     "react": "19.1.0",
     "react-apexcharts": "1.7.0",
     "react-dom": "19.1.0",
