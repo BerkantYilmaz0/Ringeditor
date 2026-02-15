@@ -144,6 +144,9 @@ return function (App $app) {
         $g->delete('/{id}', DeleteRouteAction::class);
     });
 
+    // Dashboard
+    $app->get('/dashboard/stats', \App\Application\Actions\Dashboard\GetDashboardStatsAction::class);
+
     // Jobs
     $app->group('/jobs', function (Group $g) {
         $g->get('', GetJobsAction::class);

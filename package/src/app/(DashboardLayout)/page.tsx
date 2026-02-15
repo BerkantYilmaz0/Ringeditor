@@ -235,5 +235,3 @@ function getStatusChip(status: number) {
       return <Chip label="Bilinmiyor" size="small" color="error" variant="outlined" />;
   }
 };
-
-

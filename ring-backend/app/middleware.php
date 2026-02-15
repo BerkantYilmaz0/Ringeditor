@@ -18,9 +18,7 @@ return function (App $app) {
         $origin = $request->getHeaderLine('Origin');
         $allowedOrigins = [
             'http://localhost:3000',
-            'http://localhost:5173',
-            'https://planner.ring.com',
-            'https://ring-editor.vercel.app'
+            'http://localhost:5173'
         ];
 
         // ⭐ PREFLIGHT (OPTIONS) İsteğini hemen ele al

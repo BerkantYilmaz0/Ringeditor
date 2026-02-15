@@ -26,11 +26,11 @@ api.interceptors.response.use(
       // Login isteğinde 401 gelirse yönlendirme yapma, hata mesajını göster
       const reqUrl = error.config?.url || "";
       if (!reqUrl.includes("/login")) {
-        window.location.href = "/authentication/login";
+        // Client-side redirect
+        if (typeof window !== 'undefined') {
+          window.location.href = "/authentication/login";
+        }
       }
-    }
-    if (error.response?.status === 500) {
-      console.error("Sunucu hatası:", error.response.data);
     }
     return Promise.reject(error);
   }

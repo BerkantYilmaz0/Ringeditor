@@ -18,7 +18,7 @@ final class GetRingTypesAction extends Action
     protected function action(): Response
     {
         $stmt = $this->pdo->query("
-            SELECT id, name, color
+            SELECT id, name, color, type_id
             FROM ring_types
             WHERE is_deleted = 0
             ORDER BY name

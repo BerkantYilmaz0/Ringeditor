@@ -342,4 +342,74 @@ final class JobsRepository
 
         return $stmt->rowCount();
     }
+
+    /**
+     * Dashboard istatistikleri
+     */
+    public function getDashboardStats(): array
+    {
+        $start = strtotime('today midnight');
+        $end = strtotime('tomorrow midnight') - 1;
+        $now = time();
+
+        // 1. Genel İstatistikler
+        $sql = "
+            SELECT 
+                COUNT(*) as total,
+                SUM(CASE WHEN status = 3 THEN 1 ELSE 0 END) as completed,
+                COUNT(DISTINCT deviceid) as active_vehicles
+            FROM jobs
+            WHERE duetime BETWEEN :start AND :end
+        ";
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->execute([':start' => $start, ':end' => $end]);
+        $stats = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        $stats['total'] = (int) ($stats['total'] ?? 0);
+        $stats['completed'] = (int) ($stats['completed'] ?? 0);
+        $stats['active_vehicles'] = (int) ($stats['active_vehicles'] ?? 0);
+        $stats['remaining'] = $stats['total'] - $stats['completed'];
+
+        // 2. Yaklaşan Seferler (Gelecek 2 saat)
+        $next2Hours = $now + 7200;
+        $sqlUpcoming = "
+            SELECT 
+                j.*,
+                d.displayName AS device_name,
+                rt.name AS ring_type_name,
+                rt.color AS ring_color,
+                r.name AS route_name
+            FROM jobs j
+            LEFT JOIN device d ON d.deviceID = j.deviceid
+            LEFT JOIN ring_types rt ON rt.id = j.type
+            LEFT JOIN routes r ON r.id = j.route_id
+            WHERE j.duetime > :now AND j.duetime <= :nextLimit
+            ORDER BY j.duetime ASC
+            LIMIT 5
+        ";
+        $stmtUp = $this->pdo->prepare($sqlUpcoming);
+        $stmtUp->execute([':now' => $now, ':nextLimit' => $next2Hours]);
+        $upcoming = $stmtUp->fetchAll(PDO::FETCH_ASSOC);
+
+        // 3. Son İşlemler (Son 5 kayıt)
+        $sqlRecent = "
+            SELECT 
+                j.*,
+                r.name AS route_name
+            FROM jobs j
+            LEFT JOIN routes r ON r.id = j.route_id
+            WHERE j.duetime <= :now
+            ORDER BY j.duetime DESC
+            LIMIT 5
+        ";
+        $stmtRec = $this->pdo->prepare($sqlRecent);
+        $stmtRec->execute([':now' => $now]);
+        $recent = $stmtRec->fetchAll(PDO::FETCH_ASSOC);
+
+        return [
+            'stats' => $stats,
+            'upcoming' => $upcoming,
+            'recent' => $recent
+        ];
+    }
 }
