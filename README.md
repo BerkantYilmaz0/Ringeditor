@@ -53,9 +53,6 @@ Projeyi çalıştırmak için iki yöntem mevcuttur: **Docker (Önerilen)** veya
 
 Satır satır detaylı kurulum, demo yayını ve Git'e yükleme adımları için lütfen aşağıdaki rehberleri inceleyin:
 
-*   **[GIT_SETUP.md](GIT_SETUP.md)**: Projeyi sıfırdan kurmak ve Git'e yüklemek için detaylı rehber.
-*   **[DEMO.md](DEMO.md)**: Demo yayını ve sunucu ayarları hakkında bilgiler.
-
 ### Hızlı Kurulum
 
 Bilgisayarınızda Docker ve Docker Compose yüklü ise:
