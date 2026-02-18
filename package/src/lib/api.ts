@@ -1,7 +1,7 @@
 import axios, { type InternalAxiosRequestConfig, type AxiosResponse, type AxiosError } from "axios";
 
 export const api = axios.create({
-  baseURL: process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080",
+  baseURL:"https://ringeditor-production.up.railway.app",
   timeout: 10000,
   withCredentials: true,
 });
