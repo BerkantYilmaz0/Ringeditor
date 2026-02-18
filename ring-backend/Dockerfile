@@ -1,41 +1,23 @@
-FROM php:8.2-apache
+FROM php:8.2-cli
 
-# Install system dependencies and PHP extensions
+WORKDIR /app
+
+# Sistem bağımlılıkları + PHP eklentileri
 RUN apt-get update && apt-get install -y \
-    git \
-    unzip \
-    libzip-dev \
-    && docker-php-ext-install pdo pdo_mysql zip \
-    && a2dismod mpm_event mpm_worker || true \
-    && a2enmod mpm_prefork rewrite
+    git unzip libzip-dev \
+  && docker-php-ext-install pdo pdo_mysql zip \
+  && rm -rf /var/lib/apt/lists/*
 
-# Install Composer
-COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
+# Composer
+COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 
-# Set working directory
-WORKDIR /var/www/html
+# Önce composer dosyaları (cache için)
+COPY composer.json composer.lock* ./
+RUN composer install --no-dev --optimize-autoloader --no-interaction --no-progress
 
-# Update Apache DocumentRoot to point to public folder
-RUN sed -i 's!/var/www/html!/var/www/html/public!g' /etc/apache2/sites-available/000-default.conf \
-    && sed -i 's!/var/www/html!/var/www/html/public!g' /etc/apache2/apache2.conf
-
-# Copy composer files first for caching
-COPY composer.json composer.lock ./
-
-# Install dependencies
-RUN composer install --no-dev --optimize-autoloader
-
-# Copy application source
+# Uygulama kaynak kodu
 COPY . .
 
-# Set permissions
-RUN chown -R www-data:www-data /var/www/html \
-    && chmod -R 755 /var/www/html
-
-# start.sh için
-COPY start.sh /start.sh
-RUN chmod +x /start.sh
-
-EXPOSE 80
-
-CMD ["/start.sh"]
+# Railway PORT'u kullanarak Slim'i ayağa kaldır
+# Slim entrypoint genelde public/index.php ve static dosyalar public/ altında olur
+CMD ["sh", "-lc", "/start.sh"]
