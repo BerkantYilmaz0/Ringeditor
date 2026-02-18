@@ -31,7 +31,7 @@ class SessionMiddleware implements Middleware
                 'domain' => '',
                 'secure' => $isSecure, // Sadece HTTPS ise true
                 'httponly' => true, // XSS koruması
-                'samesite' => 'Lax' // CSRF koruması
+                'samesite' => 'None' // CSRF koruması
             ]);
             session_start();
         }
