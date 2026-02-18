@@ -2,8 +2,8 @@
 
 declare(strict_types=1);
 
-use App\Application\Middleware\JwtAuthMiddleware;
-//use App\Application\Middleware\SessionMiddleware;
+
+use App\Application\Middleware\SessionMiddleware;
 use Slim\App;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Psr\Http\Server\RequestHandlerInterface as RequestHandler;
@@ -65,10 +65,7 @@ return function (App $app) {
 
         return $response;
     });
-    
 
     // ⭐ SESSION MIDDLEWARE SONRA ÇALIŞMALI
-    //$app->add(SessionMiddleware::class);
-
-    $app->add(JwtAuthMiddleware::class);
+    $app->add(SessionMiddleware::class);
 };

@@ -10,7 +10,6 @@ use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Log\LoggerInterface;
 use Slim\Exception\HttpBadRequestException;
 use Slim\Exception\HttpUnauthorizedException;
-use Firebase\JWT\JWT;
 
 class LoginAction extends Action
 {
@@ -79,26 +78,18 @@ class LoginAction extends Action
         // Giriş başarılı - Oturum başlat
       /*  if (session_status() !== PHP_SESSION_ACTIVE) {
             session_start();
-        } Session Fixation Korumasi */
+        } */
 
         // Session Fixation Korumasi
-      //  session_regenerate_id(true);
+        session_regenerate_id(true);
 
-       // $_SESSION['user'] = $user->jsonSerialize();
+        $_SESSION['user'] = $user->jsonSerialize();
 
         $this->logger->info("User logged in: " . $username);
-        $payload = [
-    'sub' => $user->getId(),
-    'username' => $username,
-    'iat' => time(),
-    'exp' => time() + 60 * 60 * 24, // 1 gün
-];
-
-$token = JWT::encode($payload, $_ENV['JWT_SECRET'], 'HS256');
 
         return $this->respondWithData([
             'message' => 'Giriş başarılı',
-            'token' => $token
+            'user' => $user
         ]);
     }
 }
