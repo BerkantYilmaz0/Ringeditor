@@ -18,6 +18,7 @@ RUN composer install --no-dev --optimize-autoloader --no-interaction --no-progre
 # Uygulama kaynak kodu
 COPY . .
 
-# Railway PORT'u kullanarak Slim'i ayağa kaldır
-# Slim entrypoint genelde public/index.php ve static dosyalar public/ altında olur
+COPY start.sh /start.sh
+RUN chmod +x /start.sh
+
 CMD ["sh", "-lc", "/start.sh"]
