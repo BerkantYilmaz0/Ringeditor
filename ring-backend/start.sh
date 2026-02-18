@@ -1,3 +1,3 @@
 #!/bin/bash
-cd /var/www/html
-apache2-foreground
+cd /app
+php -S 0.0.0.0:${PORT:-8080} -t public
