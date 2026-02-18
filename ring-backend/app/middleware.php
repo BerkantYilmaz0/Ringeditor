@@ -18,7 +18,8 @@ return function (App $app) {
         $origin = $request->getHeaderLine('Origin');
         $allowedOrigins = [
             'http://localhost:3000',
-            'http://localhost:5173'
+            'http://localhost:5173',
+            'https://ring-editor.up.railway.app'
         ];
 
         // ⭐ PREFLIGHT (OPTIONS) İsteğini hemen ele al
