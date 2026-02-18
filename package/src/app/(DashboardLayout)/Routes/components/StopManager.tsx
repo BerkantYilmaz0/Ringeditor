@@ -17,7 +17,7 @@ import {
     useSortable
 } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
-import { Box, IconButton, Paper, Typography, List, ListItem, ListItemText, ListItemIcon } from '@mui/material';
+import { Box, IconButton, Paper, Typography } from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
 import DragHandleIcon from '@mui/icons-material/DragIndicator';
 

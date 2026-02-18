@@ -1,6 +1,6 @@
-import { Box, Typography, Button } from '@mui/material';
-import Image from 'next/image';
-import Link from 'next/link';
+import { Box } from '@mui/material';
+
+// Yükseltme bileşeni — ileride genişletilecek
 
 export const Upgrade = () => {
     return (

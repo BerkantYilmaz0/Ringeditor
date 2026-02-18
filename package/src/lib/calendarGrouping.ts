@@ -14,7 +14,7 @@ type Ext = {
   template_id?: number | null;
   template_name?: string | null;
   duetime?: number;
-  [k: string]: any;
+  [k: string]: unknown;
 };
 
 export function groupForMonthView(events: EventInput[]): EventInput[] {
@@ -25,7 +25,7 @@ export function groupForMonthView(events: EventInput[]): EventInput[] {
   const manualAll: EventInput[] = [];
 
   for (const ev of events) {
-    const dkey = dayKey(ev.start as any);
+    const dkey = dayKey(ev.start as Date | string | number);
     const ext = (ev.extendedProps ?? {}) as Ext;
     const origin: 'template' | 'manual' = (ext.origin ?? 'manual');
 

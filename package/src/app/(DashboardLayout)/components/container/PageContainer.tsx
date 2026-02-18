@@ -1,5 +1,5 @@
 // import { Helmet } from 'react-helmet';
-import react from 'react'
+import React from 'react';
 
 
 type Props = {

@@ -14,7 +14,7 @@ const calculateBBox = (geometry: GeoJSONGeometry | null): [number, number, numbe
 
     // Flatten coordinates based on type or just recursively flatten
     if (Array.isArray(geometry.coordinates)) {
-        // @ts-ignore - flat method with depth
+        // @ts-expect-error - flat method with depth
         flatCoords = geometry.coordinates.flat(Infinity);
     }
 
@@ -33,7 +33,7 @@ const calculateBBox = (geometry: GeoJSONGeometry | null): [number, number, numbe
 
     return [minX, minY, maxX, maxY];
 };
-import '@mapbox/mapbox-gl-draw/dist/mapbox-gl-draw.css';
+
 
 // Özel Çizim Kontrol Hook'u
 interface DrawControlProps {
@@ -65,7 +65,7 @@ function DrawControl(props: DrawControlProps) {
             drawRef.current = draw;
             return draw;
         },
-        ({ map }: { map: any }) => {
+        ({ map }: { map: MapRef }) => {
             if (props.onCreate) map.on('draw.create', props.onCreate);
             if (props.onUpdate) map.on('draw.update', props.onUpdate);
             if (props.onDelete) map.on('draw.delete', props.onDelete);
@@ -91,7 +91,7 @@ function DrawControl(props: DrawControlProps) {
                                         };
                                     }
 
-                                    drawRef.current.add(dataToAdd as any);
+                                    drawRef.current.add(dataToAdd as unknown as GeoJSONFeature);
                                 }
                                 clearInterval(checkInterval);
                             } catch (e) {
@@ -105,7 +105,7 @@ function DrawControl(props: DrawControlProps) {
                 }
             }
         },
-        ({ map }: { map: any }) => {
+        ({ map }: { map: MapRef }) => {
             if (props.onCreate) map.off('draw.create', props.onCreate);
             if (props.onUpdate) map.off('draw.update', props.onUpdate);
             if (props.onDelete) map.off('draw.delete', props.onDelete);
@@ -115,10 +115,10 @@ function DrawControl(props: DrawControlProps) {
     useEffect(() => {
         if (drawRef.current && props.initialDrawData) {
             try {
-                // Logic to update draw data if prop changes could go here
-                // For now, we rely on initial load or remounting
-            } catch (e) {
-                // ignore
+                // Çizim verisi prop değişirse güncelleme mantığı buraya eklenebilir
+                // şu an ilk yüklemeye veya yeniden bağlamaya güveniyoruz
+            } catch {
+                // Hata yoksay
             }
         }
     }, [props.initialDrawData]);
@@ -127,6 +127,10 @@ function DrawControl(props: DrawControlProps) {
 }
 
 import { Stop, Route, GeoJSONGeometry, GeoJSONFeature, GeoJSONFeatureCollection } from '@/types';
+
+interface MarkerClickEvent {
+    originalEvent: Event;
+}
 
 interface MapLibreBoardProps {
     stops?: Stop[];
@@ -216,7 +220,7 @@ const MapLibreBoard: React.FC<MapLibreBoardProps> = ({
         }
     }, [selectedItem]);
 
-    const handleStopClick = (e: any, stop: Stop) => {
+    const handleStopClick = (e: MarkerClickEvent, stop: Stop) => {
         e.originalEvent.stopPropagation();
 
         // Düzenleme Modu Mantığı
@@ -321,50 +325,7 @@ const MapLibreBoard: React.FC<MapLibreBoardProps> = ({
                     </Popup>
                 )}
 
-                {/* Popup for Stops */}
-                {popupInfo && (
-                    <Popup
-                        longitude={popupInfo.stop.lng}
-                        latitude={popupInfo.stop.lat}
-                        anchor="bottom"
-                        onClose={() => setPopupInfo(null)}
-                        closeOnClick={false}
-                        offset={15} // Offset to not cover the pin
-                    >
-                        <Box sx={{ p: 1, minWidth: 200 }}>
-                            <Typography variant="subtitle2" fontWeight="bold" gutterBottom>
-                                {popupInfo.stop.name}
-                            </Typography>
-                            <Typography variant="caption" display="block" color="textSecondary" mb={1}>
-                                Geçen Hatlar:
-                            </Typography>
-                            {popupInfo.routes.length > 0 ? (
-                                <Box display="flex" flexWrap="wrap" gap={0.5}>
-                                    {popupInfo.routes.map((r: Route) => (
-                                        <Box
-                                            key={r.id}
-                                            sx={{
-                                                bgcolor: r.color,
-                                                color: 'white',
-                                                px: 1,
-                                                py: 0.2,
-                                                borderRadius: 1,
-                                                fontSize: '0.75rem',
-                                                fontWeight: 'bold'
-                                            }}
-                                        >
-                                            {r.name}
-                                        </Box>
-                                    ))}
-                                </Box>
-                            ) : (
-                                <Typography variant="caption" color="text.disabled">
-                                    Bu duraktan geçen hat bulunamadı.
-                                </Typography>
-                            )}
-                        </Box>
-                    </Popup>
-                )}
+
 
                 {/* Stops Layer */}
                 {(mode === 'stops' || mode === 'routes') && (
@@ -392,7 +353,7 @@ const MapLibreBoard: React.FC<MapLibreBoardProps> = ({
                                     <div
                                         onDoubleClick={(e) => {
                                             e.stopPropagation();
-                                            onStopDoubleClick && onStopDoubleClick(stop);
+                                            if (onStopDoubleClick) onStopDoubleClick(stop);
                                         }}
                                         style={{
                                             backgroundColor: isSelected ? '#1976d2' : 'white', // Blue if selected
@@ -500,9 +461,8 @@ const MapLibreBoard: React.FC<MapLibreBoardProps> = ({
                     </Source>
                 )}
 
-                {/* Preview Route Layer (Blue Dashed) */}
                 {previewGeometry && (
-                    <Source id="preview-route" type="geojson" data={previewGeometry as any}>
+                    <Source id="preview-route" type="geojson" data={previewGeometry as unknown as import('geojson').Geometry}>
                         <Layer
                             id="preview-route-layer"
                             type="line"
@@ -520,28 +480,26 @@ const MapLibreBoard: React.FC<MapLibreBoardProps> = ({
                     </Source>
                 )}
 
-                {/* Routes Layer (Visible in all modes, but lower opacity in 'stops') */}
-                {routes.map((route, index) => (
-                    route.geometry && (
-                        <React.Fragment key={route.id}>
-                            <Source id={`route-${route.id}`} type="geojson" data={route.geometry as any}>
-                                <Layer
-                                    id={`route-layer-${route.id}`}
-                                    type="line"
-                                    layout={{
-                                        'line-join': 'round',
-                                        'line-cap': 'round'
-                                    }}
-                                    paint={{
-                                        'line-color': route.color || '#00e676',
-                                        'line-width': 6,
-                                        'line-opacity': 1,
-                                        'line-offset': 0
-                                    }}
-                                />
-                            </Source>
-                        </React.Fragment>
-                    )
+                {/* Hat Katmanı (Tüm modlarda görünür, 'durak' modunda düşük opaklık) */}
+                {routes && routes.map((route) => route.geometry && (
+                <React.Fragment key={route.id}>
+                    <Source id={`route-${route.id}`} type="geojson" data={route.geometry as unknown as import('geojson').Geometry}>
+                        <Layer
+                            id={`route-layer-${route.id}`}
+                            type="line"
+                            layout={{
+                                'line-join': 'round',
+                                'line-cap': 'round'
+                            }}
+                            paint={{
+                                'line-color': route.color || '#00e676',
+                                'line-width': 6,
+                                'line-opacity': 1,
+                                'line-offset': 0
+                            }}
+                        />
+                    </Source>
+                </React.Fragment>
                 ))}
             </Map>
         </Box>

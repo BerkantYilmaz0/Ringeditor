@@ -66,11 +66,11 @@ const AuthLogin = ({ title, subtitle, subtext }: loginType) => {
       }
 
       router.push("/");
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error("Login hatası:", err);
       const backendMsg =
-        err.response?.data?.message ||
-        err.response?.data?.error?.description;
+        (err as { response?: { data?: { message?: string; error?: { description?: string } } } })?.response?.data?.message ||
+        (err as { response?: { data?: { message?: string; error?: { description?: string } } } })?.response?.data?.error?.description;
 
       if (backendMsg) {
         setError(backendMsg);
@@ -109,7 +109,7 @@ const AuthLogin = ({ title, subtitle, subtext }: loginType) => {
               variant="outlined"
               fullWidth
               value={username}
-              onChange={(e: any) => setUsername(e.target.value)}
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) => setUsername(e.target.value)}
             />
           </Box>
           <Box mt="25px">
@@ -128,7 +128,7 @@ const AuthLogin = ({ title, subtitle, subtext }: loginType) => {
               variant="outlined"
               fullWidth
               value={password}
-              onChange={(e: any) => setPassword(e.target.value)}
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) => setPassword(e.target.value)}
             />
           </Box>
           <Stack
@@ -142,7 +142,7 @@ const AuthLogin = ({ title, subtitle, subtext }: loginType) => {
                 control={
                   <Checkbox
                     checked={rememberMe}
-                    onChange={(e) => setRememberMe(e.target.checked)}
+                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => setRememberMe(e.target.checked)}
                   />
                 }
                 label="Beni Hatırla"

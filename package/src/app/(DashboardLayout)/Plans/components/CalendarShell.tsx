@@ -2,7 +2,8 @@
 
 import { forwardRef, useEffect, useRef } from 'react';
 import FullCalendar from '@fullcalendar/react';
-import type { EventInput } from '@fullcalendar/core';
+import { EventInput, EventClickArg, EventContentArg } from '@fullcalendar/core';
+import type { DateClickArg } from '@fullcalendar/interaction';
 import dayGridPlugin from '@fullcalendar/daygrid';
 import listPlugin from '@fullcalendar/list';
 import timeGridPlugin from '@fullcalendar/timegrid';
@@ -14,10 +15,10 @@ import '@/app/global.css';
 type Props = {
   events?: EventInput[];
   initialView?: 'dayGridMonth' | 'timeGridDay' | 'listDay';
-  onDateClick?: (arg: { date: Date; dateStr: string; allDay: boolean }) => void;
+  onDateClick?: (arg: DateClickArg) => void;
   onViewChange?: (viewType: string) => void;
   onRangeChange?: (start: Date, end: Date, viewType: string) => void;
-  onEventClick?: (arg: any) => void;
+  onEventClick?: (arg: EventClickArg) => void;
 };
 
 const CalendarShell = forwardRef<FullCalendar, Props>(function CalendarShell(
@@ -53,17 +54,20 @@ const CalendarShell = forwardRef<FullCalendar, Props>(function CalendarShell(
 
   const badge = (hex: string) => `<span class="evt-badge" style="background:${hex}"></span>`;
 
-  const renderMonthContent = (arg: any) => {
+  const renderMonthContent = (arg: EventContentArg) => {
     const ext = arg.event.extendedProps || {};
     const title = ext.route_name || ext.type_name || '';
     const color = ext.color ?? '#64748b';
     return { html: `${badge(color)}<span class="evt-title">${title}</span>` };
   };
 
-  const renderDayContent = (arg: any) => {
+  const renderDayContent = (arg: EventContentArg) => {
     const ext = arg.event.extendedProps || {};
     const color = ext.color ?? '#64748b';
-    const time = formatDate(arg.event.start, { hour: '2-digit', minute: '2-digit', hour12: false });
+    // arg.event.start null olabilir, null ise boş string döndür
+    const time = arg.event.start
+      ? formatDate(arg.event.start, { hour: '2-digit', minute: '2-digit', hour12: false })
+      : '';
     const plate = ext.plate ?? ext.device_plate ?? ext.deviceid ?? '';
     const route = ext.route_name || ext.type_name || '';
     const title = plate ? `${time} ${route} (${plate})` : `${time} ${route}`;

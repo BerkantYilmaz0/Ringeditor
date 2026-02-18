@@ -56,7 +56,7 @@ export default function EditJobDialog({
   // Bu job'un ring type'ına ait rotalar
   const filteredRoutes = routes.filter((r) => r.ring_type_id === job.type);
 
-  const handleChange = async (field: keyof Job, value: any) => {
+  const handleChange = async (field: keyof Job, value: string | number) => {
     try {
       const fullPayload: Partial<Job> = {
         id: job.id,
@@ -71,7 +71,7 @@ export default function EditJobDialog({
 
       setMessage('✅ Güncelleme başarılı');
       setTimeout(() => setMessage(null), 2000);
-    } catch (err) {
+    } catch {
       setMessage('❌ Güncelleme başarısız');
     }
   };

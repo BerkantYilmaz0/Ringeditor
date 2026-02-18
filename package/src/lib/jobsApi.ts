@@ -14,13 +14,13 @@ export async function fetchJobsAsEvents(opts: { start: Date; end: Date }): Promi
     const { data } = await api.get('/jobs', { params: primaryParams });
     const list = Array.isArray(data?.items) ? data.items : Array.isArray(data) ? data : [];
     return list.map(fromApiJob).map(toCalendarEvent);
-  } catch (err: any) {
+  } catch {
     try {
       const altParams = { start: toUnixSec(opts.start), end: toUnixSec(opts.end) };
       const { data } = await api.get('/jobs', { params: altParams });
       const list = Array.isArray(data?.items) ? data.items : Array.isArray(data) ? data : [];
       return list.map(fromApiJob).map(toCalendarEvent);
-    } catch (err2) {
+    } catch {
       const toYMD = (d: Date) => d.toISOString().slice(0, 10);
       const dateParams = { from: toYMD(opts.start), to: toYMD(opts.end) };
       const { data } = await api.get('/jobs', { params: dateParams });

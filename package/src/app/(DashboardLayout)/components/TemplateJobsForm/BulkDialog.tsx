@@ -239,9 +239,9 @@ export default function BulkDialog({
 
         await onSuccess(created.length);
         onClose();
-      } catch (e: any) {
-        const status = e?.response?.status;
-        const message = e?.response?.data?.message || 'Bilinmeyen hata';
+      } catch (e: unknown) {
+        const status = (e as { response?: { status: number } })?.response?.status || 500;
+        const message = (e as { response?: { data?: { message?: string } } })?.response?.data?.message || 'Bilinmeyen hata';
 
         const errorMessages: Record<number, string> = {
           400: `Geçersiz veri: ${message}`,

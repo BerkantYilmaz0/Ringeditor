@@ -1,4 +1,4 @@
-export const drawStyles: any = [
+export const drawStyles: object[] = [
     // ACTIVE (being drawn)
     // line stroke
     {

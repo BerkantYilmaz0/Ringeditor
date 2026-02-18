@@ -9,10 +9,10 @@ import {
 import { api } from "@/lib/api";
 
 const Profile = () => {
-  const [anchorEl2, setAnchorEl2] = useState(null);
+  const [anchorEl2, setAnchorEl2] = useState<HTMLElement | null>(null);
   const [loggingOut, setLoggingOut] = useState(false);
 
-  const handleClick2 = (event: any) => {
+  const handleClick2 = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorEl2(event.currentTarget);
   };
   const handleClose2 = () => {

@@ -1,6 +1,7 @@
 
 import dynamic from "next/dynamic";
 const Chart = dynamic(() => import("react-apexcharts"), { ssr: false });
+import { ApexOptions } from 'apexcharts';
 import { useTheme } from '@mui/material/styles';
 import { Grid, Stack, Typography, Avatar } from '@mui/material';
 import { IconArrowUpLeft } from '@tabler/icons-react';
@@ -8,14 +9,14 @@ import { IconArrowUpLeft } from '@tabler/icons-react';
 import DashboardCard from '@/app/(DashboardLayout)/components/shared/DashboardCard';
 
 const YearlyBreakup = () => {
-  // chart color
+  // Grafik renkleri
   const theme = useTheme();
   const primary = theme.palette.primary.main;
   const primarylight = '#ecf2ff';
   const successlight = theme.palette.success.light;
 
-  // chart
-  const optionscolumnchart: any = {
+  // Grafik ayarları
+  const optionscolumnchart: ApexOptions = {
     chart: {
       type: 'donut',
       fontFamily: "'Plus Jakarta Sans', sans-serif;",
@@ -60,7 +61,8 @@ const YearlyBreakup = () => {
       },
     ],
   };
-  const seriescolumnchart: any = [38, 40, 25];
+  // ApexCharts donut grafik seri verisi — tip güvenli
+  const seriescolumnchart: number[] = [38, 40, 25];
 
   return (
     <DashboardCard title="Yearly Breakup">

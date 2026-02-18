@@ -38,6 +38,7 @@ services:
       DB_NAME: aa
       DB_USER: root
       DB_PASS: root
+      docker: 'true'
     depends_on:
       - db
     networks:

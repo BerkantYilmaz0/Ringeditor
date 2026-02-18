@@ -21,13 +21,9 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import AddIcon from '@mui/icons-material/Add';
 import RouteEditor from './RouteEditor';
 import { api } from '@/lib/api';
+import { GeoJSONGeometry, Stop } from '@/types/index';
 
-type LinkStop = {
-    id?: number;
-    name: string;
-    lat: number;
-    lng: number;
-}
+type LinkStop = Stop;
 
 export type RouteApi = {
     id: number;
@@ -35,7 +31,7 @@ export type RouteApi = {
     description?: string;
     color: string;
     ring_type_id: number;
-    geometry?: any; // GeoJSON
+    geometry?: GeoJSONGeometry | null; // GeoJSON
     stops?: LinkStop[];
 }
 

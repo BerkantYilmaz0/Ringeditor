@@ -1,6 +1,6 @@
 import React from "react";
 import Menuitems from "./MenuItems";
-import { Box, Typography } from "@mui/material";
+import { Box } from "@mui/material";
 import {
   Logo,
   Sidebar as MUI_Sidebar,
@@ -13,10 +13,22 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Upgrade } from "./Updrade";
 
+// Menü ikonları için tip: React bileşeni döndüren fonksiyon tipi
+type IconComponent = React.ComponentType<{ stroke?: number; size?: string | number }>;
 
-const renderMenuItems = (items: any, pathDirect: any) => {
+interface SidebarItem {
+  id?: string;
+  title?: string;
+  icon?: IconComponent;
+  href?: string;
+  subheader?: string;
+  children?: SidebarItem[];
+}
 
-  return items.map((item: any) => {
+
+const renderMenuItems = (items: SidebarItem[], pathDirect: string) => {
+
+  return items.map((item: SidebarItem) => {
 
     const Icon = item.icon ? item.icon : IconPoint;
 
@@ -65,7 +77,7 @@ const renderMenuItems = (items: any, pathDirect: any) => {
 
 const SidebarItems = () => {
   const pathname = usePathname();
-  const pathDirect = pathname;
+  const pathDirect = pathname || '';
 
   return (
     < >

@@ -1,10 +1,9 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import dynamic from 'next/dynamic';
 import { Box, Card, CardContent, Typography, CircularProgress } from '@mui/material';
 import PageContainer from '@/app/(DashboardLayout)/components/container/PageContainer';
-import { api } from '@/lib/api';
 import { RingStop } from '@/types/jobs';
 
 const RingMap = dynamic(() => import('@/app/(DashboardLayout)/components/RingMap/RingMap'), {
@@ -13,8 +12,8 @@ const RingMap = dynamic(() => import('@/app/(DashboardLayout)/components/RingMap
 });
 
 const MapPage = () => {
-    const [stops, setStops] = useState<RingStop[]>([]);
-    const [loading, setLoading] = useState(false);
+    const [stops] = useState<RingStop[]>([]);
+    // const [loading, setLoading] = useState(false);
     return (
         <PageContainer title="Ring Haritası" description="Tüm durakları haritada görüntüleyin">
             <Card>

@@ -1,7 +1,7 @@
 'use client';
 import { useEffect, useState } from 'react';
 import { Grid, Box, Card, CardContent, Typography, Stack, Button, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Chip, LinearProgress, Avatar } from '@mui/material';
-import { IconBus, IconClock, IconMap, IconCalendarEvent, IconArrowRight, IconRefresh, IconListCheck, IconRoute } from '@tabler/icons-react';
+import { IconBus, IconMap, IconCalendarEvent, IconArrowRight, IconRefresh, IconListCheck, IconRoute } from '@tabler/icons-react';
 import Link from 'next/link';
 import { api } from '@/lib/api';
 
@@ -12,8 +12,18 @@ interface DashboardStats {
     remaining: number;
     active_vehicles: number;
   };
-  upcoming: any[];
-  recent: any[];
+  upcoming: {
+    duetime: number;
+    ring_color?: string;
+    ring_type_name: string;
+    route_name: string;
+    device_name?: string;
+    status: number;
+  }[];
+  recent: {
+    route_name?: string;
+    duetime: number;
+  }[];
 }
 
 export default function Dashboard() {
@@ -111,7 +121,7 @@ export default function Dashboard() {
                           Yaklaşan sefer bulunmuyor.
                         </TableCell>
                       </TableRow>
-                    ) : (data?.upcoming.map((job: any, index: number) => (
+                    ) : (data?.upcoming.map((job, index: number) => (
                       <TableRow key={index} hover>
                         <TableCell>
                           <Typography fontWeight={600}>
@@ -172,7 +182,7 @@ export default function Dashboard() {
                   Son İşlemler
                 </Typography>
                 <Stack spacing={2}>
-                  {data?.recent.map((job: any, i: number) => (
+                  {data?.recent.map((job, i: number) => (
                     <Box key={i} display="flex" alignItems="center" gap={2}>
                       <Avatar sx={{ bgcolor: 'primary.light', color: 'primary.main', width: 40, height: 40 }}>
                         <IconBus size={20} />
@@ -199,7 +209,7 @@ export default function Dashboard() {
 }
 
 // Alt Bileşen: İstatistik Kartı
-function StatCard({ title, value, subtitle, icon, color }: any) {
+function StatCard({ title, value, subtitle, icon, color }: { title: string; value: number; subtitle?: string; icon: React.ReactNode; color: string }) {
   return (
     <Card elevation={9} sx={{ p: 0 }} variant={undefined}>
       <CardContent>

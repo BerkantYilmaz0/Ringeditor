@@ -61,8 +61,15 @@ return function (ContainerBuilder $containerBuilder) {
             $processor = new UidProcessor();
             $logger->pushProcessor($processor);
 
-            $handler = new StreamHandler($loggerSettings['path'], $loggerSettings['level']);
-            $logger->pushHandler($handler);
+            try {
+                $handler = new StreamHandler($loggerSettings['path'], $loggerSettings['level']);
+                $logger->pushHandler($handler);
+            } catch (\Exception $e) {
+                // Fallback to stderr if file is not writable
+                $fallbackHandler = new StreamHandler('php://stderr', $loggerSettings['level']);
+                $logger->pushHandler($fallbackHandler);
+                $logger->error("Failed to open log file: " . $e->getMessage());
+            }
 
             return $logger;
         },

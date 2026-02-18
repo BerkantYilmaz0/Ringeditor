@@ -2,7 +2,8 @@
 
 import { useRef, useEffect, useMemo, useState, useCallback } from 'react';
 import FullCalendar from '@fullcalendar/react';
-import type { EventInput } from '@fullcalendar/core';
+import type { EventInput, EventClickArg } from '@fullcalendar/core';
+import type { DateClickArg } from '@fullcalendar/interaction';
 
 import CalendarShell from './components/CalendarShell';
 import Legend from './components/Legend';
@@ -15,6 +16,7 @@ import JobsForm from './components/JobsForm';
 import { groupForMonthView } from '@/lib/calendarGrouping';
 import { fetchJobsAsEvents, updateJob, deleteJob } from '@/lib/jobsApi';
 import type { RingType, Device, Job, Route } from '@/types/jobs';
+import type { Conflict } from '@/lib/templateJobsApi';
 import { api } from '@/lib/api';
 import { ApiResponse } from '@/types';
 import { Paper, Typography, Button, Stack, Box, CircularProgress } from '@mui/material';
@@ -35,7 +37,13 @@ export default function PlansPage() {
   const [addOpen, setAddOpen] = useState(false);
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   const [applyOpen, setApplyOpen] = useState(false);
-  const [previewData, setPreviewData] = useState<any | null>(null);
+  const [previewData, setPreviewData] = useState<{
+    templateId: number;
+    startDate: string;
+    endDate: string;
+    daysOfWeek: number[];
+    conflicts: Conflict[]; // templateJobsApi'den gelen çakışma listesi
+  } | null>(null);
 
   // Edit dialog state
   const [selectedJob, setSelectedJob] = useState<Job | null>(null);
@@ -66,9 +74,9 @@ export default function PlansPage() {
     (async () => {
       try {
         const { data } = await api.get<ApiResponse<RingType[]>>('/ring-types');
-        const payload = Array.isArray(data) ? data : (data as any)?.data;
+        const payload = Array.isArray(data) ? data : (data as { data: RingType[] })?.data;
         setRingTypes(Array.isArray(payload) ? payload : []);
-      } catch (e: any) {
+      } catch (e) {
         console.error('Ring types fetch error', e);
         setErrMsg('Ring tipleri alınamadı.');
       }
@@ -80,7 +88,7 @@ export default function PlansPage() {
     (async () => {
       try {
         const { data } = await api.get<ApiResponse<Device[]>>('/device');
-        const payload = Array.isArray(data) ? data : (data as any)?.data;
+        const payload = Array.isArray(data) ? data : (data as { data: Device[] })?.data;
         setDevices(Array.isArray(payload) ? payload : []);
       } catch (e) {
         console.error('Device fetch error', e);
@@ -94,7 +102,7 @@ export default function PlansPage() {
     (async () => {
       try {
         const { data } = await api.get('/routes');
-        const payload = Array.isArray(data) ? data : (data as any)?.data;
+        const payload = Array.isArray(data) ? data : (data as { data: Route[] })?.data;
         setRoutes(Array.isArray(payload) ? payload : []);
       } catch (e) {
         console.error('Routes fetch error', e);
@@ -116,7 +124,7 @@ export default function PlansPage() {
       });
 
       setRawEvents(events);
-    } catch (e: any) {
+    } catch (e) {
       console.error('Jobs fetch error:', e);
       setErrMsg('Sefer verileri alınamadı.');
     } finally {
@@ -133,7 +141,7 @@ export default function PlansPage() {
   ), [rawEvents, viewType]);
 
   // Gün tıklama
-  const handleDateClick = (arg: any) => {
+  const handleDateClick = (arg: DateClickArg) => {
     const date = arg.date;
 
     if (viewType === 'dayGridMonth') {
@@ -147,7 +155,7 @@ export default function PlansPage() {
   };
 
   // Event tıklama → EditJobDialog aç
-  const handleEventClick = (arg: any) => {
+  const handleEventClick = (arg: EventClickArg) => {
     if (arg.event.extendedProps?.job) {
       setSelectedJob(arg.event.extendedProps.job as Job);
     }

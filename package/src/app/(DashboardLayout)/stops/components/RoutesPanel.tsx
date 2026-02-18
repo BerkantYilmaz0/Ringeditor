@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import {
     Box,
     Button,
@@ -8,16 +8,13 @@ import {
     ListItemText,
     Typography,
     Divider,
-    CircularProgress,
     IconButton
 } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import EditIcon from '@mui/icons-material/Edit';
-import DeleteIcon from '@mui/icons-material/Delete';
 import DashboardCard from '@/app/(DashboardLayout)/components/shared/DashboardCard';
-import { api } from '@/lib/api';
 
-import { Route, ApiResponse } from '@/types';
+import { Route } from '@/types';
 
 interface RoutesPanelProps {
     routes: Route[];

@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState, useCallback, useRef } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { api } from '@/lib/api';
 import nearestPointOnLine from '@turf/nearest-point-on-line';
 import { point, lineString } from '@turf/helpers';
@@ -36,7 +36,8 @@ import AutoFixHighIcon from '@mui/icons-material/AutoFixHigh';
 import EditIcon from '@mui/icons-material/Edit';
 
 // Types
-import { Stop, Route, RingType, ApiResponse, Position } from '@/types';
+import { Stop, Route, RingType, ApiResponse, Position, GeoJSONGeometry, GeoJSONFeature } from '@/types';
+import { MapLayerMouseEvent } from 'react-map-gl/maplibre';
 
 type ViewMode = 'stops' | 'routes' | 'drawing';
 
@@ -61,7 +62,7 @@ const StopsPage = () => {
     const [openNewRouteDialog, setOpenNewRouteDialog] = useState(false);
     const [newRouteName, setNewRouteName] = useState('');
     const [newRouteRingType, setNewRouteRingType] = useState<number | ''>('');
-    const [currentDrawingGeometry, setCurrentDrawingGeometry] = useState<any>(null);
+    const [currentDrawingGeometry, setCurrentDrawingGeometry] = useState<GeoJSONGeometry | null>(null); // GeoJSON
     const [isRoutingLoading, setIsRoutingLoading] = useState(false); // New State for tracking OSRM request
 
 
@@ -168,7 +169,7 @@ const StopsPage = () => {
         setViewMode('drawing');
     };
 
-    const handleDrawCreate = useCallback((e: any) => {
+    const handleDrawCreate = useCallback((e: { features: GeoJSONFeature[] }) => {
         // MapBox Draw returns features
         console.log('Draw Create Event:', e);
         if (e.features && e.features.length > 0) {
@@ -177,7 +178,7 @@ const StopsPage = () => {
         }
     }, []);
 
-    const handleDrawUpdate = useCallback((e: any) => {
+    const handleDrawUpdate = useCallback((e: { features: GeoJSONFeature[] }) => {
         console.log('Draw Update Event:', e);
         if (e.features && e.features.length > 0) {
             setCurrentDrawingGeometry(e.features[0].geometry);
@@ -262,7 +263,7 @@ const StopsPage = () => {
         }
     };
 
-    const handleMapClick = (e: any) => {
+    const handleMapClick = (e: MapLayerMouseEvent) => {
         // --- Auto Route Logic ---
         if (isAutoRouting) {
             const { lng, lat } = e.lngLat;
@@ -399,7 +400,7 @@ const StopsPage = () => {
     const [editingRoute, setEditingRoute] = useState<Route | null>(null);
     const [editRouteName, setEditRouteName] = useState('');
     const [editRouteRingType, setEditRouteRingType] = useState<number | ''>('');
-    const [editRouteGeometry, setEditRouteGeometry] = useState<any>(null); // State for pending geometry changes
+    const [editRouteGeometry, setEditRouteGeometry] = useState<GeoJSONGeometry | null>(null); // State for pending geometry changes
     const [editDrawMenuAnchor, setEditDrawMenuAnchor] = useState<null | HTMLElement>(null); // For "Edit Drawing" menu
 
     const handleEditRouteClick = (route: Route) => {

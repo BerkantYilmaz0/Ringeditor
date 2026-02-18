@@ -4,24 +4,25 @@ import { useTheme } from '@mui/material/styles';
 import DashboardCard from '@/app/(DashboardLayout)/components/shared/DashboardCard';
 import dynamic from "next/dynamic";
 const Chart = dynamic(() => import("react-apexcharts"), { ssr: false });
+import { ApexOptions } from 'apexcharts';
 
 
 const SalesOverview = () => {
 
-    // select
+    // Ay seçimi
     const [month, setMonth] = React.useState('1');
 
-    const handleChange = (event: any) => {
-        setMonth(event.target.value);
+    const handleChange = (event: unknown) => {
+        setMonth((event as React.ChangeEvent<HTMLSelectElement>).target.value);
     };
 
-    // chart color
+    // Grafik renkleri
     const theme = useTheme();
     const primary = theme.palette.primary.main;
     const secondary = theme.palette.secondary.main;
 
-    // chart
-    const optionscolumnchart: any = {
+    // Grafik ayarları
+    const optionscolumnchart: ApexOptions = {
         chart: {
             type: 'bar',
             fontFamily: "'Plus Jakarta Sans', sans-serif;",
@@ -37,7 +38,7 @@ const SalesOverview = () => {
                 horizontal: false,
                 barHeight: '60%',
                 columnWidth: '42%',
-                borderRadius: [6],
+                borderRadius: 6,
                 borderRadiusApplication: 'end',
                 borderRadiusWhenStacked: 'all',
             },
@@ -78,13 +79,14 @@ const SalesOverview = () => {
             fillSeriesColor: false,
         },
     };
-    const seriescolumnchart: any = [
+    // ApexCharts seri verisi — tip güvenli
+    const seriescolumnchart: ApexAxisChartSeries = [
         {
-            name: 'Eanings this month',
+            name: 'Bu ay kazanç',
             data: [355, 390, 300, 350, 390, 180, 355, 390],
         },
         {
-            name: 'Expense this month',
+            name: 'Bu ay gider',
             data: [280, 250, 325, 215, 250, 310, 280, 250],
         },
     ];

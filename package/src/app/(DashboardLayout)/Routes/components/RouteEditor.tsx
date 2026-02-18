@@ -16,11 +16,12 @@ import {
     CircularProgress,
     Backdrop
 } from '@mui/material';
+import { MapLayerMouseEvent } from 'react-map-gl/maplibre';
 import AutoFixHighIcon from '@mui/icons-material/AutoFixHigh';
 import { RouteApi } from './RouteList';
 import { api } from '@/lib/api';
 import MapLibreBoard from '@/components/map/MapLibreBoard';
-import { Stop, Route } from '@/types';
+import { Route, GeoJSONGeometry, GeoJSONFeature, RingType } from '@/types';
 import { getRouteFromOSRM } from '@/lib/routingService';
 
 interface Props {
@@ -36,14 +37,14 @@ export default function RouteEditor({ open, initialData, onClose, onSave }: Prop
     const [color, setColor] = useState('#2196f3');
 
     // GeoJSON Geometry
-    const [geometry, setGeometry] = useState<any>(null);
+    const [geometry, setGeometry] = useState<GeoJSONGeometry | null>(null);
 
     // Stops - REMOVED
 
     const [mode, setMode] = useState<'view' | 'draw'>('view');
     const [saving, setSaving] = useState(false);
 
-    const [ringTypes, setRingTypes] = useState<any[]>([]);
+    const [ringTypes, setRingTypes] = useState<RingType[]>([]);
     const [ringTypeId, setRingTypeId] = useState<number | ''>('');
 
     // Auto Routing State
@@ -55,7 +56,7 @@ export default function RouteEditor({ open, initialData, onClose, onSave }: Prop
     useEffect(() => {
         // Fetch Ring Types for selection
         api.get('/ring-types').then(res => {
-            const data = Array.isArray(res.data) ? res.data : ((res.data as any)?.data || []);
+            const data = Array.isArray(res.data) ? res.data : ((res.data as { data: RingType[] })?.data || []);
             setRingTypes(data);
             // Default to first if available and new
             if (!initialData && data.length > 0) {
@@ -105,19 +106,19 @@ export default function RouteEditor({ open, initialData, onClose, onSave }: Prop
     };
 
     // MapLibre Event Handlers
-    const handleDrawCreate = (e: any) => {
+    const handleDrawCreate = (e: { features: GeoJSONFeature[] }) => {
         if (e.features && e.features.length > 0) {
             setGeometry(e.features[0].geometry);
         }
     };
 
-    const handleDrawUpdate = (e: any) => {
+    const handleDrawUpdate = (e: { features: GeoJSONFeature[], action: string }) => {
         if (e.features && e.features.length > 0) {
             setGeometry(e.features[0].geometry);
         }
     };
 
-    const handleMapClick = (e: any) => {
+    const handleMapClick = (e: MapLayerMouseEvent) => {
         const { lng, lat } = e.lngLat;
 
         // Auto Route Logic
@@ -135,7 +136,7 @@ export default function RouteEditor({ open, initialData, onClose, onSave }: Prop
                 setIsRoutingLoading(true);
                 getRouteFromOSRM(start, [lng, lat]).then(route => {
                     if (route) {
-                        setGeometry(route.geometry);
+                        setGeometry(route.geometry as GeoJSONGeometry);
                         setIsAutoRouting(false);
                         setAutoRouteStep('idle');
                     } else {
@@ -194,9 +195,10 @@ export default function RouteEditor({ open, initialData, onClose, onSave }: Prop
                 await api.post('/routes', payload);
             }
             onSave();
-        } catch (err: any) {
+        } catch (err: unknown) {
             console.error(err);
-            alert("Kaydetme hatası: " + (err.response?.data?.error || err.message));
+            const msg = (err as { response?: { data?: { error?: string; message?: string } } })?.response?.data?.error || (err as Error).message;
+            alert("Kaydetme hatası: " + msg);
         } finally {
             setSaving(false);
         }
@@ -209,7 +211,7 @@ export default function RouteEditor({ open, initialData, onClose, onSave }: Prop
         id: initialData?.id || 0,
         name: name,
         color: color,
-        geometry: geometry || undefined,
+        geometry: (geometry || undefined) as unknown as GeoJSONGeometry,
         ring_type_id: Number(ringTypeId),
         description: description
     };

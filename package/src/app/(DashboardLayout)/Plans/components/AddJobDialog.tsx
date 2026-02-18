@@ -37,6 +37,17 @@ type RingType = {
   color: string;
 };
 
+interface ApiError {
+  response?: {
+    data?: {
+      message?: string;
+      error?: { description?: string };
+      data?: { message?: string };
+    };
+  };
+  message?: string;
+}
+
 export default function AddJobDialog({
   open,
   date,
@@ -58,7 +69,7 @@ export default function AddJobDialog({
     (async () => {
       try {
         const { data } = await api.get('/routes');
-        const payload = Array.isArray(data) ? data : (data as any)?.data;
+        const payload = Array.isArray(data) ? data : (data as { data: Route[] })?.data;
         setRoutes(Array.isArray(payload) ? payload : []);
       } catch {
         setRoutes([]);
@@ -160,11 +171,13 @@ export default function AddJobDialog({
       await onCreated();
       resetForm();
       onClose();
-    } catch (e: any) {
+    } catch (err: unknown) {
+      console.error(err);
+      const error = err as ApiError;
       const msg =
-        e.response?.data?.message ||
-        e.response?.data?.error?.description ||
-        e.response?.data?.data?.message ||
+        error.response?.data?.message ||
+        error.response?.data?.error?.description ||
+        error.response?.data?.data?.message ||
         'Sefer eklenirken hata oluştu!';
       setErrorMsg(msg);
     }

@@ -7,7 +7,6 @@ import {
   TableRow,
   Checkbox,
   TextField,
-  MenuItem,
   Autocomplete,
 } from '@mui/material';
 import { IconTrash, IconCheck, IconX } from '@tabler/icons-react';
@@ -136,7 +135,7 @@ export default function JobRow({
           <TextField
             id={`input-job-route-${job.id ?? index}`}
             label="Rota"
-            value={filteredRoutes.find(r => r.id === (route_id ?? -1))?.name ?? (job as any).route_name ?? '—'}
+            value={filteredRoutes.find(r => r.id === (route_id ?? -1))?.name ?? job.route_name ?? '—'}
             size="small"
             fullWidth
             InputProps={{ readOnly: true }}
@@ -179,7 +178,7 @@ export default function JobRow({
   }
 
   // Rota adı: job nesnesinde route_name varsa göster
-  const routeName = (job as any).route_name || '—';
+  const routeName = job.route_name || '—';
 
   return (
     <TableRow

@@ -81,7 +81,11 @@ $errorMiddleware = $app->addErrorMiddleware($displayErrorDetails, $logError, $lo
 $errorMiddleware->setDefaultErrorHandler($errorHandler);
 
 // Run App & Emit Response
-$response = $app->handle($request);
-$responseEmitter = new ResponseEmitter();
-$responseEmitter->emit($response);
-
+// Run App & Emit Response
+try {
+	$response = $app->handle($request);
+	$responseEmitter = new ResponseEmitter();
+	$responseEmitter->emit($response);
+} catch (\Throwable $e) {
+	throw $e;
+}

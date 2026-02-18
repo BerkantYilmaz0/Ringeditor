@@ -96,10 +96,10 @@ const RingTypeForm = ({ editMode, initialData, onComplete, onClose }: Props) => 
       }
       setError('');
       onComplete();
-    } catch (err: any) {
+    } catch (err: unknown) {
       const backendMsg =
-        err.response?.data?.error ||
-        err.response?.data?.message ||
+        (err as { response?: { data?: { error?: string; message?: string } } })?.response?.data?.error ||
+        (err as { response?: { data?: { error?: string; message?: string } } })?.response?.data?.message ||
         'Kaydetme sırasında bir hata oluştu.';
       setError(backendMsg);
     }
@@ -159,7 +159,7 @@ const RingTypeForm = ({ editMode, initialData, onComplete, onClose }: Props) => 
             </Select>
             {assignedRoute && (
               <Typography variant="caption" sx={{ mt: 0.5, color: 'success.main' }}>
-                Bu ring tipine "{assignedRoute.name}" güzergahı atanmış.
+                Bu ring tipine &quot;{assignedRoute.name}&quot; güzergahı atanmış.
               </Typography>
             )}
           </FormControl>

@@ -1,17 +1,11 @@
 import {
-  IconAperture,
-  IconCopy,
   IconLayoutDashboard,
-  IconLogin,
-  IconMoodHappy,
-  IconTypography,
-  IconUserPlus,
+  IconMap,
   IconCalendarEvent,
   IconListCheck,
   IconBus,
-  IconMap,
-  IconColorFilter,
-} from "@tabler/icons-react";
+  IconColorFilter
+} from '@tabler/icons-react';
 
 import { uniqueId } from "lodash";
 

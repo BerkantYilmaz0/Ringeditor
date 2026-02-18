@@ -1,12 +1,12 @@
 'use client';
 
-import { useEffect } from 'react';
+// import { useEffect } from 'react';
 import { MapContainer, TileLayer, Marker, Popup, Polyline, useMapEvents } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
 
 // Fix for default marker icons
-// @ts-ignore
+// @ts-expect-error - Leaflet marker icon fix
 delete L.Icon.Default.prototype._getIconUrl;
 L.Icon.Default.mergeOptions({
     iconRetinaUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon-2x.png',
@@ -31,7 +31,8 @@ interface LeafletMapProps {
     onMapClick: (lat: number, lng: number) => void;
 }
 
-function MapEvents({ mode, onMapClick }: { mode: string, onMapClick: (lat: number, lng: number) => void }) {
+// MapEvents: Tıklama olayını yakalar; mode ileride koşullu davranış için kullanılabilir
+function MapEvents({ onMapClick }: { mode: LeafletMapProps['mode'], onMapClick: (lat: number, lng: number) => void }) {
     useMapEvents({
         click(e) {
             onMapClick(e.latlng.lat, e.latlng.lng);
@@ -40,7 +41,8 @@ function MapEvents({ mode, onMapClick }: { mode: string, onMapClick: (lat: numbe
     return null;
 }
 
-const LeafletMap = ({ points, stops, mode, color, onMapClick }: LeafletMapProps) => {
+// LeafletMap bileşeni — harita render'ı ve etkileşim yönetimi
+const LeafletMap = ({ points, stops, mode = 'view', color, onMapClick }: LeafletMapProps) => {
     return (
         <MapContainer
             center={[40.0381, 32.9034]}

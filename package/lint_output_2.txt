@@ -7,17 +7,16 @@
 19:8  Warning: 'Image' is defined but never used.  @typescript-eslint/no-unused-vars
 
 ./src/app/(DashboardLayout)/components/dashboard/MonthlyEarnings.tsx
-17:29  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
 47:28  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+64:41  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
 
 ./src/app/(DashboardLayout)/components/dashboard/SalesOverview.tsx
-14:34  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
-24:31  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
-81:30  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+108:48  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+109:46  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
 
 ./src/app/(DashboardLayout)/components/dashboard/YearlyBreakup.tsx
-18:29  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
-63:28  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+114:44  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+115:42  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
 
 ./src/app/(DashboardLayout)/components/TemplateJobsForm/BulkDialog.tsx
 243:30  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
@@ -62,25 +61,27 @@
 4:19  Warning: 'IconClock' is defined but never used.  @typescript-eslint/no-unused-vars
 
 ./src/app/(DashboardLayout)/Plans/components/AddJobDialog.tsx
-165:17  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
 166:17  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
 167:17  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+168:17  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
 
 ./src/app/(DashboardLayout)/Plans/components/CalendarShell.tsx
-21:24  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
-57:36  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+5:22  Warning: 'EventDropArg' is defined but never used.  @typescript-eslint/no-unused-vars
+57:62  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
 64:34  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
 
 ./src/app/(DashboardLayout)/Plans/components/JobsForm.tsx
-177:17  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+177:27  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+177:67  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+177:91  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
 178:17  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
-179:17  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
 
 ./src/app/(DashboardLayout)/Plans/components/PreviewTemplateDialog.tsx
 28:131  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
 
 ./src/app/(DashboardLayout)/Plans/page.tsx
-39:50  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+6:10  Warning: 'DatesSetArg' is defined but never used.  @typescript-eslint/no-unused-vars
+40:50  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
 
 ./src/app/(DashboardLayout)/Rings/RingTypeForm.tsx
 101:17  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
@@ -90,20 +91,16 @@
 34:22  Warning: 'mode' is defined but never used.  @typescript-eslint/no-unused-vars
 
 ./src/app/(DashboardLayout)/Routes/components/RouteEditor.tsx
-19:15  Warning: 'Geometry' is defined but never used.  @typescript-eslint/no-unused-vars
-40:46  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
-47:48  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
-59:85  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
-109:34  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
-115:34  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
-121:32  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
-198:23  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+46:48  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+58:85  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+108:46  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+114:46  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+120:32  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+197:23  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+212:46  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
 
 ./src/app/(DashboardLayout)/Routes/page.tsx
-21:48  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
 57:8  Warning: React Hook useCallback has a missing dependency: 'selectedRoute'. Either include it or remove the dependency array.  react-hooks/exhaustive-deps
-109:42  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
-229:52  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
 230:60  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
 
 ./src/app/(DashboardLayout)/stops/components/RoutesPanel.tsx
@@ -122,9 +119,7 @@
 73:17  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
 
 ./src/components/map/MapLibreBoard.tsx
-68:26  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
 94:70  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
-108:26  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
 120:22  Warning: 'e' is defined but never used.  @typescript-eslint/no-unused-vars
 219:33  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
 352:45  Warning: Expected an assignment or function call and instead saw an expression.  @typescript-eslint/no-unused-expressions
@@ -132,17 +127,14 @@
 481:37  Warning: 'index' is defined but never used.  @typescript-eslint/no-unused-vars
 484:101  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
 
-./src/lib/calendarGrouping.ts
-17:16  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
-
 ./src/lib/jobsApi.ts
-17:12  Warning: 'err' is defined but never used.  @typescript-eslint/no-unused-vars
-23:14  Warning: 'err2' is defined but never used.  @typescript-eslint/no-unused-vars
+17:12  Warning: '_err' is defined but never used.  @typescript-eslint/no-unused-vars
+23:14  Warning: '_err2' is defined but never used.  @typescript-eslint/no-unused-vars
 
 ./src/lib/ringTypesApi.ts
-7:23  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
-
-./src/types/index.ts
-20:33  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+8:22  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+9:24  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+9:51  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+10:25  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
 
 info  - Need to disable some ESLint rules? Learn more here: https://nextjs.org/docs/app/api-reference/config/eslint#disabling-rules

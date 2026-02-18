@@ -57,7 +57,18 @@ type EditValues = {
   route_id: number | null;
 };
 
-export default function JobsForm({ editMode = false, onClose, onUpdated, date }: Props) {
+interface ApiError {
+  response?: {
+    data?: {
+      message?: string;
+      error?: { description?: string };
+      data?: { message?: string };
+    };
+  };
+  message?: string;
+}
+
+export default function JobsForm({ onClose, onUpdated, date }: Props) {
   const [ringTypes, setRingTypes] = useState<RingType[]>([]);
   const [devices, setDevices] = useState<Device[]>([]);
   const [routes, setRoutes] = useState<Route[]>([]);
@@ -142,7 +153,7 @@ export default function JobsForm({ editMode = false, onClose, onUpdated, date }:
     });
     // Rotaları yükle
     api.get('/routes').then((res) => {
-      const payload = Array.isArray(res.data) ? res.data : (res.data as any)?.data;
+      const payload = Array.isArray(res.data) ? res.data : (res.data as { data: Route[] }).data;
       setRoutes(Array.isArray(payload) ? payload : []);
     }).catch(() => setRoutes([]));
   }, []);
@@ -172,11 +183,11 @@ export default function JobsForm({ editMode = false, onClose, onUpdated, date }:
 
       setToast({ open: true, msg: 'Sefer güncellendi.', severity: 'success' });
       await fetchJobs();
-    } catch (err: any) {
-      const msg =
-        err.response?.data?.message ||
-        err.response?.data?.error?.description ||
-        'Güncelleme Başarısız.';
+    } catch (err: unknown) {
+      console.error(err);
+      const error = err as ApiError;
+      const msg = error.response?.data?.message || error.message || error.response?.data?.error?.description ||
+        error.response?.data?.data?.message || 'Güncelleme Başarısız.';
       setToast({ open: true, msg, severity: 'error' });
     } finally {
       setSaving(false);
@@ -330,7 +341,7 @@ export default function JobsForm({ editMode = false, onClose, onUpdated, date }:
                         {group.jobs.map(({ job, index }) => (
                           <Fragment key={job.id ?? `row-${index}`}>
                             <JobRow
-                              job={job as any}
+                              job={job}
                               index={index}
                               rtMap={rtMap}
                               deviceMap={deviceMap}

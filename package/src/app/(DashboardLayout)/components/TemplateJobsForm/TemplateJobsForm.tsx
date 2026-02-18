@@ -16,7 +16,6 @@ import {
   Table,
   TableBody,
   TableCell,
-  TableContainer,
   TableHead,
   TableRow,
   TextField,
@@ -24,7 +23,6 @@ import {
   Accordion,
   AccordionSummary,
   AccordionDetails,
-  Stack,
   Chip
 } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
@@ -164,7 +162,6 @@ export default function TemplateJobsForm({ templateId, editMode = false, onClose
       if (Array.isArray(res.data)) {
         payload = res.data;
       } else if ('data' in res.data && Array.isArray(res.data.data)) {
-        // @ts-ignore
         payload = res.data.data;
       }
       setRoutes(payload);

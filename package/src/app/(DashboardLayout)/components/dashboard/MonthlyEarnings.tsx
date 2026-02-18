@@ -4,17 +4,18 @@ const Chart = dynamic(() => import("react-apexcharts"), { ssr: false });
 import { useTheme } from '@mui/material/styles';
 import { Stack, Typography, Avatar, Fab } from '@mui/material';
 import { IconArrowDownRight, IconCurrencyDollar } from '@tabler/icons-react';
+import { ApexOptions } from 'apexcharts';
 import DashboardCard from '@/app/(DashboardLayout)/components/shared/DashboardCard';
 
 const MonthlyEarnings = () => {
-  // chart color
+  // Grafik renkleri
   const theme = useTheme();
   const secondary = theme.palette.secondary.main;
   const secondarylight = '#f5fcff';
   const errorlight = '#fdede8';
 
-  // chart
-  const optionscolumnchart: any = {
+  // Grafik ayarları
+  const chartOptions: ApexOptions = {
     chart: {
       type: 'area',
       fontFamily: "'Plus Jakarta Sans', sans-serif;",
@@ -44,7 +45,8 @@ const MonthlyEarnings = () => {
       theme: theme.palette.mode === 'dark' ? 'dark' : 'light',
     },
   };
-  const seriescolumnchart: any = [
+  // ApexCharts seri verisi — tip güvenli
+  const seriescolumnchart: ApexAxisChartSeries = [
     {
       name: '',
       color: secondary,
@@ -56,12 +58,12 @@ const MonthlyEarnings = () => {
     <DashboardCard
       title="Monthly Earnings"
       action={
-        <Fab color="secondary" size="medium" sx={{color: '#ffffff'}}>
+        <Fab color="secondary" size="medium" sx={{ color: '#ffffff' }}>
           <IconCurrencyDollar width={24} />
         </Fab>
       }
       footer={
-        <Chart options={optionscolumnchart} series={seriescolumnchart} type="area" height={60} width={"100%"} />
+        <Chart options={chartOptions} series={seriescolumnchart} type="area" height={60} width={"100%"} />
       }
     >
       <>

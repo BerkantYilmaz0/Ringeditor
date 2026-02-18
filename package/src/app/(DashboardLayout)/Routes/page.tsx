@@ -1,14 +1,14 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Grid, Box, Paper, Typography, Dialog, DialogTitle, DialogContent, DialogActions, TextField } from '@mui/material';
 import PageContainer from '@/app/(DashboardLayout)/components/container/PageContainer';
 import RouteList, { RouteApi } from './components/RouteList';
 import MapLibreBoard from '@/components/map/MapLibreBoard';
 import { api } from '@/lib/api';
-import { Route } from '@/types';
+import { Route, Stop } from '@/types';
 import StopManager from './components/StopManager';
-import { Button, IconButton } from '@mui/material';
+import { Button } from '@mui/material';
 import EditIcon from '@mui/icons-material/Edit';
 import SaveIcon from '@mui/icons-material/Save';
 import CancelIcon from '@mui/icons-material/Close';
@@ -18,7 +18,7 @@ const RoutesPage = () => {
     const [loading, setLoading] = useState(true);
     const [selectedRoute, setSelectedRoute] = useState<RouteApi | null>(null);
     const [isEditingStops, setIsEditingStops] = useState(false);
-    const [tempStops, setTempStops] = useState<any[]>([]); // Stops being edited
+    const [tempStops, setTempStops] = useState<Stop[]>([]); // Stops being edited
 
     const [isSaving, setIsSaving] = useState(false);
 
@@ -27,7 +27,7 @@ const RoutesPage = () => {
         open: false, lat: 0, lng: 0, name: ''
     });
 
-    const fetchRoutes = async () => {
+    const fetchRoutes = useCallback(async () => {
         setLoading(true);
         try {
             // Define expected response structure to avoid 'any'
@@ -54,11 +54,11 @@ const RoutesPage = () => {
         } finally {
             setLoading(false);
         }
-    };
+    }, [selectedRoute]);
 
     useEffect(() => {
         fetchRoutes();
-    }, []);
+    }, [fetchRoutes]);
 
     const handleRouteSelect = (route: RouteApi) => {
         if (!isEditingStops) {
@@ -106,7 +106,7 @@ const RoutesPage = () => {
         }
     };
 
-    const handleStopSelectOnMap = (stop: any) => {
+    const handleStopSelectOnMap = (stop: Stop) => {
         if (!isEditingStops) return;
 
         // Toggle selection
@@ -226,8 +226,8 @@ const RoutesPage = () => {
                             // Pass all routes for the popup logic to find passing lines
                             allRoutes={routes as Route[]}
                             // Pass visible stops (includes new temp stops)
-                            stops={visibleStops as any}
-                            selectedItem={selectedRoute as any}
+                            stops={visibleStops}
+                            selectedItem={selectedRoute as unknown as Route}
 
                             // Edit Mode Props
                             isEditingStops={isEditingStops}

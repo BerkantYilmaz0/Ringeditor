@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from 'react';
 import {
-  Box, Button, Typography, Table, TableHead, TableBody, TableRow, TableCell,
+  Box, Typography, Table, TableHead, TableBody, TableRow, TableCell,
   TextField, Snackbar, TablePagination
 } from '@mui/material';
 import PageContainer from '@/app/(DashboardLayout)/components/container/PageContainer';
@@ -70,7 +70,7 @@ const COLORS: ColorItem[] = [
 
 export default function ColorCodesPage() {
   const [q, setQ] = useState('');
-  const [snack, setSnack] = useState<{open:boolean; msg:string}>({open:false, msg:''});
+  const [snack, setSnack] = useState<{ open: boolean; msg: string }>({ open: false, msg: '' });
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
 
@@ -98,27 +98,27 @@ export default function ColorCodesPage() {
       <DashboardCard>
         <Box display="flex" justifyContent="space-between" alignItems="center" mb={2}>
           <Typography variant="h5">Renk Kodları</Typography>
-          <TextField size="small" placeholder="Ara (Renk Adı...)…" value={q} onChange={(e)=>setQ(e.target.value)} />
+          <TextField size="small" placeholder="Ara (Renk Adı...)…" value={q} onChange={(e) => setQ(e.target.value)} />
         </Box>
 
-        <Table sx={{ tableLayout:'fixed', width:'100%' }}>
-          <TableHead sx={{ background:'#f5f5f5' }}>
+        <Table sx={{ tableLayout: 'fixed', width: '100%' }}>
+          <TableHead sx={{ background: '#f5f5f5' }}>
             <TableRow>
-              <TableCell sx={{ width:'10%' }}>Çıktı</TableCell>
-              <TableCell sx={{ width:'45%' }}>Renk Adı</TableCell>
-              <TableCell sx={{ width:'25%' }}>Hex</TableCell>
-              
+              <TableCell sx={{ width: '10%' }}>Çıktı</TableCell>
+              <TableCell sx={{ width: '45%' }}>Renk Adı</TableCell>
+              <TableCell sx={{ width: '25%' }}>Hex</TableCell>
+
             </TableRow>
           </TableHead>
           <TableBody>
             {paginated.map(c => (
-                <TableRow key={`${c.hex}-${c.name}`} hover>
+              <TableRow key={`${c.hex}-${c.name}`} hover>
                 <TableCell>
-                  <Box sx={{ width:28, height:28, border:'1px solid #ccc', borderRadius:'4px', background:c.hex }} />
+                  <Box sx={{ width: 28, height: 28, border: '1px solid #ccc', borderRadius: '4px', background: c.hex }} />
                 </TableCell>
                 <TableCell>{c.name}</TableCell>
                 <TableCell>{c.hex}</TableCell>
-                
+
               </TableRow>
             ))}
           </TableBody>
@@ -135,7 +135,7 @@ export default function ColorCodesPage() {
           labelRowsPerPage="Sayfa Satır Sayısı"
           labelDisplayedRows={({ from, to, count }) => `${from}-${to} / ${count}`}
         />
-        <Snackbar open={snack.open} autoHideDuration={1500} onClose={()=>setSnack({open:false,msg:''})} message={snack.msg} />
+        <Snackbar open={snack.open} autoHideDuration={1500} onClose={() => setSnack({ open: false, msg: '' })} message={snack.msg} />
       </DashboardCard>
     </PageContainer>
   );
