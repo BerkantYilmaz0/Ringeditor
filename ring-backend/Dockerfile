@@ -6,7 +6,8 @@ RUN apt-get update && apt-get install -y \
     unzip \
     libzip-dev \
     && docker-php-ext-install pdo pdo_mysql zip \
-    && a2enmod rewrite
+    && a2dismod mpm_event mpm_worker || true \
+    && a2enmod mpm_prefork rewrite
 
 # Install Composer
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
@@ -17,7 +18,6 @@ WORKDIR /var/www/html
 # Update Apache DocumentRoot to point to public folder
 RUN sed -i 's!/var/www/html!/var/www/html/public!g' /etc/apache2/sites-available/000-default.conf \
     && sed -i 's!/var/www/html!/var/www/html/public!g' /etc/apache2/apache2.conf
-
 
 # Copy composer files first for caching
 COPY composer.json composer.lock ./
@@ -32,8 +32,10 @@ COPY . .
 RUN chown -R www-data:www-data /var/www/html \
     && chmod -R 755 /var/www/html
 
-# Expose port 80
+# start.sh için
+COPY start.sh /start.sh
+RUN chmod +x /start.sh
+
 EXPOSE 80
 
-# Start Apache
-CMD ["apache2-foreground"]
+CMD ["/start.sh"]

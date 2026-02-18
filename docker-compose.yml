@@ -1,21 +1,18 @@
 version: '3.8'
 
 services:
-  # Database Service
   db:
     image: mysql:8.0
     container_name: ring-db
     environment:
-      MYSQL_ROOT_PASSWORD: root
-      MYSQL_DATABASE: aa
-      MYSQL_USER: user
-      MYSQL_PASSWORD:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
     volumes:
       - db_data:/var/lib/mysql
-      # Mount the SQL dump for initialization
-      - ./aa.sql:/docker-entrypoint-initdb.d/init.sql
-    ports:
-      - "3306:3306"
+      - ./database/schema.sql:/docker-entrypoint-initdb.d/init.sql
+    # ports kaldırıldı — dışarıya açık olmamalı
     networks:
       - ring-network
     deploy:
@@ -23,7 +20,6 @@ services:
         limits:
           memory: 512M
 
-  # Backend Service (PHP Slim)
   backend:
     build:
       context: ./ring-backend
@@ -32,19 +28,18 @@ services:
     volumes:
       - ./ring-backend:/var/www/html
     ports:
-      - "8080:80"
+      - "127.0.0.1:8080:80"
     environment:
-      DB_HOST: db
-      DB_NAME: aa
-      DB_USER: root
-      DB_PASS: root
+      DB_HOST: ${DB_HOST}
+      DB_NAME: ${DB_NAME}
+      DB_USER: ${DB_USER}
+      DB_PASS: ${DB_PASS}
       docker: 'true'
     depends_on:
       - db
     networks:
       - ring-network
 
-  # Frontend Service (Next.js)
   frontend:
     build:
       context: ./package
@@ -53,7 +48,7 @@ services:
     ports:
       - "3000:3000"
     environment:
-      NEXT_PUBLIC_API_URL: http://localhost:8080
+      NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL}
     depends_on:
       - backend
     networks:
@@ -64,12 +59,9 @@ services:
     container_name: ring-phpmyadmin
     environment:
       PMA_HOST: db
-      MYSQL_ROOT_PASSWORD: root
-      MYSQL_DATABASE: aa
-      MYSQL_USER: user
-      MYSQL_PASSWORD:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
     ports:
-      - "8081:80"
+      - "127.0.0.1:8081:80" # sadece localhost'tan erişilebilir
     depends_on:
       - db
     networks:

@@ -1027,3 +1027,55 @@ COMMIT;
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
 /*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
+
+-- --------------------------------------------------------
+-- SEED DATA (Örnek Veriler)
+-- --------------------------------------------------------
+
+--
+-- Tablo döküm verisi `account`
+--
+INSERT INTO `account` (`accountID`, `accountType`, `notifyEmail`, `speedUnits`, `distanceUnits`, `timeZone`, `isActive`, `displayName`, `description`, `lastUpdateTime`, `creationTime`) VALUES
+('admin', 0, 'admin@hotmail.com', 1, 1, 'GMT+03:00', 1, 'Admin Hesabı', 'Ana yönetici hesabı', UNIX_TIMESTAMP(), UNIX_TIMESTAMP());
+
+-- --------------------------------------------------------
+
+--
+-- Tablo döküm verisi `user`
+--
+INSERT INTO `user` (`accountID`, `userID`, `userType`, `roleID`, `password`, `gender`, `contactName`, `contactPhone`, `contactEmail`, `timeZone`, `firstLoginPageID`, `preferredDeviceID`, `passwdQueryTime`, `lastLoginTime`, `isActive`, `displayName`, `description`, `notes`, `lastUpdateTime`, `creationTime`, `notifyEmail`, `maxAccessLevel`) VALUES
+('admin', 'admin', 0, NULL, '1234', 0, 'admin', '5414212132', 'admin@hotmail.com', 'GMT+03:00', 'menu.top', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 3);
+
+-- --------------------------------------------------------
+
+--
+-- Tablo döküm verisi `devicegroup`
+--
+INSERT INTO `devicegroup` (`accountID`, `groupID`, `displayName`, `description`, `lastUpdateTime`, `creationTime`) VALUES
+('admin', 'test', 'Test Grubu', 'Test araçları grubu', UNIX_TIMESTAMP(), UNIX_TIMESTAMP());
+
+-- --------------------------------------------------------
+
+--
+-- Tablo döküm verisi `device`
+--
+INSERT INTO `device` (`accountID`, `deviceID`, `groupID`, `equipmentType`, `vehicleID`, `driverID`, `uniqueID`, `deviceCode`, `deviceType`, `pushpinID`, `serialNumber`, `simPhoneNumber`, `smsEmail`, `imeiNumber`, `ignitionIndex`, `codeVersion`, `featureSet`, `ipAddressValid`, `lastTotalConnectTime`, `lastDuplexConnectTime`, `pendingPingCommand`, `lastPingTime`, `totalPingCount`, `maxPingCount`, `expectAck`, `lastAckCommand`, `lastAckTime`, `dcsConfigMask`, `supportsDMTP`, `supportedEncodings`, `unitLimitInterval`, `maxAllowedEvents`, `totalProfileMask`, `totalMaxConn`, `totalMaxConnPerMin`, `duplexProfileMask`, `duplexMaxConn`, `duplexMaxConnPerMin`, `ipAddressCurrent`, `remotePortCurrent`, `listenPortCurrent`, `lastInputState`, `lastValidLatitude`, `lastValidLongitude`, `lastGPSTimestamp`, `lastOdometerKM`, `odometerOffsetKM`, `isActive`, `displayName`, `description`, `notes`, `lastUpdateTime`, `creationTime`, `licensePlate`, `fuelCapacity`, `speedLimitKPH`, `expirationTime`, `displayColor`, `dataKey`, `lastBatteryLevel`, `lastFuelLevel`, `lastOilLevel`) VALUES
+('admin', '1', 'test', 'otobüsler', '', '', '2546763', '', '', 'devlabel', '', '5386547777', '', '862636054063902', -1, '', '', '', 0, 0, '', 0, 0, 0, 0, '', 0, 0, 0, 7, 0, 0, '', 0, 0, '', 0, 0, '0.0.0.0', 0, 0, 0, 39.9208, 32.8541, UNIX_TIMESTAMP(), 12500, 0, 1, 'AB 1111', '06 AB 1111', '', UNIX_TIMESTAMP(), 1743063837, '06 AB 1111', 120, 90, 0, '#E53935', '', 0, 0, 0),
+('admin', '2', 'test', 'otobüsler', '', '', '2546764', '', '', 'devlabel', '', '5386547778', '', '862636054063903', -1, '', '', '', 0, 0, '', 0, 0, 0, 0, '', 0, 0, 0, 7, 0, 0, '', 0, 0, '', 0, 0, '0.0.0.0', 0, 0, 0, 39.9334, 32.8597, UNIX_TIMESTAMP(), 8300,  0, 1, 'AB 2222', '06 AB 2222', '', UNIX_TIMESTAMP(), 1743063837, '06 AB 2222', 120, 90, 0, '#1E88E5', '', 0, 0, 0),
+('admin', '3', 'test', 'otobüsler', '', '', '2546765', '', '', 'devlabel', '', '5386547779', '', '862636054063904', -1, '', '', '', 0, 0, '', 0, 0, 0, 0, '', 0, 0, 0, 7, 0, 0, '', 0, 0, '', 0, 0, '0.0.0.0', 0, 0, 0, 39.9412, 32.8623, UNIX_TIMESTAMP(), 21000, 0, 1, 'AB 3333', '06 AB 3333', '', UNIX_TIMESTAMP(), 1743063837, '06 AB 3333', 120, 90, 0, '#43A047', '', 0, 0, 0),
+('admin', '4', 'test', 'minibüsler', '', '', '2546766', '', '', 'devlabel', '', '5386547780', '', '862636054063905', -1, '', '', '', 0, 0, '', 0, 0, 0, 0, '', 0, 0, 0, 7, 0, 0, '', 0, 0, '', 0, 0, '0.0.0.0', 0, 0, 0, 39.9178, 32.8490, UNIX_TIMESTAMP(), 5400,  0, 1, 'AB 4444', '06 AB 4444', '', UNIX_TIMESTAMP(), 1743063837, '06 AB 4444', 60,  80, 0, '#FB8C00', '', 0, 0, 0),
+('admin', '5', 'test', 'minibüsler', '', '', '2546767', '', '', 'devlabel', '', '5386547781', '', '862636054063906', -1, '', '', '', 0, 0, '', 0, 0, 0, 0, '', 0, 0, 0, 7, 0, 0, '', 0, 0, '', 0, 0, '0.0.0.0', 0, 0, 0, 39.9289, 32.8712, UNIX_TIMESTAMP(), 9750,  0, 1, 'AB 5555', '06 AB 5555', '', UNIX_TIMESTAMP(), 1743063837, '06 AB 5555', 60,  80, 0, '#8E24AA', '', 0, 0, 0),
+('admin', '6', 'test', 'minibüsler', '', '', '2546768', '', '', 'devlabel', '', '5386547782', '', '862636054063907', -1, '', '', '', 0, 0, '', 0, 0, 0, 0, '', 0, 0, 0, 7, 0, 0, '', 0, 0, '', 0, 0, '0.0.0.0', 0, 0, 0, 39.9356, 32.8801, UNIX_TIMESTAMP(), 3200,  0, 1, 'AB 6666', '06 AB 6666', '', UNIX_TIMESTAMP(), 1743063837, '06 AB 6666', 60,  80, 0, '#00ACC1', '', 0, 0, 0);
+
+-- --------------------------------------------------------
+
+--
+-- Tablo döküm verisi `devicelist`
+--
+INSERT INTO `devicelist` (`accountID`, `groupID`, `deviceID`, `lastUpdateTime`, `creationTime`) VALUES
+('admin', 'test', '1', UNIX_TIMESTAMP(), UNIX_TIMESTAMP()),
+('admin', 'test', '2', UNIX_TIMESTAMP(), UNIX_TIMESTAMP()),
+('admin', 'test', '3', UNIX_TIMESTAMP(), UNIX_TIMESTAMP()),
+('admin', 'test', '4', UNIX_TIMESTAMP(), UNIX_TIMESTAMP()),
+('admin', 'test', '5', UNIX_TIMESTAMP(), UNIX_TIMESTAMP()),
+('admin', 'test', '6', UNIX_TIMESTAMP(), UNIX_TIMESTAMP());

@@ -74,6 +74,47 @@ Bilgisayarınızda Docker ve Docker Compose yüklü ise:
 
 *Not: `database/schema.sql` dosyası ilk kurulumda otomatik olarak veritabanına işlenir.*
 
+---
+
+### Manuel Kurulum
+
+Eğer Docker kullanmıyorsanız, her parçayı ayrı ayrı kurabilirsiniz.
+
+#### 1. Gereksinimler
+*   **Node.js** (v18+)
+*   **PHP** (v8.0+, gerekli eklentiler: pdo_mysql, json)
+*   **MySQL** (v8.0)
+*   **Composer** (PHP bağımlılık yönetimi için)
+
+#### 2. Veritabanı Hazırlığı
+1.  MySQL sunucunuzda `ringeditor` (veya `.env` dosyasında belirteceğiniz isimde) boş bir veritabanı oluşturun.
+2.  `database/schema.sql` dosyasını bu veritabanına içe aktarın (Import).
+
+#### 3. Backend (PHP Slim)
+```bash
+cd ring-backend
+composer install
+```
+
+Backend sunucusunu başlatın:
+```bash
+php -S localhost:8080 -t public
+```
+
+#### 4. Frontend (Next.js)
+Yeni bir terminal açın ve:
+```bash
+cd package
+npm install
+```
+
+Frontend uygulamasını başlatın:
+```bash
+npm run dev
+```
+
+Uygulama [http://localhost:3000](http://localhost:3000) adresinde çalışacaktır.
+
 ## 📄 Lisans
 
 Bu proje [MIT Lisansı](LICENSE) altında lisanslanmıştır.

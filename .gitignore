@@ -48,3 +48,13 @@ logs/
 # Temp
 tmp/
 temp/
+
+# AI Agent
+.agent/
+
+# Documentation and setup
+GIT_SETUP.md
+docs.html
+
+# System
+var/
