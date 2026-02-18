@@ -13,8 +13,7 @@ Otobüs ve servis güzergahlarını, durakları ve ring hatlarını harita üzer
 
 Demo yayını yapmak, ücretsiz hosting servislerini kullanmak ve veritabanı kurulumu hakkında detaylı bilgi için **[DEMO.md](DEMO.md)** dosyasını inceleyebilirsiniz.
 
-> **Not:** Veritabanı kurulumu için `aa.sql` (hassas veriler içerir) yerine, GitHub deposunda bulunan ve sadece tablo yapılarını içeren **`schema.sql`** dosyasını kullanmalısınız.
-
+> **Not:** Veritabanı kurulumu ve Git'e yükleme adımları için **[GIT_SETUP.md](GIT_SETUP.md)** dosyasını inceleyebilirsiniz.
 
 ---
 
@@ -41,7 +40,7 @@ Bilgisayarınızda Docker ve Docker Compose yüklü olmalıdır.
     *   **Uygulama:** [http://localhost:3000](http://localhost:3000)
     *   **API:** [http://localhost:8080](http://localhost:8080)
 
-*Not: Veritabanı (`aa.sql`) ilk kurulumda otomatik olarak içeri aktarılır.*
+*Not: Veritabanı şeması (`database/schema.sql`) ilk kurulumda otomatik olarak içeri aktarılır.*
 
 ---
 
@@ -57,7 +56,7 @@ Eğer Docker kullanmıyorsanız, her parçayı ayrı ayrı kurabilirsiniz.
 
 #### 1. Veritabanı
 *   MySQL'de `aa` adında boş bir veritabanı oluşturun.
-*   Ana dizindeki `aa.sql` dosyasını bu veritabanına içe aktarın.
+*   `database/schema.sql` dosyasını bu veritabanına içe aktarın.
 
 #### 2. Backend (PHP Slim)
 ```bash
