@@ -29,7 +29,7 @@ class SessionMiddleware implements Middleware
                 'lifetime' => 3600, // 1 saat
                 'path' => '/',
                 'domain' => '',
-                'secure' => $isSecure, // Sadece HTTPS ise true
+                'secure' => true, // Sadece HTTPS ise true
                 'httponly' => true, // XSS koruması
                 'samesite' => 'None' // CSRF koruması
             ]);
