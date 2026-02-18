@@ -1,29 +1,64 @@
-# Ring Planner (RingEditor)
+# 🗺️ Ring Planner (RingEditor)
 
-Otobüs ve servis güzergahlarını, durakları ve ring hatlarını harita üzerinde görsel olarak planlamak ve yönetmek için geliştirilmiş web tabanlı bir araçtır.
+![Next.js](https://img.shields.io/badge/Next.js-14-black?style=flat-square&logo=next.js)
+![React](https://img.shields.io/badge/React-18-blue?style=flat-square&logo=react)
+![TypeScript](https://img.shields.io/badge/TypeScript-5-blue?style=flat-square&logo=typescript)
+![PHP](https://img.shields.io/badge/PHP-8.3-purple?style=flat-square&logo=php)
+![Slim](https://img.shields.io/badge/Slim-4-green?style=flat-square&logo=php)
+![MySQL](https://img.shields.io/badge/MySQL-8.0-orange?style=flat-square&logo=mysql)
+![MapLibre](https://img.shields.io/badge/MapLibre-GL-blue?style=flat-square&logo=maplibre)
 
-## Özellikler
+**Ring Planner**, kampüs veya şehir içi otobüs/servis güzergahlarını, durakları ve ring hatlarını harita üzerinde görsel olarak planlamak ve yönetmek için geliştirilmiş web tabanlı bir araçtır.
 
-*   **Görsel Harita Yönetimi:** MapLibre & OpenStreetMap altyapısı ile güzergah çizimi.
-*   **Akıllı Rota Sihirbazı:** Başlangıç ve bitiş noktaları arasında otomatik en kısa yol bulma (OSRM).
-*   **Durak ve Hat Yönetimi:** Durakların ve ring hatlarının anlık düzenlenmesi.
-*   **Modern Arayüz:** Next.js ve Material UI ile hızlı ve duyarlı kullanıcı deneyimi.
+##  Özellikler
 
-## Demo Yayını ve Dokümantasyon
+*   **🗺️ Görsel Harita Yönetimi:** MapLibre & OpenStreetMap altyapısı ile interaktif güzergah çizimi.
+*   **📍 Akıllı Rota Sihirbazı:** OSRM entegrasyonu ile başlangıç ve bitiş noktaları arasında otomatik en kısa yol bulma.
+*   **🚏 Durak ve Hat Yönetimi:** Durakların sürükle-bırak yöntemiyle düzenlenmesi ve hatlara atanması.
+*   **⚡ Modern Arayüz:** Next.js ve Material UI ile geliştirilmiş, hızlı, duyarlı (responsive) ve kullanıcı dostu arayüz.
+*   **🔒 Güvenli Altyapı:** PHP Slim Framework ile geliştirilmiş RESTful API ve güvenli veritabanı yapısı.
 
-Demo yayını yapmak, ücretsiz hosting servislerini kullanmak ve veritabanı kurulumu hakkında detaylı bilgi için **[DEMO.md](DEMO.md)** dosyasını inceleyebilirsiniz.
+## 🛠️ Teknolojiler
 
-> **Not:** Veritabanı kurulumu ve Git'e yükleme adımları için **[GIT_SETUP.md](GIT_SETUP.md)** dosyasını inceleyebilirsiniz.
+Bu proje güncel ve performanslı teknolojiler kullanılarak geliştirilmiştir:
 
----
+*   **Frontend:**
+    *   [Next.js 14](https://nextjs.org/) (App Router)
+    *   [React 18](https://react.dev/)
+    *   [TypeScript](https://www.typescriptlang.org/)
+    *   [Material UI (MUI)](https://mui.com/)
+    *   [MapLibre GL JS](https://maplibre.org/)
+
+*   **Backend:**
+    *   [PHP 8.3](https://www.php.net/)
+    *   [Slim Framework 4](https://www.slimframework.com/)
+    *   [MySQL 8.0](https://www.mysql.com/)
+
+*   **DevOps:**
+    *   [Docker](https://www.docker.com/) & Docker Compose
+
+## 📂 Proje Yapısı
+
+```
+RingEditor/
+├── package/          # Next.js Frontend Uygulaması
+├── ring-backend/     # PHP Slim Backend API Servisi
+├── database/         # Veritabanı Şemaları (Schema & Seed)
+├── docker-compose.yml # Docker Konfigürasyonu
+```
 
 ## Kurulum ve Çalıştırma
 
 Projeyi çalıştırmak için iki yöntem mevcuttur: **Docker (Önerilen)** veya **Manuel Kurulum**.
 
-### Yöntem 1: Docker ile Kurulum (Önerilen 🚀)
+Satır satır detaylı kurulum, demo yayını ve Git'e yükleme adımları için lütfen aşağıdaki rehberleri inceleyin:
 
-Bilgisayarınızda Docker ve Docker Compose yüklü olmalıdır.
+*   **[GIT_SETUP.md](GIT_SETUP.md)**: Projeyi sıfırdan kurmak ve Git'e yüklemek için detaylı rehber.
+*   **[DEMO.md](DEMO.md)**: Demo yayını ve sunucu ayarları hakkında bilgiler.
+
+### Hızlı Kurulum
+
+Bilgisayarınızda Docker ve Docker Compose yüklü ise:
 
 1.  Projeyi klonlayın:
     ```bash
@@ -37,40 +72,11 @@ Bilgisayarınızda Docker ve Docker Compose yüklü olmalıdır.
     ```
 
 3.  Tarayıcıdan erişin:
-    *   **Uygulama:** [http://localhost:3000](http://localhost:3000)
-    *   **API:** [http://localhost:8080](http://localhost:8080)
+    *   **Frontend:** [http://localhost:3000](http://localhost:3000)
+    *   **Backend API:** [http://localhost:8080](http://localhost:8080)
 
-*Not: Veritabanı şeması (`database/schema.sql`) ilk kurulumda otomatik olarak içeri aktarılır.*
+*Not: `database/schema.sql` dosyası ilk kurulumda otomatik olarak veritabanına işlenir.*
 
----
+## 📄 Lisans
 
-### Yöntem 2: Manuel Kurulum
-
-Eğer Docker kullanmıyorsanız, her parçayı ayrı ayrı kurabilirsiniz.
-
-#### Gereksinimler
-*   Node.js (v18+)
-*   PHP (v8.0+)
-*   MySQL (v8.0)
-*   Composer
-
-#### 1. Veritabanı
-*   MySQL'de `aa` adında boş bir veritabanı oluşturun.
-*   `database/schema.sql` dosyasını bu veritabanına içe aktarın.
-
-#### 2. Backend (PHP Slim)
-```bash
-cd ring-backend
-composer install
-cp .env.example .env
-# .env dosyasını veritabanı bilgilerinizle düzenleyin
-php -S localhost:8080 -t public
-```
-
-#### 3. Frontend (Next.js)
-```bash
-cd package
-npm install
-npm run dev
-```
-Uygulama [http://localhost:3000](http://localhost:3000) adresinde çalışacaktır.
+Bu proje [MIT Lisansı](LICENSE) altında lisanslanmıştır.
