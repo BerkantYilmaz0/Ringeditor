@@ -22,7 +22,7 @@ class SessionMiddleware implements Middleware
         // 1. Session Başlatma
         if (session_status() !== PHP_SESSION_ACTIVE) {
             // HTTPS kontrolü
-            $isSecure = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on';
+           // $isSecure = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on';
 
             // Cookie ayarları
             session_set_cookie_params([
