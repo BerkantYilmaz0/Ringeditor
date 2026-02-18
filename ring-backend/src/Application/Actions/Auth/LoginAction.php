@@ -76,9 +76,9 @@ class LoginAction extends Action
         }
 
         // Giriş başarılı - Oturum başlat
-        if (session_status() !== PHP_SESSION_ACTIVE) {
+      /*  if (session_status() !== PHP_SESSION_ACTIVE) {
             session_start();
-        }
+        } Session Fixation Korumasi */
 
         // Session Fixation Korumasi
         session_regenerate_id(true);
