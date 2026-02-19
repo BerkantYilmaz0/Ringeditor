@@ -2,6 +2,9 @@
 
 > **Bu proje ticari amaçla kullanılmak üzere geliştirilmemiştir.** Kişisel gelişim ve öğrenme amacıyla oluşturulmuş bir portföy projesidir.Ticari amaçla kullanılamaz.
 
+
+**[Canlı Demo](https://ring-editor.up.railway.app/)**  Demo giriş: `admin` / `1234`
+
 ![Next.js](https://img.shields.io/badge/Next.js-14-black?style=flat-square&logo=next.js)
 ![PHP](https://img.shields.io/badge/PHP-8.3-purple?style=flat-square&logo=php)
 ![MySQL](https://img.shields.io/badge/MySQL-8.0-orange?style=flat-square&logo=mysql)
@@ -86,8 +89,6 @@ docker-compose up --build -d
 | Frontend | http://localhost:3000 |
 | Backend API | http://localhost:8080 |
 | phpMyAdmin | http://localhost:8081 |
-
-Demo giriş: `admin` / `1234`
 
 ---
 
