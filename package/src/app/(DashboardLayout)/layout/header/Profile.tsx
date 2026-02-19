@@ -26,7 +26,9 @@ const Profile = () => {
     } catch (err) {
       console.error("Logout hatası:", err);
     } finally {
-      // Session yok edilsin veya edilmesin login sayfasına yönlendir
+      // JWT token'ı sil
+      localStorage.removeItem("token");
+      // Login sayfasına yönlendir
       window.location.href = "/authentication/login";
     }
   };

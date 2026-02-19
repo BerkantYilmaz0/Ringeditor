@@ -128,5 +128,37 @@ return function (ContainerBuilder $containerBuilder) {
         RouteRepository::class => function (ContainerInterface $c) {
             return new RouteRepository($c->get(PDO::class));
         },
+
+        // JWT Service
+        App\Application\Services\JwtService::class => function (ContainerInterface $c) {
+            $settings = $c->get(SettingsInterface::class);
+            $jwtSettings = $settings->get('jwt');
+            return new App\Application\Services\JwtService(
+                $jwtSettings['secret'],
+                $jwtSettings['expiry']
+            );
+        },
+
+        // Auth Actions
+        App\Application\Actions\Auth\LoginAction::class => function (ContainerInterface $c) {
+            return new App\Application\Actions\Auth\LoginAction(
+                $c->get(LoggerInterface::class),
+                $c->get(App\Domain\User\UserRepository::class),
+                $c->get(App\Application\Services\JwtService::class)
+            );
+        },
+
+        App\Application\Actions\Auth\LogoutAction::class => function (ContainerInterface $c) {
+            return new App\Application\Actions\Auth\LogoutAction(
+                $c->get(LoggerInterface::class)
+            );
+        },
+
+        // JWT Auth Middleware
+        App\Application\Middleware\JwtAuthMiddleware::class => function (ContainerInterface $c) {
+            return new App\Application\Middleware\JwtAuthMiddleware(
+                $c->get(App\Application\Services\JwtService::class)
+            );
+        },
     ]);
 };

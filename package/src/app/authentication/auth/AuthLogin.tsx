@@ -59,6 +59,12 @@ const AuthLogin = ({ title, subtitle, subtext }: loginType) => {
       const response = await api.post("/login", { username, password });
       console.log("Login success:", response.data);
 
+      // JWT token'ı localStorage'a kaydet
+      const token = response.data?.data?.token;
+      if (token) {
+        localStorage.setItem("token", token);
+      }
+
       if (rememberMe) {
         localStorage.setItem(REMEMBER_KEY, username);
       } else {

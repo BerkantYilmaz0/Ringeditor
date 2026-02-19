@@ -56,6 +56,7 @@ use App\Application\Actions\Jobs\{
     ApplyTemplateAction
 };
 use App\Application\Actions\Auth\LoginAction;
+use App\Application\Actions\Auth\LogoutAction;
 
 return function (App $app) {
     $app->options('/{routes:.*}', function (Request $request, Response $response) {
@@ -64,6 +65,7 @@ return function (App $app) {
     });
 
     $app->post('/login', LoginAction::class);
+    $app->post('/logout', LogoutAction::class);
 
     $app->get('/', function (Request $request, Response $response) {
         $response->getBody()->write('Hello world!');

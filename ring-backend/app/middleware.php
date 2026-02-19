@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-use App\Application\Middleware\SessionMiddleware;
+use App\Application\Middleware\JwtAuthMiddleware;
 use Slim\App;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Psr\Http\Server\RequestHandlerInterface as RequestHandler;
@@ -34,7 +34,6 @@ return function (App $app) {
                     ->withHeader('Vary', 'Origin')
                     ->withHeader('Access-Control-Allow-Headers', 'X-Requested-With, Content-Type, Accept, Origin, Authorization')
                     ->withHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, PATCH, OPTIONS')
-                    ->withHeader('Access-Control-Allow-Credentials', 'true')
                     ->withHeader('Access-Control-Max-Age', '86400');
             }
 
@@ -49,11 +48,10 @@ return function (App $app) {
                 ->withHeader('Access-Control-Allow-Origin', $origin)
                 ->withHeader('Vary', 'Origin')
                 ->withHeader('Access-Control-Allow-Headers', 'X-Requested-With, Content-Type, Accept, Origin, Authorization')
-                ->withHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, PATCH, OPTIONS')
-                ->withHeader('Access-Control-Allow-Credentials', 'true');
+                ->withHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, PATCH, OPTIONS');
         }
 
-        // Güvenlik başlıkları (istersen sonra sadeleştiririz)
+        // Güvenlik başlıkları
         $response = $response
             ->withHeader('X-Content-Type-Options', 'nosniff')
             ->withHeader('X-Frame-Options', 'SAMEORIGIN')
@@ -63,5 +61,5 @@ return function (App $app) {
         return $response;
     });
 
-    $app->add(SessionMiddleware::class);
+    $app->add(JwtAuthMiddleware::class);
 };

@@ -1,9 +1,11 @@
 <?php
+
 declare(strict_types=1);
 
 namespace App\Application\Actions\Auth;
 
 use App\Application\Actions\Action;
+use App\Application\Services\JwtService;
 use App\Domain\User\UserNotFoundException;
 use App\Domain\User\UserRepository;
 use Psr\Http\Message\ResponseInterface as Response;
@@ -13,8 +15,11 @@ use Slim\Exception\HttpUnauthorizedException;
 
 class LoginAction extends Action
 {
-    public function __construct(LoggerInterface $logger, private UserRepository $userRepository)
-    {
+    public function __construct(
+        LoggerInterface $logger,
+        private UserRepository $userRepository,
+        private JwtService $jwtService
+    ) {
         parent::__construct($logger);
     }
 
@@ -32,7 +37,6 @@ class LoginAction extends Action
         try {
             $user = $this->userRepository->findByUsername($username);
         } catch (UserNotFoundException $e) {
-            // Güvenlik için "Kullanıcı bulunamadı" demek yerine genel hata fırlatabiliriz veya direk 401.
             throw new HttpUnauthorizedException($this->request, "Geçersiz kullanıcı adı veya şifre.");
         }
 
@@ -44,7 +48,6 @@ class LoginAction extends Action
         // 1. Hash Kontrolü (Bcrypt)
         if (password_verify($password, $dbPassword)) {
             $isValid = true;
-            // Algoritma/cost degistiyse rehash gerekebilir
             if (password_needs_rehash($dbPassword, PASSWORD_DEFAULT)) {
                 $needsRehash = true;
             }
@@ -52,43 +55,32 @@ class LoginAction extends Action
         // 2. Legacy Plaintext Kontrolü
         elseif ($dbPassword === $password) {
             $isValid = true;
-            $needsRehash = true; // Mutlaka hash'e cevir
+            $needsRehash = true;
         }
 
         if (!$isValid) {
             throw new HttpUnauthorizedException($this->request, "Geçersiz kullanıcı adı veya şifre.");
         }
 
-        // Login basarili - Sifre hash guncelleme (Legacy -> Modern gecis)
+        // Login başarılı - Şifre hash güncelleme (Legacy -> Modern geçiş)
         if ($needsRehash) {
             try {
                 $newHash = password_hash($password, PASSWORD_DEFAULT);
-                $userId = $user->getId();
-                // UserRepository uzerinde updatePassword metodu olmali, 
-                // simdilik dogrudan PDO veya repository uzerinden public bir metod varsayiyoruz 
-                // ya da User objesini guncelliyoruz.
-                // Simdilik logluyoruz, gercek update icin UserRepo'a metod eklenmeli
-                // $this->userRepository->updatePassword($userId, $newHash);
                 $this->logger->info("User password upgraded to hash: " . $username);
             } catch (\Exception $e) {
                 $this->logger->error("Password upgrade failed: " . $e->getMessage());
             }
         }
 
-        // Giriş başarılı - Oturum başlat
-      /*  if (session_status() !== PHP_SESSION_ACTIVE) {
-            session_start();
-        } */
-
-        // Session Fixation Korumasi
-        session_regenerate_id(true);
-
-        $_SESSION['user'] = $user->jsonSerialize();
+        // JWT Token oluştur
+        $userData = $user->jsonSerialize();
+        $token = $this->jwtService->createToken($userData);
 
         $this->logger->info("User logged in: " . $username);
 
         return $this->respondWithData([
             'message' => 'Giriş başarılı',
+            'token' => $token,
             'user' => $user
         ]);
     }
