@@ -89,8 +89,6 @@ docker-compose up --build -d
 | Backend API | http://localhost:8080 |
 | phpMyAdmin | http://localhost:8081 |
 
-Demo giriş: `admin` / `1234`
-
 ---
 
 ### Manuel Kurulum
