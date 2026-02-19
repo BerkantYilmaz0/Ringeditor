@@ -21,7 +21,7 @@ final class GetDevicesAction extends Action
     SELECT d.deviceID AS id, d.displayName, d.notes, d.description
         FROM devicelist dl, device d
         WHERE d.deviceID = dl.deviceID
-        AND dl.groupID = 'servisler'
+        AND dl.groupID = 'test'
         AND d.displayName <> d.deviceID
          ORDER BY displayName
     ");
