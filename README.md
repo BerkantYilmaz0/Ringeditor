@@ -1,120 +1,153 @@
-# 🗺️ Ring Planner (RingEditor)
+# Ring Planner (RingEditor)
 
 ![Next.js](https://img.shields.io/badge/Next.js-14-black?style=flat-square&logo=next.js)
-![React](https://img.shields.io/badge/React-18-blue?style=flat-square&logo=react)
-![TypeScript](https://img.shields.io/badge/TypeScript-5-blue?style=flat-square&logo=typescript)
 ![PHP](https://img.shields.io/badge/PHP-8.3-purple?style=flat-square&logo=php)
-![Slim](https://img.shields.io/badge/Slim-4-green?style=flat-square&logo=php)
 ![MySQL](https://img.shields.io/badge/MySQL-8.0-orange?style=flat-square&logo=mysql)
-![MapLibre](https://img.shields.io/badge/MapLibre-GL-blue?style=flat-square&logo=maplibre)
+![Docker](https://img.shields.io/badge/Docker-Ready-blue?style=flat-square&logo=docker)
+![License](https://img.shields.io/badge/License-MIT-green?style=flat-square)
 
-**Ring Planner**, kampüs veya şehir içi otobüs/servis güzergahlarını, durakları ve ring hatlarını harita üzerinde görsel olarak planlamak ve yönetmek için geliştirilmiş web tabanlı bir araçtır.
+Kampüs veya şehir içi ring hatlarını, güzergahları ve durakları harita üzerinde planlamak ve yönetmek için geliştirilmiş full-stack bir web uygulaması. Harita üzerinde interaktif olarak güzergah çizip, durakları sürükle-bırak ile yönetebilir, OSRM ile otomatik en kısa yolu hesaplayabilirsiniz.
 
-##  Özellikler
+---
 
-*   **🗺️ Görsel Harita Yönetimi:** MapLibre & OpenStreetMap altyapısı ile interaktif güzergah çizimi.
-*   **📍 Akıllı Rota Sihirbazı:** OSRM entegrasyonu ile başlangıç ve bitiş noktaları arasında otomatik en kısa yol bulma.
-*   **🚏 Durak ve Hat Yönetimi:** Durakların sürükle-bırak yöntemiyle düzenlenmesi ve hatlara atanması.
-*   **⚡ Modern Arayüz:** Next.js ve Material UI ile geliştirilmiş, hızlı, duyarlı (responsive) ve kullanıcı dostu arayüz.
-*   **🔒 Güvenli Altyapı:** PHP Slim Framework ile geliştirilmiş RESTful API ve güvenli veritabanı yapısı.
+## Proje ne yapar?
 
-## 🛠️ Teknolojiler
+- **Güzergah Çizimi** — MapLibre ve OpenStreetMap üzerinde interaktif harita ile doğrudan güzergah oluşturma
+- **Otomatik Rota Hesaplama** — OSRM entegrasyonu sayesinde iki nokta arasında en kısa yolu otomatik bulma
+- **Durak Yönetimi** — Durakları harita üzerinde oluşturma, sürükle-bırak ile sıralama, hatlara atama
+- **Şablon Sistemi** — Tekrarlayan sefer planlarını şablon olarak kaydetme ve uygulama
+- **Sefer (Job) Planlama** — Hat bazlı sefer oluşturma, çakışma kontrolü, toplu atama
+- **Dashboard** — Genel istatistikleri ve özet bilgileri gösteren yönetim paneli
+- **Araç Takibi** — Hangi aracın hangi hatta görevli olduğunu yönetme
 
-Bu proje güncel ve performanslı teknolojiler kullanılarak geliştirilmiştir:
 
-*   **Frontend:**
-    *   [Next.js 14](https://nextjs.org/) (App Router)
-    *   [React 18](https://react.dev/)
-    *   [TypeScript](https://www.typescriptlang.org/)
-    *   [Material UI (MUI)](https://mui.com/)
-    *   [MapLibre GL JS](https://maplibre.org/)
+---
 
-*   **Backend:**
-    *   [PHP 8.3](https://www.php.net/)
-    *   [Slim Framework 4](https://www.slimframework.com/)
-    *   [MySQL 8.0](https://www.mysql.com/)
+## Teknoloji Stack
 
-*   **DevOps:**
-    *   [Docker](https://www.docker.com/) & Docker Compose
+| Katman | Teknolojiler |
+|--------|-------------|
+| **Frontend** | Next.js 14 (App Router), React 18, TypeScript, Material UI, MapLibre GL JS |
+| **Backend** | PHP 8.3, Slim Framework 4, JWT Auth (firebase/php-jwt) |
+| **Veritabanı** | MySQL 8.0 |
+| **Harita** | MapLibre GL JS, OpenStreetMap, OSRM |
+| **DevOps** | Docker & Docker Compose, Railway |
 
-## 📂 Proje Yapısı
+---
+
+## Proje Yapısı
 
 ```
-RingEditor/
-├── package/          # Next.js Frontend Uygulaması
-├── ring-backend/     # PHP Slim Backend API Servisi
-├── database/         # Veritabanı Şemaları (Schema & Seed)
-├── docker-compose.yml # Docker Konfigürasyonu
+ring-planner/
+├── package/              # Next.js frontend
+│   ├── src/
+│   │   ├── app/          # Sayfalar (App Router)
+│   │   ├── lib/          # API client, yardımcı fonksiyonlar
+│   │   └── ...
+│
+├── ring-backend/         # PHP Slim backend
+│   ├── app/              # Ayarlar, route'lar, middleware, DI
+│   ├── src/
+│   │   ├── Application/  # Action'lar, Middleware, Service'ler
+│   │   ├── Domain/       # Entity'ler, Repository interface'leri
+│   │   └── Infrastructure/ # Repository implementasyonları
+│
+├── database/
+│   └── schema.sql        # Veritabanı şeması
 ```
 
-## Kurulum ve Çalıştırma
+---
 
-Projeyi çalıştırmak için iki yöntem mevcuttur: **Docker (Önerilen)** veya **Manuel Kurulum**.
+## Kurulum
 
-Satır satır detaylı kurulum, demo yayını ve Git'e yükleme adımları için lütfen aşağıdaki rehberleri inceleyin:
+### Docker ile (Önerilen)
 
-### Hızlı Kurulum
+En hızlı yol. Docker ve Docker Compose yüklü olması yeterli.
 
-Bilgisayarınızda Docker ve Docker Compose yüklü ise:
+```bash
+# 1. Klonla
+git clone https://github.com/BerkantYilmaz0/RingEditor.git
+cd RingEditor
 
-1.  Projeyi klonlayın:
-    ```bash
-    git clone https://github.com/BerkantYilmaz0/RingEditor.git
-    cd RingEditor
-    ```
+# 2. Ortam değişkenlerini ayarla
+cp .env.example .env
+# .env dosyasını aç, JWT_SECRET'ı güçlü bir değerle değiştir
 
-2.  Uygulamayı başlatın:
-    ```bash
-    docker-compose up --build -d
-    ```
+# 3. Çalıştır
+docker-compose up --build -d
+```
 
-3.  Tarayıcıdan erişin:
-    *   **Frontend:** [http://localhost:3000](http://localhost:3000)
-    *   **Backend API:** [http://localhost:8080](http://localhost:8080)
+İlk çalıştırmada `database/schema.sql` otomatik olarak veritabanına yüklenir (tablolar + örnek veriler).
 
-*Not: `database/schema.sql` dosyası ilk kurulumda otomatik olarak veritabanına işlenir.*
+| Servis | Adres |
+|--------|-------|
+| Frontend | http://localhost:3000 |
+| Backend API | http://localhost:8080 |
+| phpMyAdmin | http://localhost:8081 |
+
+Demo giriş: `admin` / `1234`
 
 ---
 
 ### Manuel Kurulum
 
-Eğer Docker kullanmıyorsanız, her parçayı ayrı ayrı kurabilirsiniz.
+Docker kullanmadan her parçayı ayrı ayrı kurabilirsiniz.
 
-#### 1. Gereksinimler
-*   **Node.js** (v18+)
-*   **PHP** (v8.0+, gerekli eklentiler: pdo_mysql, json)
-*   **MySQL** (v8.0)
-*   **Composer** (PHP bağımlılık yönetimi için)
+**Gereksinimler:** Node.js v18+, PHP 8.0+ (pdo_mysql, json), MySQL 8.0, Composer
 
-#### 2. Veritabanı Hazırlığı
-1.  MySQL sunucunuzda `ringeditor` (veya `.env` dosyasında belirteceğiniz isimde) boş bir veritabanı oluşturun.
-2.  `database/schema.sql` dosyasını bu veritabanına içe aktarın (Import).
+#### Veritabanı
 
-#### 3. Backend (PHP Slim)
+```bash
+# MySQL'de veritabanı oluşturup schema'yı import edin
+mysql -u root -p -e "CREATE DATABASE ringeditor;"
+mysql -u root -p ringeditor < database/schema.sql
+```
+
+#### Backend
+
 ```bash
 cd ring-backend
 composer install
-```
-
-Backend sunucusunu başlatın:
-```bash
+cp .env.example .env
+# .env dosyasını düzenle: DB bilgileri, JWT_SECRET
 php -S localhost:8080 -t public
 ```
 
-#### 4. Frontend (Next.js)
-Yeni bir terminal açın ve:
+#### Frontend
+
 ```bash
 cd package
 npm install
-```
-
-Frontend uygulamasını başlatın:
-```bash
+# .env.local oluştur (isteğe bağlı, varsayılan API adresi zaten ayarlı)
 npm run dev
 ```
 
-Uygulama [http://localhost:3000](http://localhost:3000) adresinde çalışacaktır.
+Uygulama http://localhost:3000 adresinde açılacaktır.
 
-## 📄 Lisans
+---
+---
+
+## API Yapısı
+
+Tüm endpoint'ler `/login` ve `/logout` dışında JWT token gerektirir.
+
+| Yöntem | Endpoint | Açıklama |
+|--------|----------|----------|
+| POST | `/login` | Giriş yap, JWT token al |
+| POST | `/logout` | Çıkış yap |
+| GET | `/stops` | Tüm durakları listele |
+| POST | `/stops` | Yeni durak oluştur |
+| GET | `/routes` | Tüm güzergahları listele |
+| POST | `/routes` | Yeni güzergah oluştur |
+| GET | `/ring-types` | Ring tiplerini listele |
+| GET | `/ring-stops/{id}` | Bir ringin duraklarını listele |
+| GET | `/jobs` | Seferleri listele |
+| GET | `/templates` | Şablonları listele |
+| GET | `/device` | Araçları listele |
+| GET | `/dashboard/stats` | Dashboard istatistikleri |
+
+---
+
+## Lisans
 
 Bu proje [MIT Lisansı](LICENSE) altında lisanslanmıştır.

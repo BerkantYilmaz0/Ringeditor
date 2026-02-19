@@ -39,7 +39,7 @@ aa.sql
 .env
 .env.local
 .env.*
-!.env.production
+!.env.example
 
 # Logs
 logs/

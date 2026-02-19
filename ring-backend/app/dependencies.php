@@ -160,5 +160,28 @@ return function (ContainerBuilder $containerBuilder) {
                 $c->get(App\Application\Services\JwtService::class)
             );
         },
+
+        // Rate Limit Middleware (10/dk rate limit + 30 toplam → 15dk IP blok)
+        App\Application\Middleware\RateLimitMiddleware::class => function (ContainerInterface $c) {
+            return new App\Application\Middleware\RateLimitMiddleware(
+                $c->get(LoggerInterface::class),
+                10,   // max deneme / pencere
+                60,   // pencere süresi (saniye)
+                30,   // blok eşiği (toplam başarısız)
+                900   // blok süresi (15 dakika)
+            );
+        },
+
+        // Body Size Limit (1MB)
+        App\Application\Middleware\BodyLimitMiddleware::class => function () {
+            return new App\Application\Middleware\BodyLimitMiddleware(1_048_576);
+        },
+
+        // Request ID + Loglama
+        App\Application\Middleware\RequestIdMiddleware::class => function (ContainerInterface $c) {
+            return new App\Application\Middleware\RequestIdMiddleware(
+                $c->get(LoggerInterface::class)
+            );
+        },
     ]);
 };

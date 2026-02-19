@@ -3,6 +3,9 @@
 declare(strict_types=1);
 
 use App\Application\Middleware\JwtAuthMiddleware;
+use App\Application\Middleware\RateLimitMiddleware;
+use App\Application\Middleware\BodyLimitMiddleware;
+use App\Application\Middleware\RequestIdMiddleware;
 use Slim\App;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Psr\Http\Server\RequestHandlerInterface as RequestHandler;
@@ -12,6 +15,7 @@ return function (App $app) {
 
     $app->addBodyParsingMiddleware();
 
+    // CORS + Güvenlik başlıkları
     $app->add(function (Request $request, RequestHandler $handler) {
 
         $origin = $request->getHeaderLine('Origin');
@@ -61,5 +65,15 @@ return function (App $app) {
         return $response;
     });
 
+    // Request ID + Loglama (en dışta — her isteği izler)
+    $app->add(RequestIdMiddleware::class);
+
+    // Body boyut limiti (1MB)
+    $app->add(BodyLimitMiddleware::class);
+
+    // Login rate limiting + IP bloklama
+    $app->add(RateLimitMiddleware::class);
+
+    // JWT Auth
     $app->add(JwtAuthMiddleware::class);
 };
