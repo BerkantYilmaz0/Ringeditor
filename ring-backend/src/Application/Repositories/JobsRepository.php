@@ -375,7 +375,7 @@ final class JobsRepository
         $sqlUpcoming = "
             SELECT 
                 j.*,
-                d.displayName AS device_name,
+                d.description AS device_name,
                 rt.name AS ring_type_name,
                 rt.color AS ring_color,
                 r.name AS route_name
