@@ -1,5 +1,7 @@
 # Ring Planner (RingEditor)
 
+> **Bu proje ticari amaçla kullanılmak üzere geliştirilmemiştir.** Kişisel gelişim ve öğrenme amacıyla oluşturulmuş bir portföy projesidir.Ticari amaçla kullanılamaz.
+
 ![Next.js](https://img.shields.io/badge/Next.js-14-black?style=flat-square&logo=next.js)
 ![PHP](https://img.shields.io/badge/PHP-8.3-purple?style=flat-square&logo=php)
 ![MySQL](https://img.shields.io/badge/MySQL-8.0-orange?style=flat-square&logo=mysql)
