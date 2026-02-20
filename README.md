@@ -2,7 +2,7 @@
 
 > **Bu proje ticari amaçla kullanılmak üzere geliştirilmemiştir.** Kişisel gelişim ve öğrenme amacıyla oluşturulmuş bir portföy projesidir.Ticari amaçla kullanılamaz.
 
-**[Canlı Demo](https://ring-editor.up.railway.app/)** · Demo giriş: `admin` / `1234`
+**[Canlı Demo](http://byilmaz.tech/)** · Demo giriş: `admin` / `1234`
 
 ![Next.js](https://img.shields.io/badge/Next.js-14-black?style=flat-square&logo=next.js)
 ![PHP](https://img.shields.io/badge/PHP-8.3-purple?style=flat-square&logo=php)
